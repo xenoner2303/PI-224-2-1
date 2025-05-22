@@ -13,6 +13,7 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<Category> CategoryRepository { get; }
 
     IGenericRepository<ActionLog> ActionLogRepository { get; }
+    public IGenericRepository<AbstractSecretCodeRealizator> SecretCodeRealizatorRepository { get; }
 
     void Save();
 }

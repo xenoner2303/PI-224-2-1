@@ -14,6 +14,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly IGenericRepository<Bid> bidRepository;
     private readonly IGenericRepository<Category> categoryRepository;
     private readonly IGenericRepository<ActionLog> actionLogRepository;
+    private readonly IGenericRepository<AbstractSecretCodeRealizator> secretCodeRealizatorRepository;
 
     public IGenericRepository<AbstrUser> UserRepository => userRepository ?? new GenericRepository<AbstrUser>(context);
     public IGenericRepository<Manager> ManagerRepository => managerRepository ?? new GenericRepository<Manager>(context);
@@ -24,6 +25,7 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<Category> CategoryRepository => categoryRepository ?? new GenericRepository<Category>(context);
 
     public IGenericRepository<ActionLog> ActionLogRepository => actionLogRepository ?? new GenericRepository<ActionLog>(context);
+    public IGenericRepository<AbstractSecretCodeRealizator> SecretCodeRealizatorRepository => secretCodeRealizatorRepository ?? new GenericRepository<AbstractSecretCodeRealizator>(context);
 
 
     public UnitOfWork(AuctionDbContext context)

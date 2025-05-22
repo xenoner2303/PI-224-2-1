@@ -1,4 +1,5 @@
 ﻿using BLL.AutoMapperProfiles;
+using BLL.Commands.UsersManipulationCommands;
 using DAL.Data;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,5 +25,7 @@ public static class BLLInitializer
 
         // реєстрація UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped<UserCommandsManager>();
     }
 }
