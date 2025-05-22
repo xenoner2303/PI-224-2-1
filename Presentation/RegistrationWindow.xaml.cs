@@ -1,0 +1,109 @@
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
+using BLL.EntityBLLModels;
+using BLL.Commands.UsersManipulationCommands;
+
+namespace Presentation
+{
+    /// <summary>
+    /// Interaction logic for Window1.xaml
+    /// </summary>
+    public partial class RegistrationWindow : Window
+    {
+        private bool _isLoaded = false;
+        private UserCommandsManager userCommandManager;
+
+        public RegistrationWindow(UserCommandsManager userCommandManager)
+        {
+            InitializeComponent();
+
+            this.userCommandManager = userCommandManager ?? throw new ArgumentNullException(nameof(userCommandManager));
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _isLoaded = true;
+            StepsListBox.SelectedIndex = 0;
+        }
+
+        private void StepsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_isLoaded) return;
+
+            PersonalInfoPanel.Visibility = Visibility.Collapsed;
+            ContactInfoPanel.Visibility = Visibility.Collapsed;
+            PasswordPanel.Visibility = Visibility.Collapsed;
+
+            switch (StepsListBox.SelectedIndex)
+            {
+                case 0:
+                    PersonalInfoPanel.Visibility = Visibility.Visible;
+                    BackButton.Visibility = Visibility.Collapsed;
+                    NextButton.Visibility = Visibility.Visible;
+                    RegisterButton.Visibility = Visibility.Collapsed;
+                    break;
+                case 1:
+                    ContactInfoPanel.Visibility = Visibility.Visible;
+                    BackButton.Visibility = Visibility.Visible;
+                    NextButton.Visibility = Visibility.Visible;
+                    RegisterButton.Visibility = Visibility.Collapsed;
+                    break;
+                case 2:
+                    PasswordPanel.Visibility = Visibility.Visible;
+                    BackButton.Visibility = Visibility.Visible;
+                    NextButton.Visibility = Visibility.Collapsed;
+                    RegisterButton.Visibility = Visibility.Visible;
+                    break;
+            }
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (StepsListBox.SelectedIndex > 0)
+            {
+                StepsListBox.SelectedIndex--;
+            }
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            int maxIndex = StepsListBox.Items.Count - 1;
+            if (StepsListBox.SelectedIndex < maxIndex)
+            {
+                StepsListBox.SelectedIndex++;
+            }
+        }
+
+        private void RegisterButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var userModel = new BaseUserModel
+                {
+                    FirstName = NameTextBox.Text.Trim(),
+                    LastName = LastNameTextBox.Text.Trim(),
+                    Age = int.TryParse(AgeTextBox.Text, out var age) ? age : throw new ArgumentException("Вік має бути числом"),
+                    Login = LoginTextBox.Text.Trim(),
+                    Email = EmailTextBox.Text.Trim(),
+                    PhoneNumber = PhoneNumberTextBox.Text.Trim(),
+                    Password = PasswordBox0.Password.Trim() == PasswordBox1.Password.Trim()
+                        ? PasswordBox0.Password.Trim()
+                        : throw new ArgumentException("Паролі не збігаються"),
+                    SecretCode = SecretKeyBox.Password.Trim()
+                };
+
+                if (userCommandManager.CreateUser(userModel))
+                {
+                    MessageBox.Show("Користувач успішно зареєстрований!", "Успіх", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    this.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка при реєстрації: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+}
