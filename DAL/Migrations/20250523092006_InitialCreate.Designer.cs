@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AuctionDbContext))]
-    [Migration("20250522220017_InitialMigrate")]
-    partial class InitialMigrate
+    [Migration("20250523092006_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,7 +20,7 @@ namespace DAL.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
 
-            modelBuilder.Entity("DAL.Entities.AbstrUser", b =>
+            modelBuilder.Entity("DAL.Entities.AbstractUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -185,21 +185,21 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.Administrator", b =>
                 {
-                    b.HasBaseType("DAL.Entities.AbstrUser");
+                    b.HasBaseType("DAL.Entities.AbstractUser");
 
                     b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("DAL.Entities.Manager", b =>
                 {
-                    b.HasBaseType("DAL.Entities.AbstrUser");
+                    b.HasBaseType("DAL.Entities.AbstractUser");
 
                     b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("DAL.Entities.RegisteredUser", b =>
                 {
-                    b.HasBaseType("DAL.Entities.AbstrUser");
+                    b.HasBaseType("DAL.Entities.AbstractUser");
 
                     b.HasDiscriminator().HasValue(0);
                 });

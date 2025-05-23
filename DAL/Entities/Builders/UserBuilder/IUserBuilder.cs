@@ -1,6 +1,6 @@
 ﻿namespace DAL.Entities;
 
-public interface IUserBuilder : IBuilder<AbstrUser>
+public interface IUserBuilder : IBuilder<AbstractUser>
 {
     void SetUserFirstName(string userFirstName);
     void SetUserLastName(string userLastName);

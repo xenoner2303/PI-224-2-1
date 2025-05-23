@@ -3,7 +3,7 @@
 namespace DAL.Entities;
 
 public class UserBuilder<T> : IUserBuilder
-    where T : AbstrUser, new()
+    where T : AbstractUser, new()
 {
     private T localUser;
 
@@ -76,7 +76,7 @@ public class UserBuilder<T> : IUserBuilder
         localUser.PasswordHash = passwordHash;
     }
 
-    public AbstrUser GetBuild()
+    public AbstractUser GetBuild()
     {
         if (string.IsNullOrEmpty(localUser.Login))
         {
@@ -93,7 +93,7 @@ public class UserBuilder<T> : IUserBuilder
             throw new InvalidOperationException("Прізвище є обов'язковим полем");
         }
 
-        AbstrUser builtUser = localUser;
+        AbstractUser builtUser = localUser;
         localUser = new(); // Reset to a new instance for further use
 
         return builtUser;

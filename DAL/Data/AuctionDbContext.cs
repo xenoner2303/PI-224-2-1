@@ -9,7 +9,7 @@ public class AuctionDbContext : DbContext
     public DbSet<Bid> Bids { get; set; }
     public DbSet<Category> Categories { get; set; }
 
-    public DbSet<AbstrUser> Users { get; set; }
+    public DbSet<AbstractUser> Users { get; set; }
     public DbSet<RegisteredUser> RegisteredUsers { get; set; }
     public DbSet<Manager> Managers { get; set; }
     public DbSet<Administrator> Administrators { get; set; }
@@ -24,13 +24,13 @@ public class AuctionDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // TPH для юзерів
-        modelBuilder.Entity<AbstrUser>()
+        modelBuilder.Entity<AbstractUser>()
             .HasDiscriminator<EnumUserInterfaceType>("UserType")
             .HasValue<Administrator>(EnumUserInterfaceType.Administrator)
             .HasValue<Manager>(EnumUserInterfaceType.Manager)
             .HasValue<RegisteredUser>(EnumUserInterfaceType.Registered);
 
-        modelBuilder.Entity<AbstrUser>().Ignore(u => u.InterfaceType);
+        modelBuilder.Entity<AbstractUser>().Ignore(u => u.InterfaceType);
 
         modelBuilder.Entity<Bid>()
             .HasOne(b => b.Lot)

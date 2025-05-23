@@ -11,7 +11,7 @@ internal class UserProfile : Profile
         CreateMap<EnumUserInterfaceType, BusinessEnumInterfaceType>().ReverseMap();
 
         // зворотній з AbstrUser у BaseUserModel
-        CreateMap<AbstrUser, BaseUserModel>()
+        CreateMap<AbstractUser, BaseUserModel>()
             .ForMember(dest => dest.Password, opt => opt.Ignore()) // пароль не повертаємо
             .ForMember(dest => dest.InterfaceType, opt => opt.MapFrom(src => src.InterfaceType));
     }
