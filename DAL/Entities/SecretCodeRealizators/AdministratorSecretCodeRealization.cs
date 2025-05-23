@@ -2,6 +2,8 @@
 
 public class AdministratorSecretCodeRealization : AbstractSecretCodeRealizator
 {
+    public override EnumUserInterfaceType InterfaceType => EnumUserInterfaceType.Administrator;
+
     private AdministratorSecretCodeRealization() : base() { }
     public AdministratorSecretCodeRealization(string secretCodeHash, int uses) : base(secretCodeHash, uses) { }
 

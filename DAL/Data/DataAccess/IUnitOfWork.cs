@@ -4,7 +4,7 @@ namespace DAL.Data;
 
 public interface IUnitOfWork : IDisposable
 {
-    IGenericRepository<AbstrUser> UserRepository { get; }
+    IGenericRepository<AbstractUser> UserRepository { get; }
     IGenericRepository<Manager> ManagerRepository { get; }
     IGenericRepository<RegisteredUser> RegisteredUserRepository { get; }
 

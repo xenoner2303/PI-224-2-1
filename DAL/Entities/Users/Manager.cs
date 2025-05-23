@@ -1,6 +1,6 @@
 ﻿namespace DAL.Entities;
 
-public class Manager : AbstrUser
+public class Manager : AbstractUser
 {
     public List<AuctionLot> ManagedLots { get; set; } = new List<AuctionLot>(); // 1 менеджер - багато лотів, які веде
 

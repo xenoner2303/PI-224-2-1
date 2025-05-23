@@ -4,23 +4,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Presentation.UIHelpers;
 
-//internal static class WindowFactory
-//{
-//    private static readonly Dictionary<BusinessEnumInterfaceType, Func<BaseUserModel, IServiceProvider, Window>> windowMap = new()
-//    {
-//        { BusinessEnumInterfaceType.Student, (user, serviceProvider) => new StudentManagerWindow(user, serviceProvider.GetRequiredService<StudentCommandsManager>()) },
-//        { BusinessEnumInterfaceType.Teacher, (user, serviceProvider) => new TeacherManagerWindow(user, serviceProvider.GetRequiredService<TeacherCommandsManager>()) },
-//        { BusinessEnumInterfaceType.Administrator, (user, serviceProvider) => new AdministratorManagerWindow(serviceProvider.GetRequiredService<AdministratorCommandsManager>()) }
-//    };
+internal static class WindowFactory
+{
+    private static readonly Dictionary<BusinessEnumInterfaceType, Func<BaseUserModel, IServiceProvider, Window>> windowMap = new()
+    {
+    //    { null, (user, sp) => new UserWindow() },  // випадок незареєстрованого користувача користувача, тут зробити 2 перевантаження констору
+     //   { BusinessEnumInterfaceType.Registered, (user, sp) => new UserWindow(user) }, // зареєстрований
+   //     { BusinessEnumInterfaceType.Manager, (user, serviceProvider) => new ManagerManagerWindow(user, serviceProvider.GetRequiredService<TeacherCommandsManager>()) },
+        { BusinessEnumInterfaceType.Administrator, (user, serviceProvider) => new AdministratorManagerWindow(serviceProvider.GetRequiredService<AdministratorCommandsManager>()) }
+    };
 
-//    internal static Window CreateWindow(BaseUserModel user, IServiceProvider serviceProvider)
-//    {
-//        if (windowMap.TryGetValue(user.InterfaceType, out var windowCreator))
-//        {
-//            return windowCreator(user, serviceProvider);
-//        }
+    internal static Window CreateWindow(BaseUserModel user, IServiceProvider serviceProvider)
+    {
+        if (windowMap.TryGetValue(user.InterfaceType, out var windowCreator))
+        {
+            return windowCreator(user, serviceProvider);
+        }
 
-//        throw new ArgumentException("Невідомий тип інтерфейсу");
-//    }
-//}
-
+        throw new ArgumentException("Невідомий тип інтерфейсу");
+    }
+}

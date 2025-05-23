@@ -7,7 +7,7 @@ public class UnitOfWork : IUnitOfWork
     private bool disposedValue;
 
     private readonly AuctionDbContext context;
-    private readonly IGenericRepository<AbstrUser> userRepository;
+    private readonly IGenericRepository<AbstractUser> userRepository;
     private readonly IGenericRepository<Manager> managerRepository;
     private readonly IGenericRepository<RegisteredUser> registeredUserRepository;
     private readonly IGenericRepository<AuctionLot> auctionLotRepository;
@@ -16,7 +16,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly IGenericRepository<ActionLog> actionLogRepository;
     private readonly IGenericRepository<AbstractSecretCodeRealizator> secretCodeRealizatorRepository;
 
-    public IGenericRepository<AbstrUser> UserRepository => userRepository ?? new GenericRepository<AbstrUser>(context);
+    public IGenericRepository<AbstractUser> UserRepository => userRepository ?? new GenericRepository<AbstractUser>(context);
     public IGenericRepository<Manager> ManagerRepository => managerRepository ?? new GenericRepository<Manager>(context);
     public IGenericRepository<RegisteredUser> RegisteredUserRepository => registeredUserRepository ?? new GenericRepository<RegisteredUser>(context);
 

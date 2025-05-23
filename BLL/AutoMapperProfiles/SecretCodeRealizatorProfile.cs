@@ -10,16 +10,6 @@ public class SecretCodeRealizatorProfile : Profile
     {
         CreateMap<AbstractSecretCodeRealizator, SecretCodeRealizatorModel>()
            .ForMember(dest => dest.SecretCode, opt => opt.Ignore()) // ігноруємо поле SecretCode
-           .ForMember(dest => dest.RealizatorType, opt => opt.MapFrom(src => MapRealizatorType(src)));
-    }
-
-    private BusinessEnumInterfaceType MapRealizatorType(AbstractSecretCodeRealizator realizator)
-    {
-        return realizator switch
-        {
-            ManagerSecretCodeRealizator => BusinessEnumInterfaceType.Manager,
-            AdministratorSecretCodeRealization => BusinessEnumInterfaceType.Administrator,
-            _ => throw new ArgumentException("Некоректний тип реалізатору")
-        };
+           .ForMember(dest => dest.RealizatorType, opt => opt.MapFrom(src => src.InterfaceType));
     }
 }

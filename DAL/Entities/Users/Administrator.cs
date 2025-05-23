@@ -1,6 +1,6 @@
 ﻿namespace DAL.Entities;
 
-public class Administrator : AbstrUser
+public class Administrator : AbstractUser
 {
     public override EnumUserInterfaceType InterfaceType => EnumUserInterfaceType.Administrator;
 

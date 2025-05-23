@@ -38,5 +38,7 @@ public abstract class AbstractSecretCodeRealizator
         this.CodeUses = uses;
     }
 
+    public abstract EnumUserInterfaceType InterfaceType { get; }
+
     public abstract IUserBuilder ReturnTypeBuilder();
 }

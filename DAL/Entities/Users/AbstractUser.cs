@@ -2,7 +2,7 @@
 
 namespace DAL.Entities;
 
-public abstract class AbstrUser
+public abstract class AbstractUser
 {
     private string login;
     private string firstName;
@@ -74,9 +74,9 @@ public abstract class AbstrUser
 
     public abstract EnumUserInterfaceType InterfaceType { get; }
 
-    protected AbstrUser() { }
+    protected AbstractUser() { }
 
-    public void CopyBaseFieldsFrom(AbstrUser other, bool copyId = false)
+    public void CopyBaseFieldsFrom(AbstractUser other, bool copyId = false)
     {
         if (other == null)
         {

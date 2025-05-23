@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Presentation.UIHelpers;
 using System.Windows.Controls;
 using BLL.Commands.UsersManipulationCommands;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,8 +31,8 @@ namespace Presentation
             {
                 var user = userCommandManager.AuthorizeUser(login, password);
 
-                //Window locUserWindow = WindowFactory.CreateWindow(user, serviceProvider);
-               // locUserWindow.Show();
+                Window locUserWindow = WindowFactory.CreateWindow(user, serviceProvider);
+                locUserWindow.Show();
                 this.Close();
             }
             catch (Exception ex)
