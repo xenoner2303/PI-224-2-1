@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using Presentation.UIHelpers;
 using System.Windows.Controls;
-using BLL.Commands.UsersManipulationCommands;
+using BLL.Commands.PreUsersManipulationCommands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Presentation
@@ -12,9 +12,9 @@ namespace Presentation
     public partial class AuthorizationWindow : Window
     {
         private readonly IServiceProvider serviceProvider;
-        private UserCommandsManager userCommandManager;
+        private PreUserCommandsManager userCommandManager;
 
-        public AuthorizationWindow(IServiceProvider serviceProvider, UserCommandsManager userCommandManager)
+        public AuthorizationWindow(IServiceProvider serviceProvider, PreUserCommandsManager userCommandManager)
         {
             InitializeComponent();
 
@@ -44,7 +44,7 @@ namespace Presentation
         private void GoRegistration_Click(object sender, RoutedEventArgs e)
         {
             // отримуємо RegistrationWindow через DI
-            var registrationWindow = new RegistrationWindow(serviceProvider.GetRequiredService<UserCommandsManager>());
+            var registrationWindow = new RegistrationWindow(serviceProvider.GetRequiredService<PreUserCommandsManager>());
             registrationWindow.Show();
         }
     }

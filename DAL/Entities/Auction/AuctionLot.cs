@@ -2,8 +2,9 @@
 
 public class AuctionLot
 {
-    private string title; // обов'язкове поле
-    private string description; // необов'язкове поле
+    private string title;
+    private string description;
+    private string imagePath;
     private decimal startPrice;
 
     public int Id { get; set; } // айді для бази даних
@@ -33,6 +34,25 @@ public class AuctionLot
             }
 
             description = string.IsNullOrWhiteSpace(value) ? "Без опису" : value;
+        }
+    }
+
+    public string ImagePath
+    {
+        get => imagePath;
+        set
+        { // базові перевірки на неіснуючий файл та шлях з недопустимими
+            if (!string.IsNullOrWhiteSpace(value) && !File.Exists(value))
+            {
+                throw new FileNotFoundException("Файл зображення не знайдено за вказаним шляхом");
+            }
+
+            if (value.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+            {
+                throw new ArgumentException("Шлях містить недопустимі символи");
+            }
+
+            imagePath = value;
         }
     }
 

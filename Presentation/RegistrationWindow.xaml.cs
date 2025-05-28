@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using BLL.EntityBLLModels;
-using BLL.Commands.UsersManipulationCommands;
+using BLL.Commands.PreUsersManipulationCommands;
 
 namespace Presentation
 {
@@ -12,9 +12,9 @@ namespace Presentation
     public partial class RegistrationWindow : Window
     {
         private bool _isLoaded = false;
-        private UserCommandsManager userCommandManager;
+        private PreUserCommandsManager userCommandManager;
 
-        public RegistrationWindow(UserCommandsManager userCommandManager)
+        public RegistrationWindow(PreUserCommandsManager userCommandManager)
         {
             InitializeComponent();
 

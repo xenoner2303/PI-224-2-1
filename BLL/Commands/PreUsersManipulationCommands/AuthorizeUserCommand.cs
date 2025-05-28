@@ -3,7 +3,7 @@ using BLL.EntityBLLModels;
 using DAL.Data;
 using BLL.Services;
 
-namespace BLL.Commands.UsersManipulationCommands;
+namespace BLL.Commands.PreUsersManipulationCommands;
 
 internal class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
 {

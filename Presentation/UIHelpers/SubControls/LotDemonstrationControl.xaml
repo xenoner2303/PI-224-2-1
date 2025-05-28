@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="Presentation.UIHelpers.SubControls.LotDemonstrationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="120" Width="300">
+    <Grid MouseLeftButtonUp="UserControl_MouseLeftButtonUp">
+        <!-- перша для зображення, друга для тексту -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- зображення -->
+        <Image Grid.Column="0"
+               Width="80" Height="100"
+               Margin="5"
+               Stretch="Uniform"
+               Grid.RowSpan="2"/>
+
+        <!-- контейнер для текстової інформації -->
+        <Grid Grid.Column="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- для заголовку -->
+                <RowDefinition Height="Auto"/>
+                <!-- для опису -->
+            </Grid.RowDefinitions>
+
+            <!-- перший рядок з назвою лоту і ім’ям користувача -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <!-- назва лоту -->
+                <TextBlock x:Name="LotNameTextBlock"
+                           Text="Назва лоту"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0"
+                           />
+                <!-- ім'я користувача, який виставив лот -->
+                <TextBlock x:Name="PosterNameTextBlock"
+                           Text="Ім'я користувача"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           Foreground="Gray"/>
+            </StackPanel>
+
+            <!-- другий рядок з описом лоту -->
+            <TextBlock Grid.Row="1" 
+                       x:Name="DescriptionTextBlock"
+                       Text="Опис лоту може бути дуже довгим, тому якщо він не вміщається в доступний простір, буде відображено обрізання тексту з трикрапкою..."
+                       TextTrimming="CharacterEllipsis"
+                       TextWrapping="Wrap"
+                       Margin="0,5,0,0"
+                       Height="40"/>
+        </Grid>
+    </Grid>
+</UserControl>
