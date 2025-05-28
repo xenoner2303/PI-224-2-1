@@ -1,6 +1,8 @@
-﻿namespace BLL.EntityBLLModels;
+﻿using DTOsLibrary.DTOEnums;
 
-public class BaseUserModel
+namespace DTOsLibrary;
+
+public class BaseUserDto
 {
     public int Id { get; set; }
     public string Login { get; set; }
@@ -11,5 +13,5 @@ public class BaseUserModel
     public int Age { get; set; }
     public string Password { get; set; } // відкрите поле для нехешованого паролю, яке потім буде хешуватися
     public string SecretCode { get; set; }
-    public BusinessEnumInterfaceType InterfaceType { get; set; }
+    public EnumInterfaceTypeDto InterfaceType { get; set; }
 }

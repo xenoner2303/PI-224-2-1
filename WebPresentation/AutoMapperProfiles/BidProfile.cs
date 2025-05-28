@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using BLL.EntityBLLModels;
-using DAL.Entities;
+using DTOsLibrary;
 
-namespace BLL.AutoMapperProfiles;
+namespace WebPresentation.AutoMapperProfiles;
 
 public class BidProfile : Profile
 {
     public BidProfile()
     {
-        CreateMap<Bid, BidModel>().ReverseMap();
+        CreateMap<BidModel, BidDto>().ReverseMap();
     }
 }

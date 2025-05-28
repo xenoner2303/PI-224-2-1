@@ -5,7 +5,7 @@ using DAL.Entities;
 using BLL.Services;
 using System.Text.RegularExpressions;
 
-namespace BLL.Commands.UsersManipulationCommands;
+namespace BLL.Commands.PreUsersManipulationCommands;
 
 internal class CreateUserCommand : AbstrCommandWithDA<bool>
 {

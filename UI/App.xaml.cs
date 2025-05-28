@@ -1,6 +1,6 @@
-﻿using BLL.Services;
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using UI.ApiClients;
 
 namespace Presentation;
 
@@ -30,13 +30,12 @@ public partial class App : Application
 
     private void ConfigureServices(IServiceCollection services)
     {
-        //додаємо AutoMapper до сервісів
-        BLLInitializer.AddAutoMapperToServices(services);
-
-        //додаємо залежності до сервісів
-        BLLInitializer.AddCommandDependenciesToServices(services);
+        services.AddHttpClient<PreUserApiClient>(client =>
+        {
+            client.BaseAddress = new Uri("http://localhost:5000/api/PreUser/");
+        });
 
         // реєструємо вікна
-        services.AddSingleton<AuthorizationWindow>();
+        services.AddTransient<AuthorizationWindow>();
     }
 }
