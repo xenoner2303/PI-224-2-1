@@ -5,7 +5,6 @@
         Background="#f0f8ff" WindowState="Maximized">
 
     <Window.Resources>
-        <!-- Стиль кнопок -->
         <Style TargetType="Button" x:Key="MenuButtonStyle">
             <Setter Property="Height" Value="40"/>
             <Setter Property="Width" Value="220"/>
@@ -35,90 +34,108 @@
     </Window.Resources>
 
     <DockPanel>
-        <Border Width="250" Background="#d2fa75" DockPanel.Dock="Left" Padding="20">
-            <StackPanel>
-            <TextBlock Text="Меню менеджера" FontWeight="Bold" FontSize="20" Margin="0 0 0 20"/>
-            <Button Content="Непідтверджені лоти" Style="{StaticResource MenuButtonStyle}" Click="UnconfirmedLots_Click"/>
-            <Button Content="Активні торги" Style="{StaticResource MenuButtonStyle}" Click="ActiveAuctions_Click"/>
-            <Button Content="Завершені торги" Style="{StaticResource MenuButtonStyle}" Click="FinishedAuctions_Click"/>
-            <Button Content="Вийти" Style="{StaticResource MenuButtonStyle}" Background="Tomato" Click="Logout_Click" Margin="0 50 0 0"/>
-        </StackPanel>
-        </Border>
-
-        <!-- Основний контент -->
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <!-- Категорії -->
+                <ColumnDefinition Width="*"/>
+                <!-- Контент вкладок -->
+            </Grid.ColumnDefinitions>
 
             <!-- Пошук -->
-            <StackPanel Orientation="Horizontal" Margin="0 0 0 10" VerticalAlignment="Top">
+            <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0 0 0 10" VerticalAlignment="Top">
                 <TextBlock Text="Пошук:" FontSize="16" VerticalAlignment="Center" Margin="0 0 10 0"/>
-                <TextBox Width="300" Name="SearchTextBox" Margin="0 0 10 0"/>
+                <TextBox Width="237" Name="SearchTextBox" Margin="0 0 10 0"/>
                 <Button Content="🔍" Width="40" Click="SearchButton_Click"/>
             </StackPanel>
 
-            <TabControl Grid.Row="1" Name="MainTabControl">
+            <!-- Категорії зліва -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 10 10 10">
+                <TextBlock Text="Категорії" FontSize="16" Margin="0 0 0 10"/>
+                <TreeView Name="CategoryTreeView" SelectedItemChanged="CategoryTreeView_SelectedItemChanged"/>
+            </StackPanel>
+
+            <!-- Вкладки справа -->
+            <TabControl Grid.Row="1" Grid.Column="1" Name="MainTabControl" Margin="0 10 0 10">
                 <!-- Непідтверджені -->
                 <TabItem Header="Непідтверджені лоти">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="300"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Дерево категорій -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Категорії" FontSize="16" Margin="0 0 0 10"/>
-                            <TreeView Name="CategoryTreeView" SelectedItemChanged="CategoryTreeView_SelectedItemChanged"/>
-                        </StackPanel>
-
-                        <!-- Таблиця -->
-                        <StackPanel Grid.Column="1" Margin="20 0 0 0">
-                            <DataGrid Name="LotsDataGrid" AutoGenerateColumns="False" Height="400" CanUserAddRows="False" Margin="0 0 0 10" SelectionChanged="LotsDataGrid_SelectionChanged">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                                    <DataGridTextColumn Header="Назва" Binding="{Binding Title}" Width="200"/>
-                                    <DataGridTextColumn Header="Категорія" Binding="{Binding CategoryName}" Width="150"/>
-                                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="120"/>
-                                    <DataGridTemplateColumn Header="Дії" Width="220">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Button Content="Підтвердити" Margin="2" Click="ConfirmLot_Click"/>
-                                                    <Button Content="Почати торги" Margin="2" Click="StartAuction_Click"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-
-                            <!-- Деталі лота -->
-                            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10">
-                                <StackPanel>
-                                    <TextBlock Text="Деталі лота" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
-                                    <TextBlock Text="ID: " FontWeight="Bold"/>
-                                    <TextBlock Name="LotIdTextBlock"/>
-                                    <TextBlock Text="Опис:" FontWeight="Bold" Margin="10 0 0 0"/>
-                                    <TextBlock Name="LotDescriptionTextBlock" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Grid>
+                    <DataGrid Name="LotsDataGrid" AutoGenerateColumns="False" Height="400" CanUserAddRows="False" Margin="0 0 0 10" SelectionChanged="LotsDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Назва" Binding="{Binding Title}" Width="200"/>
+                            <DataGridTextColumn Header="Категорія" Binding="{Binding CategoryName}" Width="150"/>
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="120"/>
+                            <DataGridTemplateColumn Header="Дії" Width="250">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Підтвердити" Margin="2" Click="AcceptLot_Click"/>
+                                            <Button Content="Відхилити" Margin="2" Click="RejectLot_Click"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </TabItem>
 
                 <!-- Активні торги -->
                 <TabItem Header="Активні торги">
-                    <TextBlock Text="Тут буде список активних торгів..." Margin="10"/>
+                    <DataGrid Name="ActiveLotsDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0 0 0 10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Назва" Binding="{Binding Title}" Width="200"/>
+                            <DataGridTextColumn Header="Категорія" Binding="{Binding CategoryName}" Width="150"/>
+                            <DataGridTextColumn Header="Ціна поточна" Binding="{Binding CurrentPrice}" Width="120"/>
+                            <DataGridTextColumn Header="Час завершення" Binding="{Binding EndTime}" Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </TabItem>
 
                 <!-- Завершені торги -->
                 <TabItem Header="Завершені торги">
-                    <TextBlock Text="Тут буде список завершених торгів..." Margin="10"/>
+                    <DataGrid Name="FinishedLotsDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0 0 0 10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Назва" Binding="{Binding Title}" Width="200"/>
+                            <DataGridTextColumn Header="Категорія" Binding="{Binding CategoryName}" Width="150"/>
+                            <DataGridTextColumn Header="Ціна продажу" Binding="{Binding FinalPrice}" Width="120"/>
+                            <DataGridTextColumn Header="Переможець" Binding="{Binding WinnerName}" Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </TabItem>
             </TabControl>
+
+            <!-- Деталі лота знизу -->
+            <Border Grid.Row="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="1,10,0,0" Grid.Column="1">
+                <StackPanel>
+                    <TextBlock Text="Деталі лота" FontSize="18" FontWeight="Bold" Margin="0 0 0 10"/>
+                    <TextBlock Text="ID: " FontWeight="Bold"/>
+                    <TextBlock Name="LotIdTextBlock"/>
+                    <TextBlock Text="Опис:" FontWeight="Bold" Margin="10 0 0 0"/>
+                    <TextBlock Name="LotDescriptionTextBlock" TextWrapping="Wrap"/>
+
+                    <!-- Інформація про користувача -->
+                    <TextBlock Text="Користувач, який створив лот" FontSize="16" FontWeight="Bold" Margin="20 10 0 5"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Ім’я: " FontWeight="Bold"/>
+                        <TextBlock Name="UserFirstNameTextBlock"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Прізвище: " FontWeight="Bold"/>
+                        <TextBlock Name="UserLastNameTextBlock"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Телефон: " FontWeight="Bold"/>
+                        <TextBlock Name="UserPhoneNumberTextBlock"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </Grid>
     </DockPanel>
 </Window>

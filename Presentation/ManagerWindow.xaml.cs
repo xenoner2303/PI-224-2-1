@@ -23,5 +23,10 @@ namespace Presentation
         {
             InitializeComponent();
         }
+
+        private void ActiveLotsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
