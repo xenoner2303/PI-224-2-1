@@ -1,8 +1,7 @@
 ﻿using System.Windows;
-using Presentation.UIHelpers;
 using System.Windows.Controls;
-using BLL.Commands.PreUsersManipulationCommands;
 using Microsoft.Extensions.DependencyInjection;
+using UI.ApiClients;
 
 namespace Presentation
 {
@@ -12,28 +11,31 @@ namespace Presentation
     public partial class AuthorizationWindow : Window
     {
         private readonly IServiceProvider serviceProvider;
-        private PreUserCommandsManager userCommandManager;
+        private PreUserApiClient client;
 
-        public AuthorizationWindow(IServiceProvider serviceProvider, PreUserCommandsManager userCommandManager)
+        public AuthorizationWindow(IServiceProvider serviceProvider, PreUserApiClient client)
         {
+            ArgumentNullException.ThrowIfNull(serviceProvider, nameof(serviceProvider));
+            ArgumentNullException.ThrowIfNull(client, nameof(client));
+
             InitializeComponent();
 
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            this.userCommandManager = userCommandManager ?? throw new ArgumentNullException(nameof(userCommandManager));
+            this.client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        private void Authorization_Click(object sender, RoutedEventArgs e)
+        private async void Authorization_Click(object sender, RoutedEventArgs e)
         {
             string login = LoginTextBox.Text;
             string password = PasswordBox.Password;
 
             try
             {
-                var user = userCommandManager.AuthorizeUser(login, password);
+                var userDto = await client.AuthorizeUserAsync(login, password);
 
-                Window locUserWindow = WindowFactory.CreateWindow(user, serviceProvider);
-                locUserWindow.Show();
-                this.Close();
+             //   Window locUserWindow = WindowFactory.CreateWindow(user, serviceProvider);
+               // locUserWindow.Show();
+             //   this.Close();
             }
             catch (Exception ex)
             {
@@ -44,7 +46,7 @@ namespace Presentation
         private void GoRegistration_Click(object sender, RoutedEventArgs e)
         {
             // отримуємо RegistrationWindow через DI
-            var registrationWindow = new RegistrationWindow(serviceProvider.GetRequiredService<PreUserCommandsManager>());
+            var registrationWindow = new RegistrationWindow(serviceProvider.GetRequiredService<PreUserApiClient>());
             registrationWindow.Show();
         }
     }

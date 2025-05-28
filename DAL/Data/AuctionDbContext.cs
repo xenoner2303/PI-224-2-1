@@ -18,7 +18,7 @@ public class AuctionDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source=Auction.db");
+        optionsBuilder.UseSqlite("Data Source=C:\\Users\\Zver\\source\\repos\\xenoner2303\\InternetAuction\\DAL\\Auction.db");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -6,9 +6,7 @@ public class CategoryModel
 
     public string Name { get; set; }
 
-    public int? ParentId { get; set; }
+    public CategoryModel? Parent { get; set; }
 
     public List<CategoryModel> Subcategories { get; set; } = new List<CategoryModel>();
-
-    public List<AuctionLotModel> Lots { get; set; }
 }

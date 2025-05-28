@@ -1,8 +1,7 @@
-﻿using System;
+﻿using DTOsLibrary;
 using System.Windows;
 using System.Windows.Controls;
-using BLL.EntityBLLModels;
-using BLL.Commands.PreUsersManipulationCommands;
+using UI.ApiClients;
 
 namespace Presentation
 {
@@ -11,25 +10,27 @@ namespace Presentation
     /// </summary>
     public partial class RegistrationWindow : Window
     {
-        private bool _isLoaded = false;
-        private PreUserCommandsManager userCommandManager;
+        private bool isLoaded = false;
+        private readonly PreUserApiClient client;
 
-        public RegistrationWindow(PreUserCommandsManager userCommandManager)
+        public RegistrationWindow(PreUserApiClient client)
         {
+            ArgumentNullException.ThrowIfNull(client, nameof(client));
+
             InitializeComponent();
 
-            this.userCommandManager = userCommandManager ?? throw new ArgumentNullException(nameof(userCommandManager));
+            this.client = client;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _isLoaded = true;
+            isLoaded = true;
             StepsListBox.SelectedIndex = 0;
         }
 
         private void StepsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!_isLoaded) return;
+            if (!isLoaded) return;
 
             PersonalInfoPanel.Visibility = Visibility.Collapsed;
             ContactInfoPanel.Visibility = Visibility.Collapsed;
@@ -75,11 +76,11 @@ namespace Presentation
             }
         }
 
-        private void RegisterButton_Click(object sender, RoutedEventArgs e)
+        private async void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var userModel = new BaseUserModel
+                var userDto = new BaseUserDto
                 {
                     FirstName = NameTextBox.Text.Trim(),
                     LastName = LastNameTextBox.Text.Trim(),
@@ -93,7 +94,9 @@ namespace Presentation
                     SecretCode = SecretKeyBox.Password.Trim()
                 };
 
-                if (userCommandManager.CreateUser(userModel))
+                bool created = await client.CreateUserAsync(userDto);
+
+                if (created)
                 {
                     MessageBox.Show("Користувач успішно зареєстрований!", "Успіх", MessageBoxButton.OK, MessageBoxImage.Information);
 

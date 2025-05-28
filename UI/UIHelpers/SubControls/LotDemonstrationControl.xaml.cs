@@ -1,4 +1,4 @@
-﻿using BLL.EntityBLLModels;
+﻿using DTOsLibrary;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,11 +10,11 @@ namespace Presentation.UIHelpers.SubControls
     /// </summary>
     public partial class LotDemonstrationControl : UserControl
     {
-        private AuctionLotModel auctionLotModel;
+        private AuctionLotDto auctionLotDto;
 
-        public LotDemonstrationControl(AuctionLotModel auctionLotModel)
+        public LotDemonstrationControl(AuctionLotDto auctionLotDto)
         {
-            this.auctionLotModel = auctionLotModel;
+            this.auctionLotDto = auctionLotDto;
             FillControlParts();
 
             InitializeComponent();

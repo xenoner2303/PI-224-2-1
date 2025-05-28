@@ -1,5 +1,5 @@
 ﻿using BLL.AutoMapperProfiles;
-using BLL.Commands.UsersManipulationCommands;
+using BLL.Commands.PreUsersManipulationCommands;
 using DAL.Data;
 using DAL.Data.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,25 +11,17 @@ public static class BLLInitializer
     public static void AddAutoMapperToServices(IServiceCollection services)
     {
         // реєстрація автомаперу
-        services.AddAutoMapper(typeof(UserProfile),
-            typeof(ActionLogProfile),
-            typeof(SecretCodeRealizatorProfile),
-            typeof(BidProfile),
-            typeof(CategoryProfile),
-            typeof(AuctionLotProfile));
+        services.AddAutoMapper(typeof(UserProfile).Assembly);
     }
 
     public static void AddCommandDependenciesToServices(IServiceCollection services)
     {
-        // реєстрація контексту для автостворення юніту
-        services.AddDbContext<AuctionDbContext>();
-
-        // реєстрація UnitOfWork
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        // ініціалізація залежностей рівня дал
+        DALInitializer.AddDataAccessServices(services);
 
         // реєстрація сервісу для збереження-клонування зображень
         services.AddScoped<IImageService>(provider => new ImageService("Images")); // директорією буде Images
 
-        services.AddScoped<UserCommandsManager>();
+        services.AddScoped<PreUserCommandsManager>();
     }
 }
