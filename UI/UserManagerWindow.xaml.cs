@@ -6,6 +6,8 @@ using UI.UIHelpers;
 using Presentation.UIHelpers;
 using Presentation.UIHelpers.SubControls;
 using UI;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Presentation
 {
@@ -35,10 +37,10 @@ namespace Presentation
 
         private async void PlaceBid_Click(object sender, RoutedEventArgs e)
         {
-            // Очистити повідомлення валідації
+            // очищаємо повідомлення зауваження
             BidValidationLabel.Content = "";
 
-            if (currentUser == null)
+            if (currentUser == null) // додатковий захист
             {
                 MessageBox.Show("Будь ласка, авторизуйтесь перед створенням ставки");
                 return;
@@ -72,7 +74,7 @@ namespace Presentation
             if (success)
             {
                 MessageBox.Show("Ставку успішно зроблено");
-                BidTextBox.Text = ""; // Очистити поле
+                BidTextBox.Text = ""; // очищуємо поле
             }
             else
             {
@@ -82,7 +84,33 @@ namespace Presentation
 
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
+            string? keyword = SearchBox.Text.Trim().ToLower();
+            var selectedCategory = CategoryComboBox.SelectedItem as CategoryDto;
 
+            SearchLotsDto search = new SearchLotsDto
+            {
+                Keyword = keyword,
+                CategoryId = selectedCategory?.Id
+            };
+
+            var receiveLots = await client.SearchLotsAsync(search);
+
+            if (receiveLots.Count == 0)
+            {
+                MainLotsCoursePanel.Children.Clear();
+
+                MainLotsCoursePanel.Children.Add(new TextBlock
+                {
+                    Text = "Лоти не знайдено.",
+                    Foreground = Brushes.Gray,
+                    FontSize = 16,
+                    Margin = new Thickness(10)
+                });
+
+                return;
+            }
+
+            FillLotsPanel(receiveLots);
         }
 
         private async void CreateLot_Click(object sender, RoutedEventArgs e)
@@ -189,27 +217,32 @@ namespace Presentation
             {
                 var userLots = await client.GetUserLotsAsync(currentUser.Id);
 
-                UserLotsPanel.Children.Clear(); // очистимо панель перед додаванням нових елементів
+                FillLotsPanel(userLots);
+            }
+        }
 
-                foreach (var lot in userLots)
+        private void FillLotsPanel(List<AuctionLotDto> lots)
+        {
+            UserLotsPanel.Children.Clear(); // очищаємо панель перед додаванням нових елементів
+
+            foreach (var lot in lots)
+            {
+                var lotControl = new LotDemonstrationControl(lot);
+
+                lotControl.LotSelected += (s, _) =>
                 {
-                    var lotControl = new LotDemonstrationControl(lot);
-
-                    lotControl.LotSelected += (s, _) =>
+                    // якщо був виділений попередній — знімаємо з нього виділення
+                    if (selectedLotControl != null)
                     {
-                        // якщо був виділений попередній — знімаємо з нього виділення
-                        if (selectedLotControl != null)
-                        {
-                            selectedLotControl.IsSelected = false;
-                        }
+                        selectedLotControl.IsSelected = false;
+                    }
 
-                        // зберігаємо новий виділений лот
-                        selectedLotControl = (LotDemonstrationControl)s;
-                        selectedLotControl.IsSelected = true;
-                    };
+                    // зберігаємо новий виділений лот
+                    selectedLotControl = (LotDemonstrationControl)s;
+                    selectedLotControl.IsSelected = true;
+                };
 
-                    UserLotsPanel.Children.Add(lotControl);
-                }
+                UserLotsPanel.Children.Add(lotControl);
             }
         }
     }

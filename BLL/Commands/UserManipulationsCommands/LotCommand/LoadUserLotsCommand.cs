@@ -6,18 +6,18 @@ namespace BLL.Commands.UserManipulationsCommands
 {
     internal class LoadUserLotsCommand : AbstrCommandWithDA<List<AuctionLot>>
     {
-        private readonly int _userId;
+        private readonly int userId;
         public LoadUserLotsCommand(int userId, IUnitOfWork unitOfWork, IMapper mapper)
             : base(unitOfWork, mapper)
         {
-            _userId = userId;
+            this.userId = userId;
         }
 
         public override string Name => "Отримання лотів";
 
         public override List<AuctionLot> Execute()
         {
-            var usersLots = dAPoint.AuctionLotRepository.GetAll().Where(l => l.OwnerId == _userId).ToList();
+            var usersLots = dAPoint.AuctionLotRepository.GetAll().Where(l => l.OwnerId == userId).ToList();
 
             return usersLots;
         }
