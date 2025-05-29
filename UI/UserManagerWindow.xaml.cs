@@ -194,6 +194,14 @@ namespace Presentation
             authWindow.ShowDialog();
         }
 
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            currentUser = null;
+
+            UserInfoPanel.Visibility = Visibility.Collapsed;
+            LoginButton.Visibility = Visibility.Visible;
+        }
+
         private void UpdateTabAccess()
         {
             bool userState = currentUser != null;
@@ -201,6 +209,13 @@ namespace Presentation
             // блокуємо вкладку "Мої лоти", якщо користувач неавторизований
             UserLotsTab.IsEnabled = userState;
             PlaceBidButton.IsEnabled = userState;
+
+            if (userState)
+            {
+                LoginButton.Visibility = Visibility.Collapsed;
+                UserNameText.Text = currentUser.Login;
+                UserInfoPanel.Visibility = Visibility.Visible;
+            }
         }
 
         private async void LoadUserManagerWindowEntities()

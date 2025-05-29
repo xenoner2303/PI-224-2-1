@@ -17,8 +17,20 @@
         <!-- Верхня панель -->
         <DockPanel Grid.Row="0" Margin="0 0 0 10">
             <TextBlock Text="Інтернет-аукціон" FontSize="24" FontWeight="Bold" Foreground="DarkBlue" VerticalAlignment="Center" />
-            <Button Content="Авторизуватись" DockPanel.Dock="Right" Margin="530 0 0 0" Click="Login_Click"/>
+
+            <!-- Панель авторизації -->
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <!-- Кнопка "Авторизуватись" -->
+                <Button x:Name="LoginButton" Content="Авторизуватись" Click="Login_Click"/>
+
+                <!-- Панель з іменем користувача та кнопкою виходу -->
+                <StackPanel x:Name="UserInfoPanel" Orientation="Horizontal" Visibility="Collapsed">
+                    <TextBlock x:Name="UserNameText" Text="" VerticalAlignment="Center" FontWeight="Bold" Foreground="Green" Margin="10 0"/>
+                    <Button x:Name="LogoutButton" Content="Вийти" Click="Logout_Click" Margin="10 0"/>
+                </StackPanel>
+            </StackPanel>
         </DockPanel>
+
 
         <!-- Вкладки -->
         <TabControl Grid.Row="1">
