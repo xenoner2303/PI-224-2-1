@@ -9,12 +9,22 @@
         Title="Вікно авторизації" 
         Height="600" 
         Width="1000" 
-        Background="#e6fcfc"
+        Background="#f5f9ff"
+        FontFamily="Arial"
         WindowState="Maximized">
-    <Grid Background="#9eba5d">
-        <Border MinWidth="400" MaxWidth="800" MinHeight="400" Margin="15" Background="AliceBlue" VerticalAlignment="Center" Padding="40" CornerRadius="30">
+    <Grid Background="#6a8cbb">
+     
+        <Border MinWidth="400" 
+                MaxWidth="800" 
+                MinHeight="400" 
+                Margin="15" 
+                Background="White" 
+                VerticalAlignment="Center" 
+                Padding="40" 
+                BorderBrush="#d3d3d3"
+                BorderThickness="1">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="30" Color="LightCyan" ShadowDepth="0" />
+                <DropShadowEffect BlurRadius="20" Color="#d9e9ff" ShadowDepth="0" Opacity="0.5"/>
             </Border.Effect>
 
             <Grid>
@@ -24,32 +34,76 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="Авторизація" FontSize="25" FontWeight="Bold" Margin="0 0 0 15" FontFamily="Comic Sans MS"/>
+                    <TextBlock Text="Авторизація" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Margin="0 0 0 20"
+                               Foreground="#333333"
+                               HorizontalAlignment="Center"/>
 
-                    <!-- Поле логіну -->
+       
                     <TextBox Name="LoginTextBox"
-                             FontFamily="Comic Sans MS"
-                             FontSize="15"
-                             Margin="0 0 0 15"
+                             FontSize="14"
+                             Margin="0 0 0 20"
+                             Padding="10"
+                             BorderBrush="#a0c4ff"
+                             BorderThickness="1"
                              materialDesign:HintAssist.Hint="Введіть логін"
-                             Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+                             Style="{StaticResource MaterialDesignFloatingHintTextBox}">
+                        <TextBox.Effect>
+                            <DropShadowEffect BlurRadius="5" Color="#e0e9ff" ShadowDepth="0" Opacity="0.5"/>
+                        </TextBox.Effect>
+                    </TextBox>
 
-                    <!-- Поле паролю -->
+     
                     <PasswordBox Name="PasswordBox"
-                             FontFamily="Comic Sans MS"
-                             FontSize="15"
-                             Margin="0 0 0 15"
+                             FontSize="14"
+                             Margin="0 0 0 20"
+                             Padding="10"
+                             BorderBrush="#a0c4ff"
+                             BorderThickness="1"
                              materialDesign:HintAssist.Hint="Введіть пароль"
-                             Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" />
+                             Style="{StaticResource MaterialDesignFloatingHintPasswordBox}">
+                        <PasswordBox.Effect>
+                            <DropShadowEffect BlurRadius="5" Color="#e0e9ff" ShadowDepth="0" Opacity="0.5"/>
+                        </PasswordBox.Effect>
+                    </PasswordBox>
                 </StackPanel>
 
-
                 <Grid Grid.Row="1" Margin="0 15 0 0">
-                    <Button HorizontalAlignment="Left" MinWidth="100" Click="Authorization_Click" FontFamily="Comic Sans MS" Content="Вхід"/>
+                    <Button HorizontalAlignment="Left" 
+                            MinWidth="120" 
+                            Height="40"
+                            Click="Authorization_Click" 
+                            Content="Вхід"
+                            Background="#5a8cff" 
+                        Foreground="White"
+                            FontWeight="Bold"
+                            BorderBrush="#3a6fd4"
+                            BorderThickness="1">
+                        <Button.Effect>
+                            <DropShadowEffect BlurRadius="5" Color="#a0c4ff" ShadowDepth="1" Opacity="0.6"/>
+                        </Button.Effect>
+                    </Button>
 
                     <StackPanel HorizontalAlignment="Right">
-                        <TextBlock Text="Не маєш аккаунту? Зареєструйся!" FontFamily="Comic Sans MS" HorizontalAlignment="Center" FontStyle="Italic" Margin="0 0 0 5"/>
-                        <Button Content="Зареєструватися" FontFamily="Comic Sans MS" Click="GoRegistration_Click" Background="LightCoral"/>
+                        <TextBlock Text="Не маєте акаунту? Зареєструйтеся!" 
+                                   Foreground="#555555"
+                                   HorizontalAlignment="Center" 
+                                   Margin="0 0 0 5"/>
+                        <Button Content="Зареєструватися" 
+                                MinWidth="150"
+                                Height="40"
+                                Click="GoRegistration_Click" 
+                                Background="#6a8cbb" 
+                            Foreground="White"
+                                FontWeight="Bold"
+                                BorderBrush="#5a7cab"
+                                BorderThickness="1">
+                            <Button.Effect>
+                                <DropShadowEffect BlurRadius="5" Color="#a0c4ff" ShadowDepth="1" Opacity="0.6"/>
+                            </Button.Effect>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Grid>

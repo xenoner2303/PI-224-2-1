@@ -4,39 +4,65 @@
         Title="Панель адміністратора"
         Height="500"
         Width="700"
-        Background="#e6fcfc" 
+        Background="#f5f9ff" 
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         WindowStyle="SingleBorderWindow"
-        WindowState="Maximized">
-    <Grid Background="#9eba5d">
-        <Border CornerRadius="12" Background="AliceBlue" BorderBrush="#ccc" BorderThickness="1" Padding="10" Margin="10">
+        WindowState="Maximized"
+        FontFamily="Arial">
+    <Grid Background="#6a8cbb">
+        <Border Background="White" 
+                BorderBrush="#333333"
+                BorderThickness="1" 
+                Padding="10" 
+                Margin="10">
             <Grid>
                 <TabControl Margin="10"
                             BorderThickness="0"
                             Padding="10"
-                            FontSize="12"
-                            FontFamily="Comic Sans MS"
-                            SelectedIndex="0">
+                            FontSize="12">
                     <!-- Вкладка: Коди доступу -->
                     <TabItem Header="Коди реєстрації">
                         <Border Margin="10">
+                            <!-- Видалено BorderThickness з правого боку -->
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*" />
                                     <ColumnDefinition Width="3*" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" Margin="10">
-                                    <TextBlock Text="Секретний код реєстрації:" />
-                                    <TextBox x:Name="NewSecretCodeTextBox" />
+                                    <TextBlock Text="Секретний код реєстрації:" FontWeight="SemiBold"/>
+                                    <TextBox x:Name="NewSecretCodeTextBox" 
+                                             Margin="0,5,0,0" 
+                                             BorderBrush="#333333"
+                                             BorderThickness="1" 
+                                             Padding="5"/>
 
-                                    <TextBlock Text="Тип аккаунту:" Margin="0,10,0,0"/>
-                                    <ComboBox x:Name="AccountTypeComboBox"/>
+                                    <TextBlock Text="Тип акаунту:" Margin="0,10,0,0" FontWeight="SemiBold"/>
+                                    <ComboBox x:Name="AccountTypeComboBox" 
+                                              Margin="0,5,0,0" 
+                                              BorderBrush="#333333" 
+                                              BorderThickness="1" 
+                                              Padding="5"/>
 
-                                    <TextBlock Text="Кількість використань:" Margin="0,10,0,0"/>
-                                    <TextBox x:Name="CodeUsesTextBox" />
+                                    <TextBlock Text="Кількість використань:" Margin="0,10,0,0" FontWeight="SemiBold"/>
+                                    <TextBox x:Name="CodeUsesTextBox" 
+                                             Margin="0,5,0,0" 
+                                             BorderBrush="#333333" 
+                                             BorderThickness="1" 
+                                             Padding="5"/>
 
-                                    <Button Content="Додати код" HorizontalAlignment="Center" Margin="0,20,0,0" Click="AddCode_Click"/>
+                                    <Button Content="Додати код" 
+                                            HorizontalAlignment="Center" 
+                                            Margin="0,20,0,0" 
+                                            Click="AddCode_Click"
+                                            Background="#6a8cbb"
+                                            Foreground="White"
+                                            FontWeight="Bold"
+                                            BorderBrush="#333333"
+                                            BorderThickness="1"
+                                            Padding="10,5"
+                                            Width="120"/>
                                 </StackPanel>
 
                                 <Grid Grid.Column="1" Margin="10">
@@ -45,25 +71,47 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <TextBlock Text="Присутні коди:" Grid.Row="0" Margin="0,0,0,5"/>
-                                    <ListBox x:Name="CodesListBox" Background="White" Grid.Row="1"/>
-                                    <Button Content="Видалити код" Margin="0,5,0,0" HorizontalAlignment="Center" Grid.Row="2" Click="RemoveCode_Click"/>
+                                    <TextBlock Text="Присутні коди:" Grid.Row="0" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                                    <ListBox x:Name="CodesListBox" 
+                                             Background="White" 
+                                             Grid.Row="1"
+                                             BorderBrush="#333333"
+                                             BorderThickness="1"/>
+                                    <Button Content="Видалити код" 
+                                            Margin="0,5,0,0" 
+                                            HorizontalAlignment="Center" 
+                                            Grid.Row="2" 
+                                            Click="RemoveCode_Click"
+                                            Background="#6a8cbb"
+                                            Foreground="White"
+                                            FontWeight="Bold"
+                                            BorderBrush="#333333"
+                                            BorderThickness="1"
+                                            Padding="10,5"
+                                            Width="120"/>
                                 </Grid>
                             </Grid>
                         </Border>
                     </TabItem>
 
-                    <!-- Вкладка: Редагуввання користувачів -->
+                    <!-- Вкладка: Редагування користувачів -->
                     <TabItem Header="Редагування користувачів">
                         <Border Margin="10">
+                            <!-- Видалено BorderThickness з правого боку -->
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
-                                    <!-- DataGrid займет всё доступное пространство -->
                                     <RowDefinition Height="Auto" />
-                                    <!-- Кнопки будут внизу -->
                                 </Grid.RowDefinitions>
-                                <DataGrid x:Name="UsersDataGrid" AutoGenerateColumns="False" Margin="0,0,0,10" CanUserAddRows="False" Grid.Row="0">
+                                <DataGrid x:Name="UsersDataGrid" 
+                                          AutoGenerateColumns="False" 
+                                          Margin="0,0,0,10" 
+                                          CanUserAddRows="False" 
+                                          Grid.Row="0"
+                                          BorderBrush="#333333"
+                                          BorderThickness="1"
+                                          HeadersVisibility="Column"
+                                          GridLinesVisibility="All">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Логін" Binding="{Binding Login}" IsReadOnly="True" />
                                         <DataGridTextColumn Header="Ім'я" Binding="{Binding FirstName}" />
@@ -80,8 +128,26 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Button Content="Видалити користувача" Grid.Column="0" HorizontalAlignment="Left" Click="RemoveUser_Click"/>
-                                    <Button Content="Зберегти зміни" Grid.Column="1" HorizontalAlignment="Right" Click="UpgradeUsers_Click"/>
+                                    <Button Content="Видалити користувача" 
+                                           Grid.Column="0" 
+                                           HorizontalAlignment="Left" 
+                                           Click="RemoveUser_Click"
+                                           Background="#d64545"
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           BorderBrush="#333333"
+                                           BorderThickness="1"
+                                           Padding="10,5"/>
+                                    <Button Content="Зберегти зміни" 
+                                           Grid.Column="1" 
+                                           HorizontalAlignment="Right" 
+                                           Click="UpgradeUsers_Click"
+                                           Background="#6a8cbb"
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           BorderBrush="#333333"
+                                           BorderThickness="1"
+                                           Padding="10,5"/>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -95,10 +161,23 @@
                                 <ColumnDefinition Width="3*" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="10">
-                                <TextBlock Text="Оберіть дату для перегляду логів:" />
-                                <DatePicker x:Name="LogDatePicker" />
+                                <TextBlock Text="Оберіть дату для перегляду логів:" FontWeight="SemiBold"/>
+                                <DatePicker x:Name="LogDatePicker" 
+                                           Margin="0,5,0,0" 
+                                           BorderBrush="#333333" 
+                                           BorderThickness="1"/>
 
-                                <Button Content="Показати логи" HorizontalAlignment="Center" Margin="0,10,0,0" Click="ShowLogs_Click"/>
+                                <Button Content="Показати логи" 
+                                       HorizontalAlignment="Center" 
+                                       Margin="0,10,0,0" 
+                                       Click="ShowLogs_Click"
+                                       Background="#6a8cbb"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       BorderBrush="#333333"
+                                       BorderThickness="1"
+                                       Padding="10,5"
+                                       Width="120"/>
                             </StackPanel>
 
                             <Grid Grid.Column="1" Margin="10">
@@ -106,8 +185,12 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Логи:" Margin="0,0,0,0" Grid.Row="0"/>
-                                <ListBox x:Name="LogListBox" Background="White" Grid.Row="1"/>
+                                <TextBlock Text="Логи:" Margin="0,0,0,0" Grid.Row="0" FontWeight="SemiBold"/>
+                                <ListBox x:Name="LogListBox" 
+                                        Background="White" 
+                                        Grid.Row="1"
+                                        BorderBrush="#333333"
+                                        BorderThickness="1"/>
                             </Grid>
                         </Grid>
                     </TabItem>
