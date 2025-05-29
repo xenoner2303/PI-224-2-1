@@ -10,6 +10,8 @@ public class AuctionLotModel
 
     public decimal StartPrice { get; set; }
 
+    public byte[]? ImageBytes { get; set; }// зберігаємо зображення як необов'язковий масив байтів рядок для передачі через API
+
     public BusinessEnumLotStatuses Status { get; set; }
 
     public DateTime StartTime { get; set; }

@@ -15,11 +15,13 @@ public class UserCommandManager : AbstractCommandManager
         var command = new CreateBidCommand(amount, lotId, userId, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося створити ставку");
     }
+    
     public bool CreateLot(string title, string description, decimal startPrice, DateTime startTime, DateTime endTime)
     {
         var command = new CreateLotCommand(title, description, startPrice, startTime, endTime, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося створити лот");
     }
+    
     public bool DeleteLot(int lotId)
     {
         var command = new DeleteLotCommand(lotId, unitOfWork, mapper);

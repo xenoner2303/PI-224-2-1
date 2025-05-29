@@ -13,13 +13,10 @@ internal class LoadSecretCodeRealizatorsCommand : AbstrCommandWithDA<List<Secret
 
     public override List<SecretCodeRealizatorModel> Execute()
     {
-        // отримуємо реалізатори кодів
         var realizators = dAPoint.SecretCodeRealizatorRepository.GetAll();
 
-        // логуємо
         LogAction($"Було завантажено {realizators.Count} реалізаторів секретних кодів");
 
-        // автомапимо
         return mapper.Map<List<SecretCodeRealizatorModel>>(realizators);
     }
 }
