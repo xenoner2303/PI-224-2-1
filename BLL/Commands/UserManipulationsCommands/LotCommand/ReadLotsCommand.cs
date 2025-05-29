@@ -26,3 +26,4 @@ namespace BLL.Commands.UserManipulationsCommands
             return usersLots;
         }
     }
+}

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DAL.Entities;
 
 namespace BLL.Commands.UserManipulationsCommands
 {
@@ -13,6 +14,7 @@ namespace BLL.Commands.UserManipulationsCommands
         private readonly decimal _amount;
         private readonly int _lotId;
         private readonly int _userId;
+
         public CreateBidCommand(decimal amount, int lotId, int userId, IUnitOfWork unitOfWork, IMapper mapper)
             : base(unitOfWork, mapper)
         {
@@ -21,23 +23,25 @@ namespace BLL.Commands.UserManipulationsCommands
             _userId = userId;
         }
 
-        public override string Name => "Видалення лоту";
+        public override string Name => "Створення ставки";
 
         public override bool Execute()
         {
             try
             {
-                var newBid = new DAL.Entities.Bid
+                var newBid = new Bid
                 {
                     Amount = _amount,
                     PlacedAt = DateTime.Now,
                     LotId = _lotId,
                     UserId = _userId
                 };
-                dAPoint.BidRepository.Add(newBid);
+                var lot = dAPoint.AuctionLotRepository.GetById(_lotId);
+                lot.Bids.Add(newBid);
+                dAPoint.AuctionLotRepository.Update(lot);
+                var user = dAPoint.UserRepository.GetById(_userId);
                 dAPoint.Save();
-                //ТРЕБА ДОПИСАТИ, ЩОБ СТАВКА ЗБЕРІГАЛАСЬ І В ЛОТІ І В ЮЗЕРА
-                LogAction($"{Name} на суму {_amount}");
+                LogAction($"{Name} на суму {_amount} користувачаем {user.FirstName} {user.LastName}");
                 return true;
             }
             catch (ArgumentException ex)
