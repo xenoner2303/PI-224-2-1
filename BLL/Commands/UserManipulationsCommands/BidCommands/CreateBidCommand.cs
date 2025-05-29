@@ -1,53 +1,36 @@
 ﻿using AutoMapper;
 using DAL.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DAL.Entities;
+using BLL.EntityBLLModels;
 
 namespace BLL.Commands.UserManipulationsCommands
 {
     public class CreateBidCommand : AbstrCommandWithDA<bool>
     {
-        private readonly decimal _amount;
-        private readonly int _lotId;
-        private readonly int _userId;
+        private readonly BidModel bidModel;
 
-        public CreateBidCommand(decimal amount, int lotId, int userId, IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateBidCommand(BidModel bidModel, IUnitOfWork unitOfWork, IMapper mapper)
             : base(unitOfWork, mapper)
         {
-            _amount = amount;
-            _lotId = lotId;
-            _userId = userId;
+            ArgumentNullException.ThrowIfNull(bidModel, nameof(bidModel));
+
+            this.bidModel = bidModel;
         }
 
         public override string Name => "Створення ставки";
 
         public override bool Execute()
         {
-            try
-            {
-                var newBid = new Bid
-                {
-                    Amount = _amount,
-                    PlacedAt = DateTime.Now,
-                    LotId = _lotId,
-                    UserId = _userId
-                };
-                var lot = dAPoint.AuctionLotRepository.GetById(_lotId);
-                lot.Bids.Add(newBid);
-                dAPoint.AuctionLotRepository.Update(lot);
-                var user = dAPoint.UserRepository.GetById(_userId);
-                dAPoint.Save();
-                LogAction($"{Name} на суму {_amount} користувачаем {user.FirstName} {user.LastName}");
-                return true;
-            }
-            catch (ArgumentException ex)
-            {
-                return false;
-            }
+            // Мапимо Model -> Entity
+            var newBid = mapper.Map<Bid>(bidModel);
+
+            var lot = dAPoint.AuctionLotRepository.GetById(bidModel.Lot.Id);
+            lot.Bids.Add(newBid);
+            dAPoint.AuctionLotRepository.Update(lot);
+            dAPoint.Save();
+
+            LogAction($"{Name} на суму {bidModel.Amount} користувачаем {bidModel.User}");
+            return true;
         }
     }
 }

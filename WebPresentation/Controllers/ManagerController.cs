@@ -21,6 +21,7 @@ public class ManagerController : ControllerBase
         this._manager = manager;
         this._mapper = mapper;
     }
+
     [HttpPost("create-category")]
     public IActionResult CreateCategory([FromBody]string categoryName)
     {
@@ -44,6 +45,7 @@ public class ManagerController : ControllerBase
         }
         return BadRequest("Failed to delete category");
     }
+
     [HttpGet("read-category")]
     public ActionResult<CategoryDto> ReadCategory([FromQuery]int categoryId)
     {
@@ -55,6 +57,7 @@ public class ManagerController : ControllerBase
         }
         return BadRequest("Failed to read category");
     }
+
     [HttpPost("approve-lot")]
     public IActionResult ApproveLot([FromBody]int lotId)
     {
@@ -66,6 +69,7 @@ public class ManagerController : ControllerBase
         }
         return BadRequest("Failed to approve lot");
     }
+
     [HttpPost("reject-lot")]
     public IActionResult RejectLot([FromBody]int lotId)
     {
@@ -77,6 +81,7 @@ public class ManagerController : ControllerBase
         }
         return BadRequest("Failed to reject lot");
     }
+
     [HttpPost("stop-lot")]
     public IActionResult StopLot([FromBody]int lotId)
     {

@@ -23,5 +23,30 @@ namespace UI
         {
             InitializeComponent();
         }
+
+        private void AcceptLot_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RejectLot_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        
+        private void CategoryTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void LotsDataGrid_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

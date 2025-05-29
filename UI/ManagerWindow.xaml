@@ -51,7 +51,7 @@
             <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0 0 0 10" VerticalAlignment="Top">
                 <TextBlock Text="Пошук:" FontSize="16" VerticalAlignment="Center" Margin="0 0 10 0"/>
                 <TextBox Width="237" Name="SearchTextBox" Margin="0 0 10 0"/>
-                <Button Content="🔍" Width="40" Click="SearchButton_Click"/>
+                <Button Content="🔍" Click="SearchButton_Click"/>
             </StackPanel>
 
             <!-- Категорії зліва -->

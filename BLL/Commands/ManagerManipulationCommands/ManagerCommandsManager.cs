@@ -8,8 +8,8 @@ namespace BLL.Commands.ManagerManipulationCommands
     public class ManagerCommandsManager : AbstractCommandManager
     {
         public ManagerCommandsManager(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
-        {
-        }
+        {}
+
         public bool CreateCategory(string categoryModel)
         {
             var command = new CreateCategoryCommand(categoryModel, unitOfWork, mapper);

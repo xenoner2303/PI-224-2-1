@@ -1,7 +1,7 @@
 ﻿<Window x:Class="UI.LotCreationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Створення лоту" Height="350" Width="360" WindowStartupLocation="CenterScreen">
+        Title="Створення лоту" Height="500" Width="360" WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -16,6 +16,10 @@
             <!-- Час завершення -->
             <RowDefinition Height="Auto"/>
             <!-- Категорія -->
+            <RowDefinition Height="Auto"/>
+            <!-- Посилання на зображення -->
+            <RowDefinition Height="Auto"/>
+            <!-- Зображення -->
             <RowDefinition Height="Auto"/>
             <!-- Кнопки -->
         </Grid.RowDefinitions>
@@ -54,8 +58,15 @@
         <TextBlock Grid.Row="5" Grid.Column="0" Text="Категорія:" VerticalAlignment="Center" Margin="0,5"/>
         <ComboBox Grid.Row="5" Grid.Column="1" Name="CategoryComboBox" Margin="0,5"/>
 
+        <!-- Посилання на зображення -->
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="URL зображення:" VerticalAlignment="Center" Margin="0,5"/>
+        <TextBox Grid.Row="6" Grid.Column="1" Name="ImageUrlTextBox" Margin="0,5" TextChanged="ImageUrlTextBox_TextChanged"/>
+
+        <!-- Зображення -->
+        <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Name="PreviewImage" Height="100" Margin="0,5" Stretch="Uniform" />
+
         <!-- Кнопки -->
-        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,17,0,0" Width="275" Grid.ColumnSpan="2">
+        <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,17,0,0" Width="275" Grid.ColumnSpan="2">
             <Button Name="SaveButton" Width="94" Margin="5" Click="SaveButton_Click">Зберегти</Button>
             <Button Width="102" Margin="5" Click="CancelButton_Click">Відмінити</Button>
         </StackPanel>
