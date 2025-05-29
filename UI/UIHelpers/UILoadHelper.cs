@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.IO;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace Presentation.UIHelpers;
 
@@ -53,6 +55,23 @@ internal static class UILoadHelper
                 comboBox.Items.Clear();
                 comboBox.IsEnabled = false;
             }
+        }
+    }
+
+    public static BitmapImage ConvertBase64ToImage(string base64)
+    {
+        byte[] binaryData = Convert.FromBase64String(base64);
+
+        using (var stream = new MemoryStream(binaryData))
+        {
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.StreamSource = stream;
+            image.EndInit();
+            image.Freeze(); // щоб уникнути проблем з потоками
+
+            return image;
         }
     }
 }
