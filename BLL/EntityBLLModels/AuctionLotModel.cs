@@ -1,25 +1,47 @@
-﻿namespace BLL.EntityBLLModels;
+﻿using DAL.Entities;
 
-public class AuctionLotModel
-{
-    public int Id { get; set; }
+namespace BLL.EntityBLLModels;
 
-    public string Title { get; set; }
+    public int Id
+    {
+        get => _id;
+        set { _id = value; OnPropertyChanged(nameof(Id)); }
+    }
 
-    public string Description { get; set; }
+    public string Title
+    {
+        get => _title;
+        set { _title = value; OnPropertyChanged(nameof(Title)); }
+    }
 
-    public decimal StartPrice { get; set; }
+    public string Description
+    {
+        get => _description;
+        set { _description = value; OnPropertyChanged(nameof(Description)); }
+    }
 
-    public byte[]? ImageBytes { get; set; }// зберігаємо зображення як необов'язковий масив байтів рядок для передачі через API
+    public decimal StartPrice
+    {
+        get => _startPrice;
+        set { _startPrice = value; OnPropertyChanged(nameof(StartPrice)); }
+    }
 
-    public BusinessEnumLotStatuses Status { get; set; }
+    public decimal BidStep
+    {
+        get => _bidStep;
+        set { _bidStep = value; OnPropertyChanged(nameof(BidStep)); }
+    }
 
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public BaseUserModel Owner { get; set; }
-    public CategoryModel Category { get; set; }
-    public BaseUserModel Manager { get; set; }
+    public int OwnerId { get; set; }
 
-    public List<BidModel> Bids { get; set; } = new List<BidModel>();
+    public int CategoryId { get; set; }
+    public int? ManagerId { get; set; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
