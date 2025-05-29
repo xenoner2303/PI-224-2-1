@@ -1,25 +1,67 @@
-﻿using DAL.Entities;
+﻿using System.ComponentModel;
 
-namespace BLL.EntityBLLModels;
-
-public class AuctionLotModel
+public class AuctionLotModel : INotifyPropertyChanged
 {
-    public int Id { get; set; }
+    private int _id;
+    private string _title;
+    private string _description;
+    private decimal _startPrice;
+    private decimal _bidStep;
+    private int _categoryId;
+    private DateTime _endDate;
+    private string _status;
 
-    public string Title { get; set; }
+    public int Id
+    {
+        get => _id;
+        set { _id = value; OnPropertyChanged(nameof(Id)); }
+    }
 
-    public string Description { get; set; }
+    public string Title
+    {
+        get => _title;
+        set { _title = value; OnPropertyChanged(nameof(Title)); }
+    }
 
-    public decimal StartPrice { get; set; }
+    public string Description
+    {
+        get => _description;
+        set { _description = value; OnPropertyChanged(nameof(Description)); }
+    }
 
-    public EnumLotStatuses Status { get; set; }
+    public decimal StartPrice
+    {
+        get => _startPrice;
+        set { _startPrice = value; OnPropertyChanged(nameof(StartPrice)); }
+    }
 
-    public DateTime CreatedAt { get; set; }
+    public decimal BidStep
+    {
+        get => _bidStep;
+        set { _bidStep = value; OnPropertyChanged(nameof(BidStep)); }
+    }
 
-    public int OwnerId { get; set; }
+    public int CategoryId
+    {
+        get => _categoryId;
+        set { _categoryId = value; OnPropertyChanged(nameof(CategoryId)); }
+    }
 
-    public int CategoryId { get; set; }
-    public int? ManagerId { get; set; }
+    public DateTime EndDate
+    {
+        get => _endDate;
+        set { _endDate = value; OnPropertyChanged(nameof(EndDate)); }
+    }
 
-    public List<BidModel> Bids { get; set; } = new List<BidModel>();
+    public string Status
+    {
+        get => _status;
+        set { _status = value; OnPropertyChanged(nameof(Status)); }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
