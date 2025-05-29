@@ -7,8 +7,8 @@ public abstract class AbstractUser
     private string login;
     private string firstName;
     private string lastName;
-    private string email;
-    private string phoneNumber;
+    private string email = "Пошта не вказана";
+    private string phoneNumber = "Номер відсутній";
     private int age;
     private string passwordHash;
 

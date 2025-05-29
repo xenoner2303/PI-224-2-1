@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigrate : Migration
+    public partial class InitialMigrate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -44,6 +44,21 @@ namespace DAL.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SecretCodeRealizators",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    SecretCodeHash = table.Column<string>(type: "TEXT", nullable: false),
+                    CodeUses = table.Column<int>(type: "INTEGER", nullable: false),
+                    RealizatorType = table.Column<string>(type: "TEXT", maxLength: 34, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SecretCodeRealizators", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -185,6 +200,9 @@ namespace DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "Bids");
+
+            migrationBuilder.DropTable(
+                name: "SecretCodeRealizators");
 
             migrationBuilder.DropTable(
                 name: "AuctionLots");

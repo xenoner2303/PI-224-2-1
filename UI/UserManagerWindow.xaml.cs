@@ -198,8 +198,7 @@ namespace Presentation
         {
             currentUser = null;
 
-            UserInfoPanel.Visibility = Visibility.Collapsed;
-            LoginButton.Visibility = Visibility.Visible;
+            UpdateTabAccess();
         }
 
         private void UpdateTabAccess()
@@ -215,6 +214,11 @@ namespace Presentation
                 LoginButton.Visibility = Visibility.Collapsed;
                 UserNameText.Text = currentUser.Login;
                 UserInfoPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                UserInfoPanel.Visibility = Visibility.Collapsed;
+                LoginButton.Visibility = Visibility.Visible;
             }
         }
 

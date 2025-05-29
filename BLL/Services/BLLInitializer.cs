@@ -1,7 +1,8 @@
 ﻿using BLL.AutoMapperProfiles;
+using BLL.Commands.ManagerManipulationCommands;
 using BLL.Commands.PreUsersManipulationCommands;
+using BLL.Commands.UserManipulationsCommands;
 using DAL.Data;
-using DAL.Data.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BLL.Services;
@@ -20,5 +21,7 @@ public static class BLLInitializer
         DALInitializer.AddDataAccessServices(services);
 
         services.AddScoped<PreUserCommandsManager>();
+        services.AddScoped<UserCommandManager>();
+        services.AddScoped<ManagerCommandsManager>();
     }
 }
