@@ -35,10 +35,48 @@ namespace Presentation
 
         private async void PlaceBid_Click(object sender, RoutedEventArgs e)
         {
-            if (currentUser == null) // додатковий захист
+            // Очистити повідомлення валідації
+            BidValidationLabel.Content = "";
+
+            if (currentUser == null)
             {
                 MessageBox.Show("Будь ласка, авторизуйтесь перед створенням ставки");
                 return;
+            }
+
+            if (selectedLotControl == null)
+            {
+                MessageBox.Show("Будь ласка, виберіть лот для здійснення ставки");
+                return;
+            }
+
+            var input = BidTextBox.Text.Trim();
+
+            if (!decimal.TryParse(input, out var bidAmount) || bidAmount <= 0)
+            {
+                BidValidationLabel.Content = "!";
+                MessageBox.Show("Будь ласка, введіть коректну суму ставки");
+                return;
+            }
+
+            var bid = new BidDto
+            {
+                Amount = bidAmount,
+                PlacedAt = DateTime.Now,
+                Lot = selectedLotControl.auctionLotDto,
+                User = currentUser
+            };
+
+            var success = await client.CreateBidAsync(bid);
+
+            if (success)
+            {
+                MessageBox.Show("Ставку успішно зроблено");
+                BidTextBox.Text = ""; // Очистити поле
+            }
+            else
+            {
+                MessageBox.Show("Не вдалося створити ставку");
             }
         }
 
