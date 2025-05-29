@@ -10,7 +10,8 @@
         </Grid.ColumnDefinitions>
 
         <!-- зображення -->
-        <Image Grid.Column="0"
+        <Image x:Name="LotImage"
+               Grid.Column="0"
                Width="80" Height="100"
                Margin="5"
                Stretch="Uniform"

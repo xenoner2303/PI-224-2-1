@@ -24,8 +24,8 @@ public partial class App : Application
         ServiceProvider = serviceCollection.BuildServiceProvider();
 
         //запускаємо головне вікно
-        var mainWindow = ServiceProvider.GetRequiredService<AuthorizationWindow>();
-        mainWindow.Show();
+        var startWindow = ServiceProvider.GetRequiredService<UserManagerWindow>();
+        startWindow.Show();
     }
 
     private void ConfigureServices(IServiceCollection services)
@@ -35,7 +35,12 @@ public partial class App : Application
             client.BaseAddress = new Uri("http://localhost:5000/api/PreUser/");
         });
 
+        services.AddHttpClient<UserApiClient>(client =>
+        {
+            client.BaseAddress = new Uri("http://localhost:5000/api/User/");
+        });
+
         // реєструємо вікна
-        services.AddTransient<AuthorizationWindow>();
+        services.AddTransient<UserManagerWindow>();
     }
 }

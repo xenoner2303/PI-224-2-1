@@ -2,6 +2,8 @@
 using System.Windows.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using UI.ApiClients;
+using DTOsLibrary;
+using DTOsLibrary.DTOEnums;
 
 namespace Presentation
 {
@@ -12,16 +14,19 @@ namespace Presentation
     {
         private readonly IServiceProvider serviceProvider;
         private PreUserApiClient client;
+        private readonly Action<BaseUserDto> onLoginSuccess;
 
-        public AuthorizationWindow(IServiceProvider serviceProvider, PreUserApiClient client)
+        public AuthorizationWindow(IServiceProvider serviceProvider, PreUserApiClient client, Action<BaseUserDto> onLoginSuccess)
         {
             ArgumentNullException.ThrowIfNull(serviceProvider, nameof(serviceProvider));
             ArgumentNullException.ThrowIfNull(client, nameof(client));
+            ArgumentNullException.ThrowIfNull(onLoginSuccess, nameof(onLoginSuccess));
 
             InitializeComponent();
 
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            this.client = client ?? throw new ArgumentNullException(nameof(client));
+            this.serviceProvider = serviceProvider;
+            this.client = client;
+            this.onLoginSuccess = onLoginSuccess;
         }
 
         private async void Authorization_Click(object sender, RoutedEventArgs e)
@@ -33,9 +38,15 @@ namespace Presentation
             {
                 var userDto = await client.AuthorizeUserAsync(login, password);
 
-             //   Window locUserWindow = WindowFactory.CreateWindow(user, serviceProvider);
-               // locUserWindow.Show();
-             //   this.Close();
+                if (userDto.InterfaceType == EnumInterfaceTypeDto.Registered)
+                {
+                    onLoginSuccess?.Invoke(userDto); // передаємо назад користувача
+                    this.Close();
+                }
+
+                //   Window locUserWindow = WindowFactory.CreateWindow(user, serviceProvider);
+                // locUserWindow.Show();
+                //   this.Close();
             }
             catch (Exception ex)
             {

@@ -12,30 +12,37 @@ public class UserCommandManager : AbstractCommandManager
 
     public bool CreateBid(decimal amount, AuctionLotModel auctionLotModel)
     {
-        var command = new CreateBidCommand(amount, auctionLotModel, unitOfWork, mapper);
+        var command = new LoadAuctionLotsCommand(unitOfWork, mapper);
+        return ExecuteCommand(command, "Не вдалося завантажити лоти");
+    }
+
+    public bool CreateBid(BidModel bid)
+    {
+        var command = new CreateBidCommand(bid, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося створити ставку");
     }
-    
-    public bool CreateLot(string title, string description, decimal startPrice, DateTime startTime, DateTime endTime)
+
+    public bool CreateLot(AuctionLotModel model)
     {
-        var command = new CreateLotCommand(title, description, startPrice, startTime, endTime, unitOfWork, mapper);
+        var command = new CreateLotCommand(model, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося створити лот");
     }
-    
+
     public bool DeleteLot(int lotId)
     {
         var command = new DeleteLotCommand(lotId, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося видалити лот");
     }
-    public AuctionLot ReadLot(int lotId)
+
+    public List<AuctionLot> LoadUserLots(int userId)
     {
-        var command = new ReadLotCommand(lotId, unitOfWork, mapper);
-        return ExecuteCommand<AuctionLot>(command, "Не вдалося зчитати лот");
+        var command = new LoadUserLotsCommand(userId, unitOfWork, mapper);
+        return ExecuteCommand<List<AuctionLot>>(command, "Не вдалося зчитати лоти користувача");
     }
 
-    public List<AuctionLot> ReadLots(int userId)
+    public List<CategoryModel> LoadCategories()
     {
-        var command = new ReadLotsCommand(userId, unitOfWork, mapper);
-        return ExecuteCommand <List<AuctionLot>>(command, "Не вдалося зчитати лот");
+        var command = new LoadCategoriesCommand(unitOfWork, mapper);
+        return ExecuteCommand<List<CategoryModel>>(command, "Не вдалося завантажити категорії");
     }
 }

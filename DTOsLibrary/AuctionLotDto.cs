@@ -12,12 +12,13 @@ public class AuctionLotDto
 
     public decimal StartPrice { get; set; }
 
-    public string? ImageBase64 { get; set; } // зберігаємо зображення як Base64 рядок для передачі через API
+    public byte[]? ImageBytes { get; set; } // зберігаємо зображення як Base64 рядок для передачі через API
 
     public EnumLotStatusesDto Status { get; set; }
 
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateTime? StartTime { get; set; }
+    public int DurationDays { get; set; }
+    public DateTime? EndTime { get; set; }
 
     public BaseUserDto Owner { get; set; }
     public CategoryDto Category { get; set; }

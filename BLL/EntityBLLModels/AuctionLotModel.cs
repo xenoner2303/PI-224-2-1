@@ -26,15 +26,13 @@ namespace BLL.EntityBLLModels;
         set { _startPrice = value; OnPropertyChanged(nameof(StartPrice)); }
     }
 
-    public decimal BidStep
-    {
-        get => _bidStep;
-        set { _bidStep = value; OnPropertyChanged(nameof(BidStep)); }
-    }
+    public byte[]? ImageBytes { get; set; } // зберігаємо зображення як необов'язковий масив байтів рядок для передачі через API
 
     public DateTime CreatedAt { get; set; }
 
-    public int OwnerId { get; set; }
+    public DateTime? StartTime { get; set; }
+    public int DurationDays { get; set; }
+    public DateTime? EndTime { get; set; }
 
     public int CategoryId { get; set; }
     public int? ManagerId { get; set; }

@@ -6,8 +6,9 @@ public class AuctionLot
     private string description;
     private string relativeImagePath;
     private decimal startPrice;
-    private DateTime startTime;
-    private DateTime endTime;
+    private DateTime? startTime;
+    private DateTime? endTime;
+    private int durationDays;
 
     public int Id { get; set; } // айді для бази даних
 
@@ -74,34 +75,38 @@ public class AuctionLot
 
     public EnumLotStatuses Status { get; set; }
 
-    public DateTime StartTime // час буде автоматично вводитися при підтвердженні лоту менеджером
+
+    public DateTime? StartTime { get; set; } // час буде автоматично вводитися при підтвердженні лоту менеджером
+
+    public int DurationDays // тривалість аукціону у днях
     {
-        get => startTime;
+        get => durationDays;
         set
         {
-            if (value > EndTime)
+            if (value <= 0)
             {
-                throw new ArgumentException("Не можна розпочати аукціон післявстановленого кінця торгів");
+                throw new ArgumentException("Тривалість повинна бути більшою за 0 днів");
             }
 
-            startTime = value;
+            durationDays = value;
         }
     }
 
-    public DateTime EndTime
+    // обчислювана властивість для кінця аукціону
+    public DateTime? EndTime
     {
-        get => endTime;
+        get
+        {
+            if (endTime.HasValue)
+            {
+                return endTime.Value;
+            }
+
+            return StartTime.HasValue ? StartTime.Value.AddDays(DurationDays) : null;
+        }
         set
         {
-            if (value < StartTime)
-            {
-                // Автоматично ставимо +3 хвилини
-                endTime = StartTime.AddMinutes(3);
-            }
-            else
-            {
-                endTime = value;
-            }
+            endTime = value;
         }
     }
 
