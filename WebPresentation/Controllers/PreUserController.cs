@@ -15,8 +15,8 @@ public class PreUserController : ControllerBase
 
     public PreUserController(PreUserCommandsManager manager, IMapper mapper)
     {
-        ArgumentNullException.ThrowIfNull(manager, nameof(manager));
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(mapper);
 
         this.manager = manager;
         this.mapper = mapper;

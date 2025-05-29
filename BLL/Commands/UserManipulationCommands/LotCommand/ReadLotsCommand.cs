@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.Commands.UserManipulationsCommands
+namespace BLL.Commands.UserManipulationCommands
 {
     internal class ReadLotsCommand : AbstrCommandWithDA<List<AuctionLot>>
     {

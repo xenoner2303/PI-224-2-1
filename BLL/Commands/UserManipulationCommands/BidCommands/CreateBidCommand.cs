@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DAL.Entities;
 
-namespace BLL.Commands.UserManipulationsCommands
+namespace BLL.Commands.UserManipulationCommands
 {
     public class CreateBidCommand : AbstrCommandWithDA<bool>
     {
@@ -44,7 +44,7 @@ namespace BLL.Commands.UserManipulationsCommands
                 LogAction($"{Name} на суму {_amount} користувачаем {user.FirstName} {user.LastName}");
                 return true;
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException)
             {
                 return false;
             }

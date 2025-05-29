@@ -10,13 +10,13 @@ namespace WebPresentation.Controllers;
 [Route("api/[controller]")]
 public class ManagerController : ControllerBase
 {
-    private readonly ManagerCommandsManager _manager;
+    private readonly ManagerCommandManager _manager;
     private readonly IMapper _mapper;
 
-    public ManagerController(ManagerCommandsManager manager, IMapper mapper)
+    public ManagerController(ManagerCommandManager manager, IMapper mapper)
     {
-        ArgumentNullException.ThrowIfNull(manager, nameof(manager));
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(mapper);
 
         this._manager = manager;
         this._mapper = mapper;
@@ -45,7 +45,7 @@ public class ManagerController : ControllerBase
         return BadRequest("Failed to delete category");
     }
     [HttpGet("read-category")]
-    public ActionResult<CategoryDto> ReadCategory([FromQuery]int categoryId)
+    public ActionResult<CategoryDto> ReadCategory([FromBody]int categoryId)
     {
         var category = _manager.ReadCategory(categoryId);
         var result = _mapper.Map<CategoryDto>(category);

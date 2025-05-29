@@ -5,9 +5,9 @@ using DAL.Entities;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
-    public class ManagerCommandsManager : AbstractCommandManager
+    public class ManagerCommandManager : AbstractCommandManager
     {
-        public ManagerCommandsManager(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public ManagerCommandManager(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
         }
         public bool CreateCategory(string categoryModel)
