@@ -2,11 +2,11 @@
 using BLL.EntityBLLModels;
 using DAL.Data;
 
-namespace BLL.Commands.UsersManipulationCommands;
+namespace BLL.Commands.PreUsersManipulationCommands;
 
-public class UserCommandsManager : AbstractCommandManager
+public class PreUserCommandsManager : AbstractCommandManager
 {
-    public UserCommandsManager(IUnitOfWork unitOfWork, IMapper mapper)
+    public PreUserCommandsManager(IUnitOfWork unitOfWork, IMapper mapper)
     : base(unitOfWork, mapper) { }
 
     public bool CreateUser(BaseUserModel userModel)

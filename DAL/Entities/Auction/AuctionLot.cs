@@ -2,9 +2,12 @@
 
 public class AuctionLot
 {
-    private string title; // обов'язкове поле
-    private string description; // необов'язкове поле
+    private string title;
+    private string description;
+    private string imagePath;
     private decimal startPrice;
+    private DateTime endTime;
+    private DateTime startime;
 
     public int Id { get; set; } // айді для бази даних
 
@@ -36,6 +39,25 @@ public class AuctionLot
         }
     }
 
+    public string ImagePath
+    {
+        get => imagePath;
+        set
+        { // базові перевірки на неіснуючий файл та шлях з недопустимими
+            if (!string.IsNullOrWhiteSpace(value) && !File.Exists(value))
+            {
+                throw new FileNotFoundException("Файл зображення не знайдено за вказаним шляхом");
+            }
+
+            if (value.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+            {
+                throw new ArgumentException("Шлях містить недопустимі символи");
+            }
+
+            imagePath = value;
+        }
+    }
+
     public decimal StartPrice
     {
         get => startPrice;
@@ -52,7 +74,33 @@ public class AuctionLot
 
     public EnumLotStatuses Status { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime StartTime // час буде автоматично вводитися при підтвердженні лоту менеджером
+    {
+        get => startime;
+        set
+        {
+            if (value > EndTime)
+            {
+                throw new ArgumentException("Не можна розпочати аукціон післявстановленого кінця торгів");
+            }
+
+            startime = value;
+        }
+    }
+
+    public DateTime EndTime // час завершення аукціону, який буде вводити користувач
+    {
+        get => endTime;
+        set
+        {
+            if (value < StartTime)
+            {
+                throw new ArgumentException("EndTime не може бути раніше CreatedAt");
+            }
+
+            endTime = value;
+        }
+    }
 
     public int OwnerId { get; set; } // зовнішній ключ
     public RegisteredUser Owner { get; set; } // навігаційна властивість - власник лоту

@@ -10,8 +10,6 @@ public class AuctionLotProfile : Profile
     {
         CreateMap<EnumLotStatuses, BusinessEnumLotStatuses>().ReverseMap();
 
-        CreateMap<AuctionLot, AuctionLotModel>()
-            .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids))
-            .ReverseMap();
+        CreateMap<AuctionLot, AuctionLotModel>().ReverseMap();
     }
 }

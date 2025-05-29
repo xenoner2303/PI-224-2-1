@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using BLL.EntityBLLModels;
-using DAL.Entities;
+using DTOsLibrary;
 
-namespace BLL.AutoMapperProfiles;
+namespace WebPresentation.AutoMapperProfiles;
 
 public class CategoryProfile : Profile
 {
     public CategoryProfile()
     {
-        CreateMap<Category, CategoryModel>().ReverseMap();
+        CreateMap<CategoryModel, CategoryDto>().ReverseMap();
     }
 }
