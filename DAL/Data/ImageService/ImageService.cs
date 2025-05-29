@@ -4,7 +4,7 @@ public class ImageService : IImageService
 {
     private string directoryName;
     private readonly string imagesDir;
-    private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+    private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png" };
 
     public ImageService(string directoryName)
     {
@@ -40,5 +40,17 @@ public class ImageService : IImageService
 
         // повертаємо відносний шлях
         return Path.Combine(directoryName, fileName);
+    }
+
+    public byte[] LoadImage(string relativePath)
+    {
+        string fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
+
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException("Зображення не знайдено");
+        }
+
+        return File.ReadAllBytes(fullPath);
     }
 }

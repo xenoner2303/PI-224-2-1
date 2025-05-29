@@ -12,6 +12,8 @@ public class AuctionLotDto
 
     public decimal StartPrice { get; set; }
 
+    public string? ImageBase64 { get; set; } // зберігаємо зображення як Base64 рядок для передачі через API
+
     public EnumLotStatusesDto Status { get; set; }
 
     public DateTime StartTime { get; set; }

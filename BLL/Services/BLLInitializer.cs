@@ -19,9 +19,6 @@ public static class BLLInitializer
         // ініціалізація залежностей рівня дал
         DALInitializer.AddDataAccessServices(services);
 
-        // реєстрація сервісу для збереження-клонування зображень
-        services.AddScoped<IImageService>(provider => new ImageService("Images")); // директорією буде Images
-
         services.AddScoped<PreUserCommandsManager>();
     }
 }

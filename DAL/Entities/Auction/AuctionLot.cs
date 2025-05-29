@@ -4,7 +4,7 @@ public class AuctionLot
 {
     private string title;
     private string description;
-    private string imagePath;
+    private string relativeImagePath;
     private decimal startPrice;
     private DateTime startTime;
     private DateTime endTime;
@@ -39,9 +39,9 @@ public class AuctionLot
         }
     }
 
-    public string ImagePath
+    public string? RelativeImagePath
     {
-        get => imagePath;
+        get => relativeImagePath;
         set
         { // базові перевірки на неіснуючий файл та шлях з недопустимими
             if (!string.IsNullOrWhiteSpace(value) && !File.Exists(value))
@@ -54,7 +54,7 @@ public class AuctionLot
                 throw new ArgumentException("Шлях містить недопустимі символи");
             }
 
-            imagePath = value;
+            relativeImagePath = value;
         }
     }
 
