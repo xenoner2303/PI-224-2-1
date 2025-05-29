@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using DAL.Data;
+using DAL.Entities;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
-    internal class ReadCategoryCommand : AbstrCommandWithDA<bool>
+    internal class ReadCategoryCommand : AbstrCommandWithDA<Category>
     {
         private readonly int _categoryId;
 
@@ -15,12 +16,16 @@ namespace BLL.Commands.ManagerManipulationCommands
 
         public override string Name => "Отримання категорії";
 
-        public override bool Execute()
+        public override Category Execute()
         {
             var category = dAPoint.CategoryRepository.GetById(_categoryId);
 
+            if (category == null)
+                return null;
+
             LogAction($"{Name} з ID {_categoryId}: {category.Name}");
-            return true;
+
+            return category;
         }
     }
 }

@@ -23,14 +23,23 @@ namespace BLL.Commands.ManagerManipulationCommands
         //якщо у категорії нема батька
         public override bool Execute()
         {
-            dAPoint.CategoryRepository.Add(new DAL.Entities.Category
+            try
             {
-                Name = _categoryName,
-                ParentId = null // категорія без батька
-            });
-            dAPoint.Save();
-            LogAction($"{Name} \"{_categoryName}\"");
-            return true;
+                var newCategory = new Category
+                {
+                    Name = _categoryName,
+                    ParentId = null // категорія без батька
+                };
+
+                dAPoint.CategoryRepository.Add(newCategory);
+                dAPoint.Save();
+                LogAction($"{Name} \"{_categoryName}\"");
+                return true;
+            }
+            catch(ArgumentException ex)
+            {
+                return false;
+            }
         }
 
         //якщо у категорії є батько (ця категорія - підкатегорія)

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using BLL.Commands.UsersManipulationCommands;
 using BLL.EntityBLLModels;
 using DAL.Data;
+using DAL.Entities;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
@@ -9,16 +9,6 @@ namespace BLL.Commands.ManagerManipulationCommands
     {
         public ManagerCommandsManager(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-        }
-        public bool CreateManager(BaseUserModel userModel)
-        {
-            var command = new CreateUserCommand(userModel, unitOfWork, mapper);
-            return ExecuteCommand(command, "Не вдалося створити менеджера");
-        }
-        public BaseUserModel AuthorizeManager(string login, string password)
-        {
-            var command = new AuthorizeUserCommand(login, password, unitOfWork, mapper);
-            return ExecuteCommand(command, "Не вдалося авторизувати менеджера");
         }
         public bool CreateCategory(string categoryModel)
         {
@@ -30,10 +20,10 @@ namespace BLL.Commands.ManagerManipulationCommands
             var command = new DeleteCategoryCommand(categoryId, unitOfWork, mapper);
             return ExecuteCommand(command, "Не вдалося видалити категорію");
         }
-        public bool ReadCategory(int categoryId)
+        public Category ReadCategory(int categoryId)
         {
-               var command = new ReadCategoryCommand(categoryId, unitOfWork, mapper);
-            return ExecuteCommand(command, "Не вдалося прочитати категорію");
+            var command = new ReadCategoryCommand(categoryId, unitOfWork, mapper);
+            return ExecuteCommand<Category>(command, "Не вдалося прочитати категорію");
         }
         public bool ApproveLot(int lotId)
         {
