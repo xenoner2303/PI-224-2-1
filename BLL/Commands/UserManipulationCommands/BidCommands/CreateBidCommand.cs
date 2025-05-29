@@ -1,26 +1,23 @@
 ﻿using AutoMapper;
+using BLL.EntityBLLModels;
 using DAL.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DAL.Entities;
 
 namespace BLL.Commands.UserManipulationCommands
 {
     public class CreateBidCommand : AbstrCommandWithDA<bool>
     {
+        private readonly IMapper _mapper;
+        private readonly AuctionLotModel _lotModel;
         private readonly decimal _amount;
-        private readonly int _lotId;
-        private readonly int _userId;
 
-        public CreateBidCommand(decimal amount, int lotId, int userId, IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateBidCommand(decimal amount, AuctionLotModel auctionLotModel, IUnitOfWork unitOfWork, IMapper mapper)
             : base(unitOfWork, mapper)
         {
             _amount = amount;
-            _lotId = lotId;
-            _userId = userId;
+            _lotModel = auctionLotModel;
+            _amount = amount;
         }
 
         public override string Name => "Створення ставки";
@@ -29,20 +26,44 @@ namespace BLL.Commands.UserManipulationCommands
         {
             try
             {
-                var newBid = new Bid
+                var lotEntity = dAPoint.AuctionLotRepository.GetById(_lotModel.Id);
+                var newBidModel = new BidModel
                 {
                     Amount = _amount,
                     PlacedAt = DateTime.Now,
-                    LotId = _lotId,
-                    UserId = _userId
+                    Lot = _lotModel,
+                    User = _lotModel.Owner
                 };
-                var lot = dAPoint.AuctionLotRepository.GetById(_lotId);
-                lot.Bids.Add(newBid);
-                dAPoint.AuctionLotRepository.Update(lot);
-                var user = dAPoint.UserRepository.GetById(_userId);
-                dAPoint.Save();
-                LogAction($"{Name} на суму {_amount} користувачаем {user.FirstName} {user.LastName}");
-                return true;
+                var newBidEntity = _mapper.Map<Bid>(newBidModel);
+                int countBids = lotEntity.Bids.Count();
+                if (countBids >= 1)
+                {
+                    if (lotEntity.Bids[countBids - 1].Amount < newBidEntity.Amount)
+                    {
+                        lotEntity.Bids.Add(newBidEntity);
+                        dAPoint.AuctionLotRepository.Update(lotEntity);
+                        dAPoint.Save();
+                        LogAction($"{Name} на суму {newBidEntity.Amount} користувачем {_lotModel.Owner.FirstName} {_lotModel.Owner.LastName}");
+
+
+                        return true;
+                    }
+                    LogAction($"{Name} на суму {newBidEntity.Amount} користувачем {_lotModel.Owner.FirstName} {_lotModel.Owner.LastName} НЕ ВДАЛОСЬ, бо сума ставуи була меншою за попередню");
+                    return false;
+                }
+                else if (countBids == 0)
+                {
+                    lotEntity.Bids.Add(newBidEntity);
+                    dAPoint.AuctionLotRepository.Update(lotEntity);
+                    dAPoint.Save();
+                    LogAction($"{Name} на суму {newBidEntity.Amount} користувачем {_lotModel.Owner.FirstName} {_lotModel.Owner.LastName}");
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (ArgumentException)
             {
@@ -51,3 +72,4 @@ namespace BLL.Commands.UserManipulationCommands
         }
     }
 }
+

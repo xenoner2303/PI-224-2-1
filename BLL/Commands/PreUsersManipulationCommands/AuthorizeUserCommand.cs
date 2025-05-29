@@ -15,8 +15,8 @@ internal class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
     internal AuthorizeUserCommand(string login, string password, IUnitOfWork operateUnitOfWork, IMapper mapper)
         : base(operateUnitOfWork, mapper)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(login, nameof(login));
-        ArgumentNullException.ThrowIfNullOrEmpty(password, nameof(password));
+        ArgumentNullException.ThrowIfNullOrEmpty(login);
+        ArgumentNullException.ThrowIfNullOrEmpty(password);
 
         this.login = login;
         this.password = password;

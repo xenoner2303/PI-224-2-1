@@ -10,9 +10,9 @@ public class UserCommandManager : AbstractCommandManager
     public UserCommandManager(IUnitOfWork unitOfWork, IMapper mapper)
     : base(unitOfWork, mapper) { }
 
-    public bool CreateBid(decimal amount, int lotId, int userId)
+    public bool CreateBid(decimal amount, AuctionLotModel auctionLotModel)
     {
-        var command = new CreateBidCommand(amount, lotId, userId, unitOfWork, mapper);
+        var command = new CreateBidCommand(amount, auctionLotModel, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося створити ставку");
     }
     

@@ -22,9 +22,9 @@ namespace WebPresentation.Controllers
             _mapper = mapper;
         }
         [HttpPost("create-bid")]
-        public IActionResult CreateBid([FromBody] decimal amount, [FromBody] int lotId, [FromBody] int userId)
+        public IActionResult CreateBid([FromBody] decimal amount, [FromBody] AuctionLotModel auctionLotModel)
         {
-            var result = _manager.CreateBid(amount, lotId, userId);
+            var result = _manager.CreateBid(amount, auctionLotModel);
             if (result)
             {
                 return Ok("Bid created successfully");
