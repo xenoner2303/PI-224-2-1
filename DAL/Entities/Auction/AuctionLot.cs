@@ -6,8 +6,8 @@ public class AuctionLot
     private string description;
     private string imagePath;
     private decimal startPrice;
+    private DateTime startTime;
     private DateTime endTime;
-    private DateTime startime;
 
     public int Id { get; set; } // айді для бази даних
 
@@ -76,7 +76,7 @@ public class AuctionLot
 
     public DateTime StartTime // час буде автоматично вводитися при підтвердженні лоту менеджером
     {
-        get => startime;
+        get => startTime;
         set
         {
             if (value > EndTime)
@@ -84,21 +84,24 @@ public class AuctionLot
                 throw new ArgumentException("Не можна розпочати аукціон післявстановленого кінця торгів");
             }
 
-            startime = value;
+            startTime = value;
         }
     }
 
-    public DateTime EndTime // час завершення аукціону, який буде вводити користувач
+    public DateTime EndTime
     {
         get => endTime;
         set
         {
             if (value < StartTime)
             {
-                throw new ArgumentException("EndTime не може бути раніше CreatedAt");
+                // Автоматично ставимо +3 хвилини
+                endTime = StartTime.AddMinutes(3);
             }
-
-            endTime = value;
+            else
+            {
+                endTime = value;
+            }
         }
     }
 

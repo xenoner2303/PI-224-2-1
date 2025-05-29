@@ -20,7 +20,7 @@ namespace BLL.Commands.ManagerManipulationCommands
                 .FirstOrDefault(l => l.Id == _lotId);
             if (auctionLot != null)
             {
-                auctionLot.Status = DAL.Entities.EnumLotStatuses.Completed;
+                auctionLot.Status = DAL.Entities.EnumLotStatuses.Rejected;
                 dAPoint.AuctionLotRepository.Update(auctionLot);
                 dAPoint.Save();
 

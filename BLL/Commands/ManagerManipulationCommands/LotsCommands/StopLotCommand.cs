@@ -22,6 +22,7 @@ namespace BLL.Commands.ManagerManipulationCommands
             if (auctionLot != null)
             {
                 auctionLot.Status = DAL.Entities.EnumLotStatuses.Completed;
+                auctionLot.EndTime = DateTime.Now;
                 dAPoint.AuctionLotRepository.Update(auctionLot);
                 dAPoint.Save();
 
