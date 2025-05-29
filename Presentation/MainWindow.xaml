@@ -1,12 +1,56 @@
-﻿<Window x:Class="Presentation.MainWindow"
+﻿<Window x:Class="Presentation.MainWindow" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Presentation"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Інтернет-аукціон" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
 
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхня панель -->
+        <DockPanel Grid.Row="0" Margin="0 0 0 10">
+            <TextBlock Text="Інтернет-аукціон" FontSize="24" FontWeight="Bold" Foreground="DarkBlue" VerticalAlignment="Center" />
+            <Button Content="Авторизуватись" DockPanel.Dock="Right" Width="150" Margin="530 0 0 0" Click="Login_Click"/>
+        </DockPanel>
+
+        <!-- Фільтри -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 0 0 10" VerticalAlignment="Center">
+            <TextBox x:Name="SearchBox" Width="200" Height="30" Margin="0 0 10 0" ToolTip="Пошук за назвою лоту"/>
+            <ComboBox x:Name="CategoryComboBox" Width="150" Height="30" Margin="0 0 10 0" ToolTip="Категорія">
+                <ComboBoxItem Content="Всі категорії" IsSelected="True"/>
+                <ComboBoxItem Content="Електроніка"/>
+                <ComboBoxItem Content="Меблі"/>
+                <ComboBoxItem Content="Одяг"/>
+                <ComboBoxItem Content="Інше"/>
+            </ComboBox>
+            <Button Content="Пошук" Width="100" Click="Search_Click"/>
+        </StackPanel>
+
+        <!-- Таблиця лотів -->
+        <DataGrid x:Name="LotsDataGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="LotsDataGrid_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Назва" Binding="{Binding Title}" Width="*"/>
+                <DataGridTextColumn Header="Ціна" Binding="{Binding CurrentBid}" Width="100"/>
+                <DataGridTextColumn Header="Категорія" Binding="{Binding Category}" Width="150"/>
+                <DataGridTextColumn Header="Опис" Binding="{Binding Description}" Width="300"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Введення ставки -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <TextBlock Text="Ваша ставка:" VerticalAlignment="Center" Margin="0 0 10 0"/>
+            <TextBox x:Name="BidTextBox" Width="100" Height="25"/>
+            <Button Content="Зробити ставку" Width="120" Margin="10 0 0 0" Click="PlaceBid_Click"/>
+            <Label x:Name="BidValidationLabel" Content="" Foreground="Red" VerticalAlignment="Center" Margin="15 0 0 0" Width="24"/>
+        </StackPanel>
     </Grid>
 </Window>
