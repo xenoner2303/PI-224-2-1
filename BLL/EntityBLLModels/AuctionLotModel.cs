@@ -10,12 +10,13 @@ public class AuctionLotModel
 
     public decimal StartPrice { get; set; }
 
-    public byte[]? ImageBytes { get; set; }// зберігаємо зображення як необов'язковий масив байтів рядок для передачі через API
+    public byte[]? ImageBytes { get; set; } // зберігаємо зображення як необов'язковий масив байтів рядок для передачі через API
 
     public BusinessEnumLotStatuses Status { get; set; }
 
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateTime? StartTime { get; set; }
+    public int DurationDays { get; set; }
+    public DateTime? EndTime { get; set; }
 
     public BaseUserModel Owner { get; set; }
     public CategoryModel Category { get; set; }

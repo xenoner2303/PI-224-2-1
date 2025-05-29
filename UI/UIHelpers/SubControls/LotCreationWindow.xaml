@@ -39,20 +39,11 @@
         <!-- Початкова ціна -->
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Початкова ціна:" VerticalAlignment="Center" Margin="0,5"/>
         <TextBox Grid.Row="2" Grid.Column="1" Name="StartPriceTextBox" Margin="0,5"/>
+        
+        <!-- Тривалість аукціону (дні) -->
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Тривалість (дні):" VerticalAlignment="Center" Margin="0,5"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Name="DurationDaysTextBox" Margin="0,5" Text="1"/>
 
-        <!-- Час початку -->
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Початок:" VerticalAlignment="Center" Margin="0,5"/>
-        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,5" HorizontalAlignment="Left">
-            <DatePicker Name="StartDatePicker" Width="130"/>
-            <TextBox Name="StartTimeTextBox" Width="60" Margin="5,0,0,0" Text="12:00"/>
-        </StackPanel>
-
-        <!-- Час завершення -->
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Завершення:" VerticalAlignment="Center" Margin="0,5"/>
-        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,5" HorizontalAlignment="Left">
-            <DatePicker Name="EndDatePicker" Width="130"/>
-            <TextBox Name="EndTimeTextBox" Width="60" Margin="5,0,0,0" Text="12:30"/>
-        </StackPanel>
 
         <!-- Категорія -->
         <TextBlock Grid.Row="5" Grid.Column="0" Text="Категорія:" VerticalAlignment="Center" Margin="0,5"/>

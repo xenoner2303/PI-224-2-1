@@ -27,6 +27,12 @@ public class UserApiClient : AbstractApiClient
         return await HandleErrorAsync(response);
     }
 
+    public async Task<bool> CreateBidAsync(BidDto dto)
+    {
+        var response = await client.PostAsJsonAsync("bid", dto);
+        return await HandleErrorAsync(response);
+    }
+
     public async Task<bool> DeleteLotAsync(int lotId)
     {
         var response = await client.DeleteAsync($"lot/{lotId}");

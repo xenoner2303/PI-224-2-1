@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using UI.ApiClients;
 using UI.UIHelpers;
 using Presentation.UIHelpers;
+using Presentation.UIHelpers.SubControls;
+using UI;
 
 namespace Presentation
 {
@@ -15,6 +17,8 @@ namespace Presentation
         private BaseUserDto? currentUser;
         private readonly IServiceProvider serviceProvider;
         private readonly UserApiClient client;
+        private List<CategoryDto> flatCategoryList;
+        private LotDemonstrationControl? selectedLotControl; // для нормального опрацювання лотів
 
         public UserManagerWindow(IServiceProvider serviceProvider, UserApiClient client)
         {
@@ -29,24 +33,85 @@ namespace Presentation
             LoadUserManagerWindowEntities();
         }
 
-        private void PlaceBid_Click(object sender, RoutedEventArgs e)
+        private async void PlaceBid_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentUser == null) // додатковий захист
+            {
+                MessageBox.Show("Будь ласка, авторизуйтесь перед створенням ставки");
+                return;
+            }
+        }
+
+        private async void Search_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void Search_Click(object sender, RoutedEventArgs e)
+        private async void CreateLot_Click(object sender, RoutedEventArgs e)
         {
+            if (currentUser == null) // додатковий захист
+            {
+                MessageBox.Show("Будь ласка, авторизуйтесь перед створенням лота");
+                return;
+            }
 
+            var lotCreationWindow = new LotCreationWindow(currentUser, flatCategoryList);
+            lotCreationWindow.Owner = this; // встановлюємо це вікно господарем, щоб блокувалося поки не закрили вінко створення
+
+            lotCreationWindow.ShowDialog();
+
+            if (lotCreationWindow.DialogResult == true && lotCreationWindow.CreatedLot is AuctionLotDto newLot)
+            {
+                newLot.Owner = currentUser;
+
+                var success = await client.CreateLotAsync(newLot);
+
+                if (success)
+                {
+                    MessageBox.Show("Лот успішно створено");
+                }
+                else
+                {
+                    MessageBox.Show("Не вдалося створити лот");
+                }
+            }
         }
 
-        private void CreateLot_Click(object sender, RoutedEventArgs e)
+        private async void DeleteLot_Click(object sender, RoutedEventArgs e)
         {
+            if (currentUser == null)
+            {
+                MessageBox.Show("Будь ласка, авторизуйтесь перед видаленням лота");
+                return;
+            }
 
-        }
+            if (selectedLotControl == null)
+            {
+                MessageBox.Show("Будь ласка, виберіть лот для видалення");
+                return;
+            }
 
-        private void DeleteLot_Click(object sender, RoutedEventArgs e)
-        {
+            var lotId = selectedLotControl.auctionLotDto.Id;
 
+            // попередження
+            var confirmed = MessageBox.Show("Ви впевнені, що хочете видалити лот?", "Підтвердження", MessageBoxButton.YesNo);
+
+            if (confirmed != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            var success = await client.DeleteLotAsync(lotId);
+            if (success)
+            {
+                MessageBox.Show("Лот видалено");
+                UserLotsPanel.Children.Remove(selectedLotControl);
+                selectedLotControl = null;
+            }
+            else
+            {
+                MessageBox.Show("Не вдалося видалити лот");
+            }
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
@@ -77,16 +142,36 @@ namespace Presentation
             var categories = await client.GetCategoriesAsync();
 
             // Створення сплющеного списку категорій із нумерацією
-            var flatList = CategoryHelper.FlattenCategoriesWithNumbers(categories);
+            flatCategoryList = CategoryHelper.FlattenCategoriesWithNumbers(categories);
 
             // Використання UILoadHelper для заповнення ComboBox
-            UILoadHelper.LoadEntities(flatList, CategoryComboBox, "DisplayName");
+            UILoadHelper.LoadEntities(flatCategoryList, CategoryComboBox, "DisplayName");
 
             if (currentUser != null)
             {
-                // zкщо користувач авторизований, завантажуємо його лоти
                 var userLots = await client.GetUserLotsAsync(currentUser.Id);
 
+                UserLotsPanel.Children.Clear(); // очистимо панель перед додаванням нових елементів
+
+                foreach (var lot in userLots)
+                {
+                    var lotControl = new LotDemonstrationControl(lot);
+
+                    lotControl.LotSelected += (s, _) =>
+                    {
+                        // якщо був виділений попередній — знімаємо з нього виділення
+                        if (selectedLotControl != null)
+                        {
+                            selectedLotControl.IsSelected = false;
+                        }
+
+                        // зберігаємо новий виділений лот
+                        selectedLotControl = (LotDemonstrationControl)s;
+                        selectedLotControl.IsSelected = true;
+                    };
+
+                    UserLotsPanel.Children.Add(lotControl);
+                }
             }
         }
     }
