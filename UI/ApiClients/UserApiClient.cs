@@ -64,4 +64,17 @@ public class UserApiClient : AbstractApiClient
         var categories = await response.Content.ReadFromJsonAsync<List<CategoryDto>>();
         return categories ?? new List<CategoryDto>();
     }
+
+    public async Task<List<AuctionLotDto>> SearchLotsAsync(SearchLotsDto dto)
+    {
+        var response = await client.PostAsJsonAsync("search", dto);
+
+        if (!await HandleErrorAsync(response))
+        {
+            return new List<AuctionLotDto>();
+        }
+
+        var lots = await response.Content.ReadFromJsonAsync<List<AuctionLotDto>>();
+        return lots ?? new List<AuctionLotDto>();
+    }
 }

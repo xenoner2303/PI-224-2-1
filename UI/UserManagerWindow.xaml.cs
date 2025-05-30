@@ -2,10 +2,10 @@
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using UI.ApiClients;
-using UI.UIHelpers;
-using Presentation.UIHelpers;
 using Presentation.UIHelpers.SubControls;
 using UI;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Presentation
 {
@@ -19,6 +19,7 @@ namespace Presentation
         private readonly UserApiClient client;
         private List<CategoryDto> flatCategoryList;
         private LotDemonstrationControl? selectedLotControl; // для нормального опрацювання лотів
+        private CategoryDto? selectedCategory;
 
         public UserManagerWindow(IServiceProvider serviceProvider, UserApiClient client)
         {
@@ -35,10 +36,10 @@ namespace Presentation
 
         private async void PlaceBid_Click(object sender, RoutedEventArgs e)
         {
-            // Очистити повідомлення валідації
+            // очищаємо повідомлення зауваження
             BidValidationLabel.Content = "";
 
-            if (currentUser == null)
+            if (currentUser == null) // додатковий захист
             {
                 MessageBox.Show("Будь ласка, авторизуйтесь перед створенням ставки");
                 return;
@@ -72,7 +73,7 @@ namespace Presentation
             if (success)
             {
                 MessageBox.Show("Ставку успішно зроблено");
-                BidTextBox.Text = ""; // Очистити поле
+                BidTextBox.Text = ""; // очищуємо поле
             }
             else
             {
@@ -82,7 +83,32 @@ namespace Presentation
 
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
+            string? keyword = SearchBox.Text.Trim().ToLower();
 
+            SearchLotsDto search = new SearchLotsDto
+            {
+                Keyword = keyword,
+                CategoryId = selectedCategory?.Id
+            };
+
+            var receiveLots = await client.SearchLotsAsync(search);
+
+            if (receiveLots.Count == 0)
+            {
+                MainLotsCoursePanel.Children.Clear();
+
+                MainLotsCoursePanel.Children.Add(new TextBlock
+                {
+                    Text = "Лоти не знайдено.",
+                    Foreground = Brushes.Gray,
+                    FontSize = 16,
+                    Margin = new Thickness(10)
+                });
+
+                return;
+            }
+
+            FillLotsPanel(receiveLots);
         }
 
         private async void CreateLot_Click(object sender, RoutedEventArgs e)
@@ -166,6 +192,20 @@ namespace Presentation
             authWindow.ShowDialog();
         }
 
+        private void CategoryTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            selectedCategory = CategoryTreeView.SelectedItem as CategoryDto;
+        }
+
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            currentUser = null;
+
+            UserLotsPanel.Children.Clear(); // очищаємо панель лотів юзера для безпеки
+
+            UpdateTabAccess();
+        }
+
         private void UpdateTabAccess()
         {
             bool userState = currentUser != null;
@@ -173,43 +213,75 @@ namespace Presentation
             // блокуємо вкладку "Мої лоти", якщо користувач неавторизований
             UserLotsTab.IsEnabled = userState;
             PlaceBidButton.IsEnabled = userState;
+
+            if (userState)
+            {
+                LoginButton.Visibility = Visibility.Collapsed;
+                UserNameText.Text = currentUser.Login;
+                UserInfoPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                UserInfoPanel.Visibility = Visibility.Collapsed;
+                LoginButton.Visibility = Visibility.Visible;
+            }
         }
 
         private async void LoadUserManagerWindowEntities()
         {
             var categories = await client.GetCategoriesAsync();
 
-            // Створення сплющеного списку категорій із нумерацією
-            flatCategoryList = CategoryHelper.FlattenCategoriesWithNumbers(categories);
-
-            // Використання UILoadHelper для заповнення ComboBox
-            UILoadHelper.LoadEntities(flatCategoryList, CategoryComboBox, "DisplayName");
+            if (categories == null || categories.Count == 0)
+            {
+                CategoryTreeView.ItemsSource = null;
+                CategoryTreeView.Items.Clear();
+                CategoryTreeView.Items.Add(new TreeViewItem
+                {
+                    Header = new TextBlock
+                    {
+                        Text = "Категорії відсутні.",
+                        Foreground = Brushes.Gray,
+                        FontStyle = FontStyles.Italic
+                    },
+                    IsEnabled = false
+                });
+            }
+            else
+            {
+                CategoryTreeView.ItemsSource = categories;
+                flatCategoryList = categories;
+            }
 
             if (currentUser != null)
             {
                 var userLots = await client.GetUserLotsAsync(currentUser.Id);
 
-                UserLotsPanel.Children.Clear(); // очистимо панель перед додаванням нових елементів
+                FillLotsPanel(userLots);
+            }
+        }
 
-                foreach (var lot in userLots)
+        private void FillLotsPanel(List<AuctionLotDto> lots)
+        {
+            UserLotsPanel.Children.Clear(); // очищаємо панель перед додаванням нових елементів
+
+            foreach (var lot in lots)
+            {
+                var lotControl = new LotDemonstrationControl(lot);
+
+                lotControl.LotSelected += (s, _) =>
                 {
-                    var lotControl = new LotDemonstrationControl(lot);
-
-                    lotControl.LotSelected += (s, _) =>
+                    // якщо був виділений попередній — знімаємо з нього виділення
+                    if (selectedLotControl != null)
                     {
-                        // якщо був виділений попередній — знімаємо з нього виділення
-                        if (selectedLotControl != null)
-                        {
-                            selectedLotControl.IsSelected = false;
-                        }
+                        selectedLotControl.IsSelected = false;
+                    }
 
-                        // зберігаємо новий виділений лот
-                        selectedLotControl = (LotDemonstrationControl)s;
-                        selectedLotControl.IsSelected = true;
-                    };
+                    // зберігаємо новий виділений лот
+                    selectedLotControl = (LotDemonstrationControl)s;
+                    selectedLotControl.IsSelected = true;
+                };
 
-                    UserLotsPanel.Children.Add(lotControl);
-                }
+                UserLotsPanel.Children.Add(lotControl);
             }
         }
     }

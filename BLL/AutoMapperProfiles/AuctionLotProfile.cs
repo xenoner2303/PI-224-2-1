@@ -12,6 +12,9 @@ public class AuctionLotProfile : Profile
         CreateMap<EnumLotStatuses, BusinessEnumLotStatuses>().ReverseMap();
 
         CreateMap<AuctionLot, AuctionLotModel>()
-            .ForMember(dest => dest.ImageBytes, opt => opt.MapFrom<ImageToBytesResolver>());
+            .ForMember(dest => dest.Image, opt => opt.MapFrom<ImageToBytesImageModelResolver>());
+
+        CreateMap<AuctionLotModel, AuctionLot>()
+            .ForMember(dest => dest.RelativeImagePath, opt => opt.MapFrom<BytesToImageResolver>());
     }
 }

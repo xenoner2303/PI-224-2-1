@@ -15,6 +15,7 @@ public class AuctionDbContext : DbContext
     public DbSet<Administrator> Administrators { get; set; }
 
     public DbSet<ActionLog> ActionLogs { get; set; }
+    public DbSet<AbstractSecretCodeRealizator> SecretCodeRealizators { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -72,5 +73,11 @@ public class AuctionDbContext : DbContext
             .WithMany(m => m.ManagedLots)
             .HasForeignKey(x => x.ManagerId)
             .IsRequired(false); // менеджер не обов'язковий, бо є стан коли ще ніхто не підвердив лот
+
+        // реалізатори через TPH
+        modelBuilder.Entity<AbstractSecretCodeRealizator>()
+           .HasDiscriminator<string>("RealizatorType")
+           .HasValue<AdministratorSecretCodeRealization>("Administrator")
+           .HasValue<ManagerSecretCodeRealizator>("Manager");
     }
 }

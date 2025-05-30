@@ -5,18 +5,18 @@ using DAL.Entities;
 
 namespace BLL.AutoMapperProfiles.ValueResolvers;
 
-public class ImageToBytesResolver : IValueResolver<AuctionLot, AuctionLotModel, byte[]?>
+public class ImageToBytesImageModelResolver : IValueResolver<AuctionLot, AuctionLotModel, ImageModel?>
 {
     private readonly IImageService imageService;
 
-    public ImageToBytesResolver(IImageService imageService)
+    public ImageToBytesImageModelResolver(IImageService imageService)
     {
         ArgumentNullException.ThrowIfNull(imageService, nameof(imageService));
 
         this.imageService = imageService;
     }
 
-    public byte[]? Resolve(AuctionLot source, AuctionLotModel destination, byte[]? destMember, ResolutionContext context)
+    public ImageModel? Resolve(AuctionLot source, AuctionLotModel destination, ImageModel? destMember, ResolutionContext context)
     {
         if (string.IsNullOrWhiteSpace(source.RelativeImagePath))
         {
@@ -25,8 +25,12 @@ public class ImageToBytesResolver : IValueResolver<AuctionLot, AuctionLotModel, 
 
         try
         {
-            // завантажуємо з DAL масив байтів
-            return imageService.LoadImage(source.RelativeImagePath);
+            ImageModel imageModel = new ImageModel
+            {
+                Bytes = imageService.LoadImage(source.RelativeImagePath)
+            };
+
+            return imageModel;
         }
         catch
         {

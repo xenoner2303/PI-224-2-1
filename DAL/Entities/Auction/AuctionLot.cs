@@ -76,7 +76,19 @@ public class AuctionLot
     public EnumLotStatuses Status { get; set; }
 
 
-    public DateTime? StartTime { get; set; } // час буде автоматично вводитися при підтвердженні лоту менеджером
+    public DateTime? StartTime
+    {
+        get => startTime;
+        set
+        {
+            if (EndTime.HasValue && value.HasValue && value >= EndTime.Value)
+            {
+                throw new ArgumentException("Дата початку має бути раніше за дату завершення");
+            }
+
+            startTime = value;
+        }
+    }
 
     public int DurationDays // тривалість аукціону у днях
     {
@@ -92,7 +104,6 @@ public class AuctionLot
         }
     }
 
-    // обчислювана властивість для кінця аукціону
     public DateTime? EndTime
     {
         get
@@ -106,9 +117,15 @@ public class AuctionLot
         }
         set
         {
+            if (StartTime.HasValue && value.HasValue && value <= StartTime.Value)
+            {
+                throw new ArgumentException("Дата завершення має бути пізніше за дату початку");
+            }
+
             endTime = value;
         }
     }
+
 
     public int OwnerId { get; set; } // зовнішній ключ
     public RegisteredUser Owner { get; set; } // навігаційна властивість - власник лоту

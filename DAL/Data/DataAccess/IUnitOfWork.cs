@@ -4,15 +4,15 @@ namespace DAL.Data;
 
 public interface IUnitOfWork : IDisposable
 {
-    IGenericRepository<AbstractUser> UserRepository { get; }
-    IGenericRepository<Manager> ManagerRepository { get; }
-    IGenericRepository<RegisteredUser> RegisteredUserRepository { get; }
+    public IGenericRepository<AbstractUser> UserRepository { get; }
+    public IGenericRepository<Manager> ManagerRepository { get; }
+    public IGenericRepository<RegisteredUser> RegisteredUserRepository { get; }
 
-    IGenericRepository<AuctionLot> AuctionLotRepository { get; }
-    IGenericRepository<Bid> BidRepository { get; }
-    IGenericRepository<Category> CategoryRepository { get; }
+    public IGenericRepository<AuctionLot> AuctionLotRepository { get; }
+    public IGenericRepository<Bid> BidRepository { get; }
+    public IGenericRepository<Category> CategoryRepository { get; }
 
-    IGenericRepository<ActionLog> ActionLogRepository { get; }
+    public IGenericRepository<ActionLog> ActionLogRepository { get; }
     public IGenericRepository<AbstractSecretCodeRealizator> SecretCodeRealizatorRepository { get; }
 
     void Save();

@@ -12,7 +12,7 @@ public class AuctionLotDto
 
     public decimal StartPrice { get; set; }
 
-    public byte[]? ImageBytes { get; set; } // зберігаємо зображення як Base64 рядок для передачі через API
+    public ImageDto? Image { get; set; }
 
     public EnumLotStatusesDto Status { get; set; }
 

@@ -4,7 +4,7 @@ public class ImageService : IImageService
 {
     private string directoryName;
     private readonly string imagesDir;
-    private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png" };
+    private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".tmp" };
 
     public ImageService(string directoryName)
     {

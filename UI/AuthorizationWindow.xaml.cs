@@ -58,6 +58,8 @@ namespace Presentation
         {
             // отримуємо RegistrationWindow через DI
             var registrationWindow = new RegistrationWindow(serviceProvider.GetRequiredService<PreUserApiClient>());
+
+            registrationWindow.Owner = this;
             registrationWindow.Show();
         }
     }

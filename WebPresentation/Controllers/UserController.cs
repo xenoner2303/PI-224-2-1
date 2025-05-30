@@ -72,7 +72,6 @@ namespace WebPresentation.Controllers
             }
         }
 
-
         // POST: api/User/lot
         [HttpPost("lot")]
         public ActionResult CreateLot([FromBody] AuctionLotDto dto)
@@ -146,6 +145,22 @@ namespace WebPresentation.Controllers
             {
                 var models = manager.LoadCategories();
                 var dtos = mapper.Map<List<CategoryDto>>(models);
+                return dtos;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // POST: api/User/search
+        [HttpPost("search")]
+        public ActionResult<List<AuctionLotDto>> SearchLots([FromBody] SearchLotsDto dto)
+        {
+            try
+            {
+                var lots = manager.SearchLots(dto.Keyword, dto.CategoryId);
+                var dtos = mapper.Map<List<AuctionLotDto>>(lots);
                 return dtos;
             }
             catch (Exception ex)

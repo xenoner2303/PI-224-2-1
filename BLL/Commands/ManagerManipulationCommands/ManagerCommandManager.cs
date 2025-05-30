@@ -1,15 +1,14 @@
 ﻿using AutoMapper;
-using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
-    public class ManagerCommandManager : AbstractCommandManager
+    public class ManagerCommandsManager : AbstractCommandManager
     {
-        public ManagerCommandManager(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
-        {
-        }
+        public ManagerCommandsManager(IUnitOfWork unitOfWork, IMapper mapper) 
+            : base(unitOfWork, mapper) { }
+
         public bool CreateCategory(string categoryModel)
         {
             var command = new CreateCategoryCommand(categoryModel, unitOfWork, mapper);

@@ -11,14 +11,41 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AuctionDbContext))]
-    [Migration("20250529185456_initialmigrate")]
-    partial class initialmigrate
+    [Migration("20250529220654_InitialMigrate")]
+    partial class InitialMigrate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
+
+            modelBuilder.Entity("DAL.Entities.AbstractSecretCodeRealizator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CodeUses")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RealizatorType")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SecretCodeHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SecretCodeRealizators");
+
+                    b.HasDiscriminator<string>("RealizatorType").HasValue("AbstractSecretCodeRealizator");
+
+                    b.UseTphMappingStrategy();
+                });
 
             modelBuilder.Entity("DAL.Entities.AbstractUser", b =>
                 {
@@ -190,6 +217,20 @@ namespace DAL.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("DAL.Entities.AdministratorSecretCodeRealization", b =>
+                {
+                    b.HasBaseType("DAL.Entities.AbstractSecretCodeRealizator");
+
+                    b.HasDiscriminator().HasValue("Administrator");
+                });
+
+            modelBuilder.Entity("DAL.Entities.ManagerSecretCodeRealizator", b =>
+                {
+                    b.HasBaseType("DAL.Entities.AbstractSecretCodeRealizator");
+
+                    b.HasDiscriminator().HasValue("Manager");
                 });
 
             modelBuilder.Entity("DAL.Entities.Administrator", b =>

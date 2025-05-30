@@ -17,6 +17,33 @@ namespace DAL.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
 
+            modelBuilder.Entity("DAL.Entities.AbstractSecretCodeRealizator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CodeUses")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RealizatorType")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SecretCodeHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SecretCodeRealizators");
+
+                    b.HasDiscriminator<string>("RealizatorType").HasValue("AbstractSecretCodeRealizator");
+
+                    b.UseTphMappingStrategy();
+                });
+
             modelBuilder.Entity("DAL.Entities.AbstractUser", b =>
                 {
                     b.Property<int>("Id")
@@ -187,6 +214,20 @@ namespace DAL.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("DAL.Entities.AdministratorSecretCodeRealization", b =>
+                {
+                    b.HasBaseType("DAL.Entities.AbstractSecretCodeRealizator");
+
+                    b.HasDiscriminator().HasValue("Administrator");
+                });
+
+            modelBuilder.Entity("DAL.Entities.ManagerSecretCodeRealizator", b =>
+                {
+                    b.HasBaseType("DAL.Entities.AbstractSecretCodeRealizator");
+
+                    b.HasDiscriminator().HasValue("Manager");
                 });
 
             modelBuilder.Entity("DAL.Entities.Administrator", b =>

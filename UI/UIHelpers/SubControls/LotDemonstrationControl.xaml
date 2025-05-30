@@ -47,7 +47,7 @@
             <!-- другий рядок з описом лоту -->
             <TextBlock Grid.Row="1" 
                        x:Name="DescriptionTextBlock"
-                       Text="Опис лоту може бути дуже довгим, тому якщо він не вміщається в доступний простір, буде відображено обрізання тексту з трикрапкою..."
+                       Text="Опис лоту"
                        TextTrimming="CharacterEllipsis"
                        TextWrapping="Wrap"
                        Margin="0,5,0,0"
