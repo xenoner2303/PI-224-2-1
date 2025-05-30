@@ -2,8 +2,6 @@
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using UI.ApiClients;
-using UI.UIHelpers;
-using Presentation.UIHelpers;
 using Presentation.UIHelpers.SubControls;
 using UI;
 using System.Windows.Controls;
@@ -21,6 +19,7 @@ namespace Presentation
         private readonly UserApiClient client;
         private List<CategoryDto> flatCategoryList;
         private LotDemonstrationControl? selectedLotControl; // для нормального опрацювання лотів
+        private CategoryDto? selectedCategory;
 
         public UserManagerWindow(IServiceProvider serviceProvider, UserApiClient client)
         {
@@ -85,7 +84,6 @@ namespace Presentation
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
             string? keyword = SearchBox.Text.Trim().ToLower();
-            var selectedCategory = CategoryComboBox.SelectedItem as CategoryDto;
 
             SearchLotsDto search = new SearchLotsDto
             {
@@ -194,6 +192,11 @@ namespace Presentation
             authWindow.ShowDialog();
         }
 
+        private void CategoryTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            selectedCategory = CategoryTreeView.SelectedItem as CategoryDto;
+        }
+
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
             currentUser = null;
@@ -228,11 +231,26 @@ namespace Presentation
         {
             var categories = await client.GetCategoriesAsync();
 
-            // Створення сплющеного списку категорій із нумерацією
-            flatCategoryList = CategoryHelper.FlattenCategoriesWithNumbers(categories);
-
-            // Використання UILoadHelper для заповнення ComboBox
-            UILoadHelper.LoadEntities(flatCategoryList, CategoryComboBox, "DisplayName");
+            if (categories == null || categories.Count == 0)
+            {
+                CategoryTreeView.ItemsSource = null;
+                CategoryTreeView.Items.Clear();
+                CategoryTreeView.Items.Add(new TreeViewItem
+                {
+                    Header = new TextBlock
+                    {
+                        Text = "Категорії відсутні.",
+                        Foreground = Brushes.Gray,
+                        FontStyle = FontStyles.Italic
+                    },
+                    IsEnabled = false
+                });
+            }
+            else
+            {
+                CategoryTreeView.ItemsSource = categories;
+                flatCategoryList = categories;
+            }
 
             if (currentUser != null)
             {
