@@ -17,20 +17,21 @@ public class BytesToImageResolver : IValueResolver<AuctionLotModel, AuctionLot, 
 
     public string? Resolve(AuctionLotModel source, AuctionLot destination, string? destMember, ResolutionContext context)
     {
-        if (source.ImageBytes == null || source.ImageBytes.Length == 0)
+        if (source.Image == null || source.Image.Bytes == null || source.Image.Bytes.Length == 0)
+        {
             return null;
+        }
 
         try
         {
-            // генеруємо тимчасовий файл, зберігаємо байти і передаємо далі у service
-            string tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".tmp");
+            // розширення вже збережено у ContentType, наприклад ".jpg"
+            string extension = NormalizeExtension(source.Image.ContentType);
+            string tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + extension);
 
-            File.WriteAllBytes(tempFilePath, source.ImageBytes);
+            File.WriteAllBytes(tempFilePath, source.Image.Bytes);
 
-            // зберігаємо через сервіс і отримуємо шлях
             string relativePath = imageService.SaveImage(tempFilePath);
 
-            // після цього можна видалити тимчасовий файл
             File.Delete(tempFilePath);
 
             return relativePath;
@@ -39,5 +40,21 @@ public class BytesToImageResolver : IValueResolver<AuctionLotModel, AuctionLot, 
         {
             return null;
         }
+    }
+
+    private string NormalizeExtension(string extension)
+    {
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return ".jpg"; // дефолтне розширення, якщо немає інформації
+        }
+
+        // гарантуємо, що розширення починається з крапки
+        if (!extension.StartsWith('.'))
+        {
+            return "." + extension.ToLowerInvariant();
+        }
+
+        return extension.ToLowerInvariant();
     }
 }

@@ -11,6 +11,8 @@ public class AuctionLotProfile : Profile
     {
         CreateMap<EnumLotStatusesDto, BusinessEnumLotStatuses>().ReverseMap();
 
+        CreateMap<ImageDto, ImageModel>().ReverseMap(); // нова мапа
+
         CreateMap<AuctionLotModel, AuctionLotDto>().ReverseMap();
     }
 }

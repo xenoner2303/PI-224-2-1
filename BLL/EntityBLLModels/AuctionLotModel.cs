@@ -3,17 +3,13 @@
 public class AuctionLotModel
 {
     public int Id { get; set; }
-
     public string Title { get; set; }
-
     public string Description { get; set; }
-
     public decimal StartPrice { get; set; }
 
-    public byte[]? ImageBytes { get; set; } // зберігаємо зображення як необов'язковий масив байтів рядок для передачі через API
+    public ImageModel? Image { get; set; }
 
     public BusinessEnumLotStatuses Status { get; set; }
-
     public DateTime? StartTime { get; set; }
     public int DurationDays { get; set; }
     public DateTime? EndTime { get; set; }
@@ -22,5 +18,5 @@ public class AuctionLotModel
     public CategoryModel Category { get; set; }
     public BaseUserModel Manager { get; set; }
 
-    public List<BidModel> Bids { get; set; } = new List<BidModel>();
+    public List<BidModel> Bids { get; set; } = new();
 }

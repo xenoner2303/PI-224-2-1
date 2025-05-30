@@ -52,12 +52,12 @@ namespace Presentation.UIHelpers.SubControls
             PosterNameTextBlock.Text = auctionLotDto.Owner?.ToString() ?? "Невідомий";
             DescriptionTextBlock.Text = auctionLotDto.Description;
 
-            if (auctionLotDto.ImageBytes != null && auctionLotDto.ImageBytes.Length > 0)
+            if (auctionLotDto.Image != null && auctionLotDto.Image.Bytes.Length > 0)
             {
                 try
                 {
                     // створюємо потік із масиву байтів зображення
-                    using (var stream = new MemoryStream(auctionLotDto.ImageBytes))
+                    using (var stream = new MemoryStream(auctionLotDto.Image.Bytes))
                     {
                         // новий об’єкт BitmapImage для подальшого відображення
                         var bitmap = new BitmapImage();

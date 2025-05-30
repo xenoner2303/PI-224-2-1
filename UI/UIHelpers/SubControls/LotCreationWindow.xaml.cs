@@ -1,9 +1,11 @@
 ﻿using DTOsLibrary;
 using Presentation.UIHelpers;
 using System.IO;
+using System.Net.Mime;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace UI
 {
@@ -48,12 +50,17 @@ namespace UI
 
             byte[]? imageBytes = null;
             string imagePath = ImageUrlTextBox.Text.Trim();
+            var image = new ImageDto();
 
             if (File.Exists(imagePath))
             {
                 try
                 {
                     imageBytes = File.ReadAllBytes(imagePath);
+                    var imageType = Path.GetExtension(imagePath).ToLowerInvariant();
+
+                    image.Bytes = imageBytes;
+                    image.ContentType = imageType;
                 }
                 catch (Exception ex)
                 {
@@ -69,7 +76,7 @@ namespace UI
                 Description = DescriptionTextBox.Text.Trim(),
                 StartPrice = startPrice,
                 DurationDays = durationDays,
-                ImageBytes = imageBytes,
+                Image = image,
                 Category = selectedCategory,
                 Owner = lotOwner
             };
