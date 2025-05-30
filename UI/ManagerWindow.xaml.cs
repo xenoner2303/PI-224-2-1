@@ -1,8 +1,10 @@
 ﻿using DTOsLibrary;
 using DTOsLibrary.DTOEnums;
+using Presentation.UIHelpers;
 using Presentation.UIHelpers.SubControls;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -16,8 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using UI.ApiClients;
-
-namespace UI
+namespace Presentation
 {
     /// <summary>
     /// Interaction logic for ManagerWindow.xaml
@@ -27,29 +28,26 @@ namespace UI
         //додати зображення
         private readonly IServiceProvider _serviceProvider;
         private readonly ManagerApiClient _client;
+        private BaseUserDto _userDto;
         private List<AuctionLotDto> _allLots;
         private List<CategoryDto> _allCategories;
         private AuctionLotDto? _selectedLot;
         private int? selectedCategoryId = null;
 
-        public ManagerWindow(IServiceProvider serviceProvider, ManagerApiClient client) : base()
+        public ManagerWindow(BaseUserDto userDto, IServiceProvider serviceProvider, ManagerApiClient client) : base()
         {
             ArgumentNullException.ThrowIfNull(serviceProvider);
             ArgumentNullException.ThrowIfNull(client);
             InitializeComponent();
             _client = client;
             _serviceProvider = serviceProvider;
+            ManagerNameTextBlock.Text = userDto.Login;
             _allCategories = _client.GetCategoriesAsync().Result;
-        }
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
+            _allLots = _client.GetAuctionLotsAsync().Result;
         }
         private void CategoryTreeView_Load(object sender, RoutedEventArgs e)
         {
-        }
-        private void LotsDataGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            UpdateLotsTab(_allLots);
+            UpdateCategoryTreeView();
         }
         private void CategoryTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
@@ -171,13 +169,14 @@ namespace UI
         private void ShowLotInfo(AuctionLotDto selectedLot)
         {
             // Заповнення загальної інформації про лот
-            LotIdTextBlock.Text = selectedLot.Id.ToString();
             LotDescriptionTextBlock.Text = selectedLot.Description;
 
             // Інформація про користувача, який створив лот
             UserFirstNameTextBlock.Text = selectedLot.Owner.FirstName;
             UserLastNameTextBlock.Text = selectedLot.Owner.LastName;
             UserPhoneNumberTextBlock.Text = selectedLot.Owner.PhoneNumber;
+
+            AuctionLotImage.Source = UILoadHelper.LoadImage(selectedLot);
 
             if (selectedLot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Completed && selectedLot.Bids.Count != 0)
             {
@@ -234,6 +233,64 @@ namespace UI
                 default:
                     return null;
             }
+        }
+        private void AddCategoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            string newCategoryName = NewCategoryTextBox.Text;
+            if (string.IsNullOrWhiteSpace(newCategoryName))
+            {
+                MessageBox.Show("Будь ласка, введіть назву категорії.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            try
+            {
+                var newCategory = new CategoryDto { Name = newCategoryName };
+                _client.CreateCategoryAsync(newCategory.Name).Wait();
+                _allCategories.Add(newCategory);
+                UpdateCategoryTreeView();
+                NewCategoryTextBox.Clear();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка при додаванні категорії: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void UpdateCategoryTreeView()
+        {
+            CategoryTreeView.Items.Clear();
+            foreach (var category in _allCategories)
+            {
+                var treeViewItem = new TreeViewItem
+                {
+                    Header = category.Name,
+                    Tag = category.Id
+                };
+                CategoryTreeView.Items.Add(treeViewItem);
+            }
+        }
+        private void DeleteCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem &&
+                menuItem.DataContext is TreeViewItem item &&
+                item.Header is string categoryName)
+            {
+                _allCategories.RemoveAll(c => c.Name == categoryName);
+                _client.DeleteCategoryAsync((int)item.Tag).Wait();
+                UpdateCategoryTreeView();
+
+            }
+            else if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem &&
+                     selectedItem.Header is string selectedCategory)
+            {
+                _allCategories.RemoveAll(c => c.Name == selectedItem.Name);
+                _client.DeleteCategoryAsync((int)selectedItem.Tag).Wait();
+                UpdateCategoryTreeView();
+            }
+        }
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            //this.Close();
+            //відкрити вікно авторизації
         }
     }
 }
