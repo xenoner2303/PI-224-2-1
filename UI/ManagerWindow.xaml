@@ -119,7 +119,7 @@ mc:Ignorable="d"
             <TabControl x:Name="MainTabControl" SelectionChanged="MainTabControl_SelectionChanged" Grid.Row="1" Grid.Column="2" Margin="0,10,0,10" Grid.ColumnSpan="3">
                 <!-- Непідтверджені -->
                 <TabItem Header="Непідтверджені лоти">
-                    <DataGrid x:Name="PendingDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10" SelectionChanged="LotsDataGrid_SelectionChanged" Loaded="LotsDataGrid_Loaded">
+                    <DataGrid x:Name="PendingDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10" SelectionChanged="LotsDataGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                             <DataGridTextColumn Header="Назва" Binding="{Binding Title}" Width="200"/>

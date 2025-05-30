@@ -24,8 +24,7 @@ namespace Presentation
     /// Interaction logic for ManagerWindow.xaml
     /// </summary>
     public partial class ManagerWindow : Window
-    {//додати апдейт лотлыст ы апдейткатегоры коли буде додаватись новий елемент
-        //додати зображення
+    {
         private readonly IServiceProvider _serviceProvider;
         private readonly ManagerApiClient _client;
         private BaseUserDto _userDto;
@@ -34,14 +33,14 @@ namespace Presentation
         private AuctionLotDto? _selectedLot;
         private int? selectedCategoryId = null;
 
-        public ManagerWindow(BaseUserDto userDto, IServiceProvider serviceProvider, ManagerApiClient client) : base()
+        public ManagerWindow(IServiceProvider serviceProvider, ManagerApiClient client) : base()
         {
             ArgumentNullException.ThrowIfNull(serviceProvider);
             ArgumentNullException.ThrowIfNull(client);
             InitializeComponent();
             _client = client;
             _serviceProvider = serviceProvider;
-            ManagerNameTextBlock.Text = userDto.Login;
+            ManagerNameTextBlock.Text = _userDto.Login;
             _allCategories = _client.GetCategoriesAsync().Result;
             _allLots = _client.GetAuctionLotsAsync().Result;
         }
