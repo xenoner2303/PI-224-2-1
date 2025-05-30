@@ -2,7 +2,7 @@
 using BLL.EntityBLLModels;
 using DAL.Data;
 
-namespace BLL.Commands.UserManipulationsCommands;
+namespace BLL.Commands.CommonCommands;
 
 internal class LoadCategoriesCommand : AbstrCommandWithDA<List<CategoryModel>>
 {

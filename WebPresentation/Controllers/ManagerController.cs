@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Commands.ManagerManipulationCommands;
 using BLL.EntityBLLModels;
+using DAL.Entities;
 using DTOsLibrary;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,14 +16,14 @@ public class ManagerController : ControllerBase
 
     public ManagerController(ManagerCommandsManager manager, IMapper mapper)
     {
-        ArgumentNullException.ThrowIfNull(manager, nameof(manager));
-        ArgumentNullException.ThrowIfNull(mapper, nameof(mapper));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(mapper);
 
         this._manager = manager;
         this._mapper = mapper;
     }
 
-    [HttpPost("create-category")]
+    [HttpPost("category")]
     public IActionResult CreateCategory([FromBody]string categoryName)
     {
         var result = _manager.CreateCategory(categoryName);
@@ -34,7 +35,7 @@ public class ManagerController : ControllerBase
         return BadRequest("Failed to create category");
     }
 
-    [HttpDelete("delete-category")]
+    [HttpDelete("category")]
     public IActionResult DeleteCategory([FromBody]int categoryId)
     {
         var result = _manager.DeleteCategory(categoryId);
@@ -46,11 +47,10 @@ public class ManagerController : ControllerBase
         return BadRequest("Failed to delete category");
     }
 
-    [HttpGet("read-category")]
-    public ActionResult<CategoryDto> ReadCategory([FromQuery]int categoryId)
+    [HttpGet("category")]
+    public ActionResult<CategoryDto> LoadCategories()
     {
-        var category = _manager.ReadCategory(categoryId);
-        var result = _mapper.Map<CategoryDto>(category);
+        var result = _manager.LoadCategories();
         if (result != null)
         {
             return Ok("Category read successfully");
@@ -92,5 +92,48 @@ public class ManagerController : ControllerBase
             return Ok("Lot stopped successfully");
         }
         return BadRequest("Failed to stop lot");
+    }
+    [HttpGet("lots")]
+    public ActionResult<List<AuctionLotDto>> GetAuctionLots()
+    {
+        try
+        {
+            var models = _manager.LoadAuctionLots();
+            var dtos = _mapper.Map<List<AuctionLotDto>>(models);
+
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    [HttpGet("categories")]
+    public ActionResult<List<CategoryDto>> GetCategories()
+    {
+        try
+        {
+            var models = _manager.LoadCategories();
+            var dtos = _mapper.Map<List<CategoryDto>>(models);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    [HttpPost("search")]
+    public ActionResult<List<AuctionLotDto>> SearchLots([FromBody] SearchLotsDto dto)
+    {
+        try
+        {
+            var lots = _manager.SearchLots(dto.Keyword, dto.CategoryId);
+            var dtos = _mapper.Map<List<AuctionLotDto>>(lots);
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }
