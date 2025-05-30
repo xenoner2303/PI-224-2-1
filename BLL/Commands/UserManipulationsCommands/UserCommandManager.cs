@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BLL.Commands.UserManipulationsCommands.LotCommand;
+using BLL.Commands.CommonCommands;
 using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;

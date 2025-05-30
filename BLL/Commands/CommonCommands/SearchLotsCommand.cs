@@ -3,7 +3,7 @@ using DAL.Data;
 using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace BLL.Commands.UserManipulationsCommands.LotCommand;
+namespace BLL.Commands.CommonCommands;
 
 internal class SearchLotsCommand : AbstrCommandWithDA<List<AuctionLot>>
 {

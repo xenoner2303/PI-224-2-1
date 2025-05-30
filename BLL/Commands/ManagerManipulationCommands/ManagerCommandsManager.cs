@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using DAL.Data;
 using DAL.Entities;
+using BLL.Commands.CommonCommands;
+using BLL.EntityBLLModels;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
@@ -38,6 +40,22 @@ namespace BLL.Commands.ManagerManipulationCommands
         {
             var command = new StopLotCommand(lotId, unitOfWork, mapper);
             return ExecuteCommand(command, "Не вдалося зупинити лот");
+        }
+        public List<AuctionLotModel> LoadAuctionLots()
+        {
+            var command = new LoadAuctionLotsCommand(unitOfWork, mapper);
+            return ExecuteCommand(command, "Не вдалося завантажити лоти");
+        }
+        public List<CategoryModel> LoadCategories()
+        {
+            var command = new LoadCategoriesCommand(unitOfWork, mapper);
+            return ExecuteCommand<List<CategoryModel>>(command, "Не вдалося завантажити категорії");
+        }
+
+        public List<AuctionLot> SearchLots(string? keyword, int? categoryId)
+        {
+            var command = new SearchLotsCommand(keyword, categoryId, unitOfWork, mapper);
+            return ExecuteCommand<List<AuctionLot>>(command, "Не вдалося виконати пошук лотів");
         }
     }
 }
