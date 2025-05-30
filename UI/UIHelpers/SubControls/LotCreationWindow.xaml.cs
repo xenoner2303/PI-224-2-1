@@ -26,7 +26,6 @@ namespace UI
             UILoadHelper.LoadEntities(categories, CategoryComboBox, "DisplayName");
         }
 
-
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             if (!decimal.TryParse(StartPriceTextBox.Text.Trim(), out decimal startPrice))
