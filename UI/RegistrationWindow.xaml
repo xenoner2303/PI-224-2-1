@@ -8,158 +8,153 @@
         Title="Реєстрація" 
         Height="600" 
         Width="1000" 
-        Background="#e6fcfc"
+        Background="#f5f9ff"  
+        FontFamily="Arial"
+        FontSize="14"
         Loaded="Window_Loaded"
         WindowState="Maximized">
-    
+
     <Window.Resources>
-        <Style x:Key="RoundedInputBoxStyle" TargetType="TextBox">
+        <Style x:Key="InputBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="35"/>
             <Setter Property="Width" Value="300"/>
             <Setter Property="Margin" Value="0,5,0,5"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="LightGray" BlurRadius="5" ShadowDepth="0"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border CornerRadius="10" 
-                                Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
-                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
-                        </Border>
-                    </ControlTemplate>
+                    <DropShadowEffect Color="#e0e9ff" BlurRadius="3" ShadowDepth="0" Opacity="0.5"/>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <Style x:Key="RoundedPasswordBoxStyle" TargetType="PasswordBox">
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Width" Value="300"/>
-            <Setter Property="Margin" Value="0,5,0,5"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox" BasedOn="{StaticResource InputBoxStyle}">
+            <Setter Property="BorderBrush" Value="#555555"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#6a8cbb"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="BorderBrush" Value="#444444"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="LightGray" BlurRadius="5" ShadowDepth="0"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Border CornerRadius="10" 
-                                Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
-                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
-                        </Border>
-                    </ControlTemplate>
+                    <DropShadowEffect Color="#a0b4d4" BlurRadius="5" ShadowDepth="1" Opacity="0.6"/>
                 </Setter.Value>
             </Setter>
         </Style>
     </Window.Resources>
 
-    <Grid Background="#9eba5d">
-        <Border MinWidth="400" MaxWidth="800" MinHeight="500" Margin="15" Background="AliceBlue" VerticalAlignment="Center" Padding="40" CornerRadius="30">
+    <Grid Background="#e6f2ff">
+        <Border MinWidth="400" MaxWidth="800" MinHeight="500" Margin="15" 
+                Background="White" 
+                VerticalAlignment="Center" 
+                Padding="40" 
+                BorderBrush="#777777"
+                BorderThickness="1">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="30" Color="LightCyan" ShadowDepth="0" />
+                <DropShadowEffect BlurRadius="20" Color="#d9e9ff" ShadowDepth="0" Opacity="0.4"/>
             </Border.Effect>
 
             <Grid>
-                <Grid.Effect>
-                    <DropShadowEffect BlurRadius="30" Color="LightCyan" ShadowDepth="0" />
-                </Grid.Effect>
-
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Background="#d2fa75" CornerRadius="20 0 0 20">
+                <!-- Ліва панель (етапи) -->
+                <Border Grid.Column="0" Background="#6a8cbb" BorderBrush="#555555" BorderThickness="0,0,1,0">
                     <StackPanel>
-                        <TextBlock Text="Етапи реєстрації" FontSize="18" FontWeight="Bold" Margin="0 5 0 20" HorizontalAlignment="Center"/>
-                        <ListBox x:Name="StepsListBox" SelectionChanged="StepsListBox_SelectionChanged" SelectedIndex="0">
-                            <ListBoxItem Content="1. Особиста інформація"/>
-                            <ListBoxItem Content="2. Контактні дані"/>
-                            <ListBoxItem Content="3. Пароль"/>
+                        <TextBlock Text="Етапи реєстрації" 
+                                   FontSize="18" 
+                                   FontWeight="Bold" 
+                                   Margin="0 5 0 20" 
+                                   HorizontalAlignment="Center"
+                                   Foreground="White"/>
+                        <ListBox x:Name="StepsListBox" 
+                                 SelectionChanged="StepsListBox_SelectionChanged" 
+                                 SelectedIndex="0"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="White">
+                            <ListBoxItem Content="1. Особиста інформація" FontFamily="Arial"/>
+                            <ListBoxItem Content="2. Контактні дані" FontFamily="Arial"/>
+                            <ListBoxItem Content="3. Пароль" FontFamily="Arial"/>
                         </ListBox>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="1" Margin="10 0 0 0" Background="Gainsboro" CornerRadius="0 20 20 0">
+                <!-- Права панель (форми) -->
+                <Border Grid.Column="1" Margin="10 0 0 0" 
+                        Background="White"
+                        BorderBrush="#777777"
+                        BorderThickness="0">
                     <Grid x:Name="InputGrid">
-
-                        <!-- Етап 1: Особиста інформація -->
+                        <!-- Особиста інформація -->
                         <StackPanel x:Name="PersonalInfoPanel" Visibility="Visible" Margin="15 5">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Ім'я:" FontSize="16"/>
-                                <TextBlock Text="*" Foreground="Red" FontSize="16"/>
+                                <TextBlock Text="Ім'я:" FontSize="16" Foreground="#333333" FontFamily="Arial"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="16" FontFamily="Arial"/>
                             </StackPanel>
-                            <TextBox x:Name="NameTextBox" Style="{StaticResource RoundedInputBoxStyle}"/>
+                            <TextBox x:Name="NameTextBox" Style="{StaticResource InputBoxStyle}" FontFamily="Arial"/>
 
                             <StackPanel Orientation="Horizontal" Margin="0 15 0 0">
-                                <TextBlock Text="Прізвище:" FontSize="16"/>
-                                <TextBlock Text="*" Foreground="Red" FontSize="16"/>
+                                <TextBlock Text="Прізвище:" FontSize="16" Foreground="#333333" FontFamily="Arial"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="16" FontFamily="Arial"/>
                             </StackPanel>
-                            <TextBox x:Name="LastNameTextBox" Style="{StaticResource RoundedInputBoxStyle}"/>
+                            <TextBox x:Name="LastNameTextBox" Style="{StaticResource InputBoxStyle}" FontFamily="Arial"/>
 
                             <StackPanel Orientation="Horizontal" Margin="0 15 0 0">
-                                <TextBlock Text="Вік:" FontSize="16"/>
-                                <TextBlock Text="*" Foreground="Red" FontSize="16"/>
+                                <TextBlock Text="Вік:" FontSize="16" Foreground="#333333" FontFamily="Arial"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="16" FontFamily="Arial"/>
                             </StackPanel>
-                            <TextBox x:Name="AgeTextBox" Style="{StaticResource RoundedInputBoxStyle}"/>
+                            <TextBox x:Name="AgeTextBox" Style="{StaticResource InputBoxStyle}" FontFamily="Arial"/>
                         </StackPanel>
 
-                        <!-- Етап 2: Контактні дані -->
+                        <!-- Контактні дані -->
                         <StackPanel x:Name="ContactInfoPanel" Visibility="Collapsed" Margin="15 5">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Логін:" FontSize="16"/>
-                                <TextBlock Text="*" Foreground="Red" FontSize="16"/>
+                                <TextBlock Text="Логін:" FontSize="16" Foreground="#333333" FontFamily="Arial"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="16" FontFamily="Arial"/>
                             </StackPanel>
-                            <TextBox x:Name="LoginTextBox" Style="{StaticResource RoundedInputBoxStyle}"/>
+                            <TextBox x:Name="LoginTextBox" Style="{StaticResource InputBoxStyle}" FontFamily="Arial"/>
 
-                            <TextBlock Text="Email:" FontSize="16" Margin="0 15 0 0"/>
-                            <TextBox x:Name="EmailTextBox" Style="{StaticResource RoundedInputBoxStyle}"/>
+                            <TextBlock Text="Email:" FontSize="16" Margin="0 15 0 0" Foreground="#333333" FontFamily="Arial"/>
+                            <TextBox x:Name="EmailTextBox" Style="{StaticResource InputBoxStyle}" FontFamily="Arial"/>
 
-                            <TextBlock Text="Номер телефону:" FontSize="16" Margin="0 15 0 0"/>
-                            <TextBox x:Name="PhoneNumberTextBox" Style="{StaticResource RoundedInputBoxStyle}"/>
+                            <TextBlock Text="Номер телефону:" FontSize="16" Margin="0 15 0 0" Foreground="#333333" FontFamily="Arial"/>
+                            <TextBox x:Name="PhoneNumberTextBox" Style="{StaticResource InputBoxStyle}" FontFamily="Arial"/>
                         </StackPanel>
 
-                        <!-- Етап 3: Пароль -->
+                        <!-- Пароль -->
                         <StackPanel x:Name="PasswordPanel" Visibility="Collapsed" Margin="15 5">
                             <StackPanel Orientation="Horizontal" Margin="0 15 0 0">
-                                <TextBlock Text="Введіть пароль:" FontSize="16"/>
-                                <TextBlock Text="*" Foreground="Red" FontSize="16"/>
+                                <TextBlock Text="Введіть пароль:" FontSize="16" Foreground="#333333" FontFamily="Arial"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="16" FontFamily="Arial"/>
                             </StackPanel>
-                            <PasswordBox x:Name="PasswordBox0" Style="{StaticResource RoundedPasswordBoxStyle}"/>
+                            <PasswordBox x:Name="PasswordBox0" Style="{StaticResource PasswordBoxStyle}" FontFamily="Arial"/>
 
                             <StackPanel Orientation="Horizontal" Margin="0 15 0 0">
-                                <TextBlock Text="Повторіть пароль:" FontSize="16"/>
-                                <TextBlock Text="*" Foreground="Red" FontSize="16"/>
+                                <TextBlock Text="Повторіть пароль:" FontSize="16" Foreground="#333333" FontFamily="Arial"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="16" FontFamily="Arial"/>
                             </StackPanel>
-                            <PasswordBox x:Name="PasswordBox1" Style="{StaticResource RoundedPasswordBoxStyle}"/>
+                            <PasswordBox x:Name="PasswordBox1" Style="{StaticResource PasswordBoxStyle}" FontFamily="Arial"/>
 
-                            <TextBlock Text="Секретний ключ:" FontSize="16" Margin="0 15 0 0"/>
-                            <PasswordBox x:Name="SecretKeyBox" Style="{StaticResource RoundedPasswordBoxStyle}"/>
+                            <TextBlock Text="Секретний ключ:" FontSize="16" Margin="0 15 0 0" Foreground="#333333" FontFamily="Arial"/>
+                            <PasswordBox x:Name="SecretKeyBox" Style="{StaticResource PasswordBoxStyle}" FontFamily="Arial"/>
                         </StackPanel>
 
-                        <!-- Навігаційні кнопки -->
-                        <Button x:Name="BackButton" Content="Назад" Width="200" Height="40" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="Collapsed" Click="BackButton_Click"/>
-                        <Button x:Name="NextButton" Content="Далі" Width="200" Height="40" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="NextButton_Click"/>
-                        <Button x:Name="RegisterButton" Content="Зареєструватися" Width="200" Height="40" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" Click="RegisterButton_Click"/>
+                        <!-- Кнопки -->
+                        <Button x:Name="BackButton" Content="Назад" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="Collapsed" Click="BackButton_Click" FontFamily="Arial"/>
+                        <Button x:Name="NextButton" Content="Далі" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="NextButton_Click" FontFamily="Arial"/>
+                        <Button x:Name="RegisterButton" Content="Зареєструватися" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" Click="RegisterButton_Click" FontFamily="Arial"/>
                     </Grid>
                 </Border>
             </Grid>

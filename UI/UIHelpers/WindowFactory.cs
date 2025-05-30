@@ -1,27 +1,31 @@
-﻿//using System.Windows;
-//using BLL.EntityBLLModels;
-//using BLL.Commands;
-//using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using DTOsLibrary;
+using UI.ApiClients;
+using Presentation.UIHelpers.SubControls;
+using UI;
+using System.Windows.Controls;
+using DTOsLibrary.DTOEnums;
+using OnlineAuction;
 
-//namespace Presentation.UIHelpers;
+namespace Presentation.UIHelpers;
 
-//internal static class WindowFactory
-//{
-//    private static readonly Dictionary<BusinessEnumInterfaceType, Func<BaseUserModel, IServiceProvider, Window>> windowMap = new()
-//    {
-//    //    { null, (user, sp) => new UserWindow() },  // випадок незареєстрованого користувача користувача, тут зробити 2 перевантаження констору
-//     //   { BusinessEnumInterfaceType.Registered, (user, sp) => new UserWindow(user) }, // зареєстрований
-//   //     { BusinessEnumInterfaceType.Manager, (user, serviceProvider) => new ManagerManagerWindow(user, serviceProvider.GetRequiredService<TeacherCommandsManager>()) },
-//        { BusinessEnumInterfaceType.Administrator, (user, serviceProvider) => new AdministratorManagerWindow(serviceProvider.GetRequiredService<AdministratorCommandsManager>()) }
-//    };
+internal static class WindowFactory
+{
+    private static readonly Dictionary<EnumInterfaceTypeDto, Func<BaseUserDto, IServiceProvider, Window>> windowMap = new()
+    {
+        { EnumInterfaceTypeDto.Registered, (user, serviceProvider) => new UserManagerWindow(serviceProvider, serviceProvider.GetRequiredService<UserApiClient>()) }, // зареєстрований
+        { EnumInterfaceTypeDto.Manager, (user, serviceProvider) => new ManagerWindow() },
+        { EnumInterfaceTypeDto.Administrator, (user, serviceProvider) => new AdminWindow(serviceProvider) }
+    };
 
-//    internal static Window CreateWindow(BaseUserModel user, IServiceProvider serviceProvider)
-//    {
-//        if (windowMap.TryGetValue(user.InterfaceType, out var windowCreator))
-//        {
-//            return windowCreator(user, serviceProvider);
-//        }
+    internal static Window CreateWindow(BaseUserDto user, IServiceProvider serviceProvider)
+    {
+        if (windowMap.TryGetValue(user.InterfaceType, out var windowCreator))
+        {
+            return windowCreator(user, serviceProvider);
+        }
 
-//        throw new ArgumentException("Невідомий тип інтерфейсу");
-//    }
-//}
+        throw new ArgumentException("Невідомий тип інтерфейсу");
+    }
+}

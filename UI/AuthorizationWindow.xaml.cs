@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UI.ApiClients;
 using DTOsLibrary;
 using DTOsLibrary.DTOEnums;
+using Presentation.UIHelpers;
 
 namespace Presentation
 {
@@ -44,9 +45,9 @@ namespace Presentation
                     this.Close();
                 }
 
-                //   Window locUserWindow = WindowFactory.CreateWindow(user, serviceProvider);
-                // locUserWindow.Show();
-                //   this.Close();
+                Window locUserWindow = WindowFactory.CreateWindow(userDto, serviceProvider);
+                locUserWindow.Show();
+                this.Close();
             }
             catch (Exception ex)
             {
@@ -58,8 +59,6 @@ namespace Presentation
         {
             // отримуємо RegistrationWindow через DI
             var registrationWindow = new RegistrationWindow(serviceProvider.GetRequiredService<PreUserApiClient>());
-
-            registrationWindow.Owner = this;
             registrationWindow.Show();
         }
     }
