@@ -198,6 +198,8 @@ namespace Presentation
         {
             currentUser = null;
 
+            UserLotsPanel.Children.Clear(); // очищаємо панель лотів юзера для безпеки
+
             UpdateTabAccess();
         }
 
