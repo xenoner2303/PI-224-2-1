@@ -269,23 +269,23 @@ namespace Presentation
         }
         private void DeleteCategory_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is MenuItem menuItem &&
-                menuItem.DataContext is TreeViewItem item &&
-                item.Header is string categoryName)
+            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem &&
+                selectedItem.Tag is int categoryId)
             {
-                _allCategories.RemoveAll(c => c.Name == categoryName);
-                _client.DeleteCategoryAsync((int)item.Tag).Wait();
-                UpdateCategoryTreeView();
-
+                var categoryToRemove = _allCategories.FirstOrDefault(c => c.Id == categoryId);
+                if (categoryToRemove != null)
+                {
+                    _allCategories.Remove(categoryToRemove);
+                    _client.DeleteCategoryAsync(categoryId).Wait();
+                    UpdateCategoryTreeView();
+                }
             }
-            else if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem &&
-                     selectedItem.Header is string selectedCategory)
+            else
             {
-                _allCategories.RemoveAll(c => c.Name == selectedItem.Name);
-                _client.DeleteCategoryAsync((int)selectedItem.Tag).Wait();
-                UpdateCategoryTreeView();
+                MessageBox.Show("Будь ласка, виберіть категорію для видалення.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             //this.Close();
