@@ -386,14 +386,13 @@ namespace Presentation
         }
         private void DeleteSelectedCategory()
         {
-            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem &&
-                selectedItem.Tag is int categoryId)
+            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem && selectedItem.Tag is CategoryDto categorydto)
             {
-                var categoryToRemove = _allCategories.FirstOrDefault(c => c.Id == categoryId);
+                var categoryToRemove = _allCategories.FirstOrDefault(c => c.Id == categorydto.Id);
                 if (categoryToRemove != null)
                 {
                     _allCategories.Remove(categoryToRemove);
-                    _client.DeleteCategoryAsync(categoryId).Wait();
+                    _client.DeleteCategoryAsync(categorydto.Id).Wait();
                     UpdateCategoryTreeView();
                 }
             }

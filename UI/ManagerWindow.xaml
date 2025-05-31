@@ -100,7 +100,7 @@
 
                 <!-- Дерево -->
                 <TreeView Name="CategoryTreeView" SelectedItemChanged="CategoryTreeView_SelectedItemChanged" 
-                          Loaded="CategoryTreeView_Load" Height="400"/>
+                          Loaded="CategoryTreeView_Load" MouseRightButtonDown="TreeViewItem_PreviewMouseRightButtonDown" Height="400"/>
 
                 <!-- Панель додавання -->
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
