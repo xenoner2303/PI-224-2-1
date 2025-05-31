@@ -67,9 +67,17 @@ namespace Presentation
         {
             if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
             {
-                selectedCategoryId = (int?)selectedItem.Tag;
+                if (selectedItem.Tag is DTOsLibrary.CategoryDto category)
+                {
+                    selectedCategoryId = category.Id;  // припускаю, що Id — це int
+                }
+                else
+                {
+                    selectedCategoryId = null;
+                }
             }
         }
+
         private async Task Search()
         {
             string? keyword = SearchTextBox.Text.Trim().ToLower();
@@ -234,7 +242,7 @@ namespace Presentation
         }
         private List<AuctionLotDto>? GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
-            if (_allLots == null) 
+            if (_allLots == null)
             {
                 return new List<AuctionLotDto>();
             }
@@ -264,47 +272,42 @@ namespace Presentation
 
             try
             {
-                var newCategory = new CategoryDto { Name = newCategoryName };
-
-                // Перевіряємо, чи є вибраний елемент у TreeView
                 if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
                 {
-                    // Отримуємо категорію батька (Tag це твої дані, можливо це CategoryDto або інший об'єкт)
-                    var parentCategory = selectedItem.Tag as CategoryDto;
-
-                    // Якщо є батьківська категорія, додаємо нову категорію як підкатегорію
-                    if (parentCategory != null)
+                    var tag = selectedItem.Tag;
+                    var newCategory = new CategoryDto
                     {
-                        // Тут логіка для створення підкатегорії
-                        await _client.CreateCategoryAsync(newCategory);
-                        parentCategory.Subcategories.Add(newCategory);  // Наприклад, додаємо до списку підкатегорій
-                    }
-                }
-                else
-                {
-                    // Якщо немає вибраної категорії, додаємо нову категорію на верхньому рівні
-                    await _client.CreateCategoryAsync(newCategory.Name);
-                    _allCategories.Add(newCategory);
-                }
+                        Name = newCategoryName,
+                        Parent = (CategoryDto)tag
+                    };
 
-                UpdateCategoryTreeView();  // Оновлюємо відображення TreeView
-                NewCategoryTextBox.Clear();  // Очищаємо поле вводу
+                    if (CategoryTreeView.SelectedItem is CategoryDto parentCategory)
+                    {
+                        await _client.CreateCategoryAsync(newCategory);
+                        parentCategory.Subcategories.Add(newCategory); // 🟢 Автоматично оновиться
+                    }
+                    else
+                    {
+                        await _client.CreateCategoryAsync(newCategory);
+                        _allCategories.Add(newCategory); // 🟢 Автоматично оновиться
+                    }
+
+                    NewCategoryTextBox.Clear();
+                    UpdateCategoryTreeView(); // Оновлюємо дерево категорій після додавання
+                }
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при додаванні категорії: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
         private void UpdateCategoryTreeView()
         {
             CategoryTreeView.Items.Clear();
 
             if (_allCategories == null || _allCategories.Count == 0)
             {
-                CategoryTreeView.ItemsSource = null;
-                CategoryTreeView.Items.Clear();
                 CategoryTreeView.Items.Add(new TreeViewItem
                 {
                     Header = new TextBlock
@@ -315,12 +318,42 @@ namespace Presentation
                     },
                     IsEnabled = false
                 });
+                return;
             }
-            else
+
+            // Карта категорій за Id (або Name, якщо Id нема)
+            var categoryItems = new Dictionary<CategoryDto, TreeViewItem>();
+
+            // Створюємо TreeViewItem для кожної категорії
+            foreach (var category in _allCategories)
             {
-                CategoryTreeView.ItemsSource = _allCategories;
+                var item = new TreeViewItem
+                {
+                    Header = category.Name,
+                    Tag = category
+                };
+
+                categoryItems[category] = item;
+            }
+
+            // Додаємо елементи до батьків або до кореня
+            foreach (var category in _allCategories)
+            {
+                var item = categoryItems[category];
+
+                if (category.Parent != null && categoryItems.ContainsKey(category.Parent))
+                {
+                    categoryItems[category.Parent].Items.Add(item);
+                }
+                else
+                {
+                    // Якщо немає батьківської категорії — додаємо до TreeView
+                    CategoryTreeView.Items.Add(item);
+                }
             }
         }
+
+
         private TreeViewItem CreateTreeViewItem(CategoryDto category)
         {
             var item = new TreeViewItem
@@ -329,7 +362,7 @@ namespace Presentation
                 Tag = category.Id
             };
 
-            var children = _allCategories.Where(c => c.Parent.Id == category.Id);
+            var children = _allCategories.Where(c => c.Parent?.Id == category.Id);
             foreach (var child in children)
             {
                 item.Items.Add(CreateTreeViewItem(child));

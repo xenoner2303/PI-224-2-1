@@ -29,9 +29,9 @@ namespace BLL.Commands.ManagerManipulationCommands
                 var newCategory = new Category
                 {
                     Name = _category.Name,
-                    ParentId = _category.Parent.Id // якщо ParentId == null, то це коренева категорія
+                    ParentId = _category.Parent?.Id // якщо ParentId == null, то це коренева категорія
                 };
-
+                
                 dAPoint.CategoryRepository.Add(newCategory);
                 dAPoint.Save();
                 LogAction($"{Name} \"{_category.Name}\"");
