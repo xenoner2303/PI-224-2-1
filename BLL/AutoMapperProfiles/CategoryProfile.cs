@@ -8,6 +8,9 @@ public class CategoryProfile : Profile
 {
     public CategoryProfile()
     {
-        CreateMap<Category, CategoryModel>().ReverseMap();
+        CreateMap<Category, CategoryModel>()
+        .ForMember(dest => dest.Subcategories, opt => opt.MapFrom(src => src.Subcategories))
+        .ReverseMap()
+        .ForMember(dest => dest.Subcategories, opt => opt.Ignore());
     }
 }

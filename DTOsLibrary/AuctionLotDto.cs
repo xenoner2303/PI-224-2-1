@@ -22,7 +22,7 @@ public class AuctionLotDto
 
     public BaseUserDto Owner { get; set; }
     public CategoryDto Category { get; set; }
-    public BaseUserDto Manager { get; set; }
+    public BaseUserDto? Manager { get; set; }
 
     public List<BidDto> Bids { get; set; } = new List<BidDto>();
 }
