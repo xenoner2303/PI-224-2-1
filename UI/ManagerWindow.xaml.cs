@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using UI.ApiClients;
+
 namespace Presentation
 {
     /// <summary>
@@ -25,7 +26,6 @@ namespace Presentation
     /// </summary>
     public partial class ManagerWindow : Window
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly ManagerApiClient _client;
         private BaseUserDto _userDto;
         private List<AuctionLotDto> _allLots;
@@ -33,13 +33,12 @@ namespace Presentation
         private AuctionLotDto? _selectedLot;
         private int? selectedCategoryId = null;
 
-        public ManagerWindow(IServiceProvider serviceProvider, ManagerApiClient client) : base()
+        public ManagerWindow(ManagerApiClient client) : base()
         {
-            ArgumentNullException.ThrowIfNull(serviceProvider);
             ArgumentNullException.ThrowIfNull(client);
+
             InitializeComponent();
             _client = client;
-            _serviceProvider = serviceProvider;
 
             Loaded += ManagerWindow_Loaded;
         }
@@ -236,6 +235,11 @@ namespace Presentation
         }
         private List<AuctionLotDto>? GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
+            if (_allLots == null) 
+            {
+                return new List<AuctionLotDto>();
+            }
+
             switch (enumLotStatus)
             {
                 case EnumLotStatusesDto.Pending:
@@ -279,11 +283,12 @@ namespace Presentation
                 return;
             }
             var rootCategories = _allCategories.Where(c => c.Parent.Id == null);
-            foreach (var rootCategory in rootCategories)
-            {
-                var treeViewItem = CreateTreeViewItem(rootCategory);
-                CategoryTreeView.Items.Add(treeViewItem);
-            }
+            //foreach (var rootCategory in rootCategories)
+            //{
+            //    var treeViewItem = CreateTreeViewItem(rootCategory);
+            //    CategoryTreeView.Items.Add(treeViewItem);
+            //}
+            CategoryTreeView.ItemsSource = rootCategories;
         }
         private TreeViewItem CreateTreeViewItem(CategoryDto category)
         {

@@ -49,7 +49,6 @@ namespace UI.ApiClients
             return lots ?? new List<AuctionLotDto>();
         }
 
-
         public async Task<List<CategoryDto>> GetCategoriesAsync()
         {
             var response = await client.GetAsync("categories");

@@ -49,10 +49,17 @@ namespace Presentation
                 {
                     onLoginSuccess?.Invoke(userDto); // передаємо назад користувача
                     this.Close();
+                    return; // зупиняємо код, бо закриття вікна це не робить
                 }
 
                 Window locUserWindow = WindowFactory.CreateWindow(userDto, serviceProvider);
                 locUserWindow.Show();
+
+                if (this.Owner is Window ownerWindow)
+                {
+                    ownerWindow.Close();
+                }
+
                 this.Close();
             }
             catch (Exception ex)
