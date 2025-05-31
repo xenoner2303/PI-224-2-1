@@ -16,6 +16,8 @@ public abstract class CommandTestBase
     {
         fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
         // заморожуємо юніт оф ворк в одному екземплярі fixture, щоб всі посилалися на одні й ті ж мок-об'єкти
+
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior(1));
         unitOfWorkMock = fixture.Freeze<IUnitOfWork>();
 
         var config = new MapperConfiguration(cfg => cfg.AddMaps(typeof(ActionLogProfile).Assembly));
