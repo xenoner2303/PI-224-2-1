@@ -76,6 +76,7 @@ internal static class UILoadHelper
             return image;
         }
     }
+
     public static BitmapImage LoadImage(AuctionLotDto auctionLotDto)
     {
         if (auctionLotDto.Image != null && auctionLotDto.Image.Bytes.Length > 0)

@@ -52,40 +52,7 @@ namespace Presentation.UIHelpers.SubControls
             PosterNameTextBlock.Text = auctionLotDto.Owner?.ToString() ?? "Невідомий";
             DescriptionTextBlock.Text = auctionLotDto.Description;
 
-            if (auctionLotDto.Image != null && auctionLotDto.Image.Bytes.Length > 0)
-            {
-                try
-                {
-                    // створюємо потік із масиву байтів зображення
-                    using (var stream = new MemoryStream(auctionLotDto.Image.Bytes))
-                    {
-                        // новий об’єкт BitmapImage для подальшого відображення
-                        var bitmap = new BitmapImage();
-
-                        // початок ініціалізації властивостей bitmap
-                        bitmap.BeginInit();
-
-                        // встановлюємо режим кешування - повне завантаження в пам’ять
-                        // що дозволяє закрити потік одразу після завершення ініціалізації
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-
-                        // встановлюємо джерело зображення – наш MemoryStream
-                        bitmap.StreamSource = stream;
-
-                        // завершуємо ініціалізацію bitmap
-                        bitmap.EndInit();
-
-                        // заморожуємо об’єкт bitmap, щоб зробити його потокобезпечним і незмінним
-                        bitmap.Freeze();
-
-                        LotImage.Source = bitmap;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Помилка завантаження зображення: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            LotImage.Source = UILoadHelper.LoadImage(auctionLotDto);
         }
     }
 }
