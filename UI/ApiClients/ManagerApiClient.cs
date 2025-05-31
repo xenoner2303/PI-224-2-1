@@ -10,9 +10,9 @@ namespace UI.ApiClients
     {
         public ManagerApiClient(HttpClient client) : base(client) { }
 
-        public async Task<bool> CreateCategoryAsync(string categoryName)
+        public async Task<bool> CreateCategoryAsync(CategoryDto category)
         {
-            var response = await client.PostAsJsonAsync($"category/{categoryName}", categoryName);
+            var response = await client.PostAsJsonAsync($"category", category);
             return await HandleErrorAsync(response);
         }
         public async Task<bool> DeleteCategoryAsync(int categoryId)
@@ -48,7 +48,6 @@ namespace UI.ApiClients
             var lots = await response.Content.ReadFromJsonAsync<List<AuctionLotDto>>();
             return lots ?? new List<AuctionLotDto>();
         }
-
 
         public async Task<List<CategoryDto>> GetCategoriesAsync()
         {

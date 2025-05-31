@@ -60,22 +60,6 @@ internal static class UILoadHelper
         }
     }
 
-    public static BitmapImage ConvertBase64ToImage(string base64)
-    {
-        byte[] binaryData = Convert.FromBase64String(base64);
-
-        using (var stream = new MemoryStream(binaryData))
-        {
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.CacheOption = BitmapCacheOption.OnLoad;
-            image.StreamSource = stream;
-            image.EndInit();
-            image.Freeze(); // щоб уникнути проблем з потоками
-
-            return image;
-        }
-    }
     public static BitmapImage LoadImage(AuctionLotDto auctionLotDto)
     {
         if (auctionLotDto.Image != null && auctionLotDto.Image.Bytes.Length > 0)

@@ -25,7 +25,7 @@ namespace UI
             InitializeComponent();
             this.lotOwner = lotOwner;
 
-            UILoadHelper.LoadEntities(categories, CategoryComboBox, "DisplayName");
+            UILoadHelper.LoadEntities(categories, CategoryComboBox, "Name");
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)

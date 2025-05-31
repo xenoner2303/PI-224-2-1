@@ -16,7 +16,7 @@ public class AuctionLotModel
 
     public BaseUserModel Owner { get; set; }
     public CategoryModel Category { get; set; }
-    public BaseUserModel Manager { get; set; }
+    public BaseUserModel? Manager { get; set; }
 
     public List<BidModel> Bids { get; set; } = new();
 }

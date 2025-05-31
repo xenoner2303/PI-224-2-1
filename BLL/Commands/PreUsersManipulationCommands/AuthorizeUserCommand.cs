@@ -2,6 +2,7 @@
 using BLL.EntityBLLModels;
 using DAL.Data;
 using BLL.Services;
+using DAL.Entities;
 
 namespace BLL.Commands.PreUsersManipulationCommands;
 

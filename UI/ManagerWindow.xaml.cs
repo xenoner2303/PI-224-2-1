@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using UI.ApiClients;
+
 namespace Presentation
 {
     /// <summary>
@@ -25,7 +26,6 @@ namespace Presentation
     /// </summary>
     public partial class ManagerWindow : Window
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly ManagerApiClient _client;
         private BaseUserDto _userDto;
         private List<AuctionLotDto> _allLots;
@@ -33,16 +33,31 @@ namespace Presentation
         private AuctionLotDto? _selectedLot;
         private int? selectedCategoryId = null;
 
-        public ManagerWindow(IServiceProvider serviceProvider, ManagerApiClient client) : base()
+        public ManagerWindow(BaseUserDto userDto, ManagerApiClient client) : base()
         {
-            ArgumentNullException.ThrowIfNull(serviceProvider);
             ArgumentNullException.ThrowIfNull(client);
+
             InitializeComponent();
             _client = client;
-            _serviceProvider = serviceProvider;
-            ManagerNameTextBlock.Text = _userDto.Login;
-            _allCategories = _client.GetCategoriesAsync().Result;
-            _allLots = _client.GetAuctionLotsAsync().Result;
+            _userDto = userDto;
+            Loaded += ManagerWindow_Loaded;
+        }
+
+        private async void ManagerWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                _allCategories = await _client.GetCategoriesAsync();
+                _allLots = await _client.GetAuctionLotsAsync();
+
+                ManagerNameTextBlock.Text = _userDto?.Login ?? "Manager"; // Якщо _userDto ще не ініціалізовано, перевірте це теж
+
+                UpdateCategoryTreeView();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Помилка завантаження даних: " + ex.Message);
+            }
         }
         private void CategoryTreeView_Load(object sender, RoutedEventArgs e)
         {
@@ -52,9 +67,17 @@ namespace Presentation
         {
             if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
             {
-                selectedCategoryId = (int?)selectedItem.Tag;
+                if (selectedItem.Tag is DTOsLibrary.CategoryDto category)
+                {
+                    selectedCategoryId = category.Id;  // припускаю, що Id — це int
+                }
+                else
+                {
+                    selectedCategoryId = null;
+                }
             }
         }
+
         private async Task Search()
         {
             string? keyword = SearchTextBox.Text.Trim().ToLower();
@@ -219,6 +242,11 @@ namespace Presentation
         }
         private List<AuctionLotDto>? GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
+            if (_allLots == null)
+            {
+                return new List<AuctionLotDto>();
+            }
+
             switch (enumLotStatus)
             {
                 case EnumLotStatusesDto.Pending:
@@ -233,7 +261,7 @@ namespace Presentation
                     return null;
             }
         }
-        private void AddCategoryButton_Click(object sender, RoutedEventArgs e)
+        private async void AddCategoryButton_Click(object sender, RoutedEventArgs e)
         {
             string newCategoryName = NewCategoryTextBox.Text;
             if (string.IsNullOrWhiteSpace(newCategoryName))
@@ -241,14 +269,34 @@ namespace Presentation
                 MessageBox.Show("Будь ласка, введіть назву категорії.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
             try
             {
-                var newCategory = new CategoryDto { Name = newCategoryName };
-                _client.CreateCategoryAsync(newCategory.Name).Wait();
-                _allCategories.Add(newCategory);
-                UpdateCategoryTreeView();
-                NewCategoryTextBox.Clear();
+                if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
+                {
+                    var tag = selectedItem.Tag;
+                    var newCategory = new CategoryDto
+                    {
+                        Name = newCategoryName,
+                        Parent = (CategoryDto)tag
+                    };
+
+                    if (CategoryTreeView.SelectedItem is CategoryDto parentCategory)
+                    {
+                        await _client.CreateCategoryAsync(newCategory);
+                        parentCategory.Subcategories.Add(newCategory); // 🟢 Автоматично оновиться
+                    }
+                    else
+                    {
+                        await _client.CreateCategoryAsync(newCategory);
+                        _allCategories.Add(newCategory); // 🟢 Автоматично оновиться
+                    }
+
+                    NewCategoryTextBox.Clear();
+                    UpdateCategoryTreeView(); // Оновлюємо дерево категорій після додавання
+                }
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при додаванні категорії: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -257,33 +305,97 @@ namespace Presentation
         private void UpdateCategoryTreeView()
         {
             CategoryTreeView.Items.Clear();
+            if (_allCategories == null || _allCategories.Count == 0)
+            {
+                CategoryTreeView.Items.Add(new TreeViewItem
+                {
+                    Header = new TextBlock
+                    {
+                        Text = "Категорії відсутні.",
+                        Foreground = Brushes.Gray,
+                        FontStyle = FontStyles.Italic
+                    },
+                    IsEnabled = false
+                });
+                return;
+            }
+
+            // Карта категорій за Id (або Name, якщо Id нема)
+            var categoryItems = new Dictionary<CategoryDto, TreeViewItem>();
+
+            // Створюємо TreeViewItem для кожної категорії
             foreach (var category in _allCategories)
             {
-                var treeViewItem = new TreeViewItem
+                var item = new TreeViewItem
                 {
                     Header = category.Name,
-                    Tag = category.Id
+                    Tag = category
                 };
-                CategoryTreeView.Items.Add(treeViewItem);
+
+                categoryItems[category] = item;
+            }
+
+            // Додаємо елементи до батьків або до кореня
+            foreach (var category in _allCategories)
+            {
+                var item = categoryItems[category];
+
+                if (category.Parent != null && categoryItems.ContainsKey(category.Parent))
+                {
+                    categoryItems[category.Parent].Items.Add(item);
+                }
+                else
+                {
+                    // Якщо немає батьківської категорії — додаємо до TreeView
+                    CategoryTreeView.Items.Add(item);
+                }
             }
         }
-        private void DeleteCategory_Click(object sender, RoutedEventArgs e)
+        private TreeViewItem CreateTreeViewItem(CategoryDto category)
         {
-            if (sender is MenuItem menuItem &&
-                menuItem.DataContext is TreeViewItem item &&
-                item.Header is string categoryName)
+            var item = new TreeViewItem
             {
-                _allCategories.RemoveAll(c => c.Name == categoryName);
-                _client.DeleteCategoryAsync((int)item.Tag).Wait();
-                UpdateCategoryTreeView();
+                Header = category.Name,
+                Tag = category.Id
+            };
 
-            }
-            else if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem &&
-                     selectedItem.Header is string selectedCategory)
+            var children = _allCategories.Where(c => c.Parent?.Id == category.Id);
+            foreach (var child in children)
             {
-                _allCategories.RemoveAll(c => c.Name == selectedItem.Name);
-                _client.DeleteCategoryAsync((int)selectedItem.Tag).Wait();
-                UpdateCategoryTreeView();
+                item.Items.Add(CreateTreeViewItem(child));
+            }
+
+            return item;
+        }
+        private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem item = sender as TreeViewItem;
+            if (item != null)
+            {
+                item.IsSelected = true; // Встановлюємо вибраний елемент
+                e.Handled = true;       // Щоб подія не "йшла" далі
+            }
+            MenuItem menuItem = new MenuItem
+            {
+                Header = "Видалити"
+            };
+            menuItem.Click += (s, args) => DeleteSelectedCategory();
+        }
+        private void DeleteSelectedCategory()
+        {
+            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem && selectedItem.Tag is CategoryDto categorydto)
+            {
+                var categoryToRemove = _allCategories.FirstOrDefault(c => c.Id == categorydto.Id);
+                if (categoryToRemove != null)
+                {
+                    _allCategories.Remove(categoryToRemove);
+                    _client.DeleteCategoryAsync(categorydto.Id).Wait();
+                    UpdateCategoryTreeView();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Будь ласка, виберіть категорію для видалення.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void LogoutButton_Click(object sender, RoutedEventArgs e)

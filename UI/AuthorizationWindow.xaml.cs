@@ -39,14 +39,27 @@ namespace Presentation
             {
                 var userDto = await client.AuthorizeUserAsync(login, password);
 
+                if (userDto == null)
+                {
+                    return;
+                }
+
+                //додати перевірку на null(якщо незареєстрований користувач хоче ввійти)
                 if (userDto.InterfaceType == EnumInterfaceTypeDto.Registered)
                 {
                     onLoginSuccess?.Invoke(userDto); // передаємо назад користувача
                     this.Close();
+                    return; // зупиняємо код, бо закриття вікна це не робить
                 }
 
                 Window locUserWindow = WindowFactory.CreateWindow(userDto, serviceProvider);
                 locUserWindow.Show();
+
+                if (this.Owner is Window ownerWindow)
+                {
+                    ownerWindow.Close();
+                }
+
                 this.Close();
             }
             catch (Exception ex)

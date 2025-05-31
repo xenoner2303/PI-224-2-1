@@ -9,8 +9,4 @@ public class CategoryDto
     public CategoryDto? Parent { get; set; }
 
     public List<CategoryDto> Subcategories { get; set; } = new List<CategoryDto>();
-
-    public string DisplayName { get; set; } = string.Empty;  // властивість для відображення в UI
-
-    public override string ToString() => Parent != null ? $"{Parent.Name} > {Name}" : Name;
 }

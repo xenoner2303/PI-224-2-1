@@ -11,7 +11,7 @@ namespace BLL.Commands.ManagerManipulationCommands
         public ManagerCommandsManager(IUnitOfWork unitOfWork, IMapper mapper) 
             : base(unitOfWork, mapper) { }
 
-        public bool CreateCategory(string categoryModel)
+        public bool CreateCategory(CategoryModel categoryModel)
         {
             var command = new CreateCategoryCommand(categoryModel, unitOfWork, mapper);
             return ExecuteCommand(command, "Не вдалося додати категорію");

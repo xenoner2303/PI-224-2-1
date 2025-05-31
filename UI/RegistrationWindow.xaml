@@ -31,8 +31,21 @@
             </Setter>
         </Style>
 
-        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox" BasedOn="{StaticResource InputBoxStyle}">
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
             <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="300"/>
+            <Setter Property="Margin" Value="0,5,0,5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#e0e9ff" BlurRadius="3" ShadowDepth="0" Opacity="0.5"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="Button">
