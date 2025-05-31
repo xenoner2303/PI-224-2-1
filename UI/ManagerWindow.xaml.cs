@@ -33,13 +33,13 @@ namespace Presentation
         private AuctionLotDto? _selectedLot;
         private int? selectedCategoryId = null;
 
-        public ManagerWindow(ManagerApiClient client) : base()
+        public ManagerWindow(BaseUserDto userDto, ManagerApiClient client) : base()
         {
             ArgumentNullException.ThrowIfNull(client);
 
             InitializeComponent();
             _client = client;
-
+            _userDto = userDto;
             Loaded += ManagerWindow_Loaded;
         }
 
@@ -53,7 +53,6 @@ namespace Presentation
                 ManagerNameTextBlock.Text = _userDto?.Login ?? "Manager"; // Якщо _userDto ще не ініціалізовано, перевірте це теж
 
                 UpdateCategoryTreeView();
-                // Можливо, ініціалізація інших даних
             }
             catch (Exception ex)
             {
@@ -254,7 +253,7 @@ namespace Presentation
                     return null;
             }
         }
-        private void AddCategoryButton_Click(object sender, RoutedEventArgs e)
+        private async void AddCategoryButton_Click(object sender, RoutedEventArgs e)
         {
             string newCategoryName = NewCategoryTextBox.Text;
             if (string.IsNullOrWhiteSpace(newCategoryName))
@@ -262,10 +261,11 @@ namespace Presentation
                 MessageBox.Show("Будь ласка, введіть назву категорії.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
             try
             {
                 var newCategory = new CategoryDto { Name = newCategoryName };
-                _client.CreateCategoryAsync(newCategory.Name).Wait();
+                await _client.CreateCategoryAsync(newCategory.Name);
                 _allCategories.Add(newCategory);
                 UpdateCategoryTreeView();
                 NewCategoryTextBox.Clear();
@@ -275,20 +275,30 @@ namespace Presentation
                 MessageBox.Show($"Помилка при додаванні категорії: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private void UpdateCategoryTreeView()
         {
             CategoryTreeView.Items.Clear();
-            if(_allCategories == null || !_allCategories.Any())
+
+            if (_allCategories == null || _allCategories.Count == 0)
             {
-                return;
+                CategoryTreeView.ItemsSource = null;
+                CategoryTreeView.Items.Clear();
+                CategoryTreeView.Items.Add(new TreeViewItem
+                {
+                    Header = new TextBlock
+                    {
+                        Text = "Категорії відсутні.",
+                        Foreground = Brushes.Gray,
+                        FontStyle = FontStyles.Italic
+                    },
+                    IsEnabled = false
+                });
             }
-            var rootCategories = _allCategories.Where(c => c.Parent.Id == null);
-            //foreach (var rootCategory in rootCategories)
-            //{
-            //    var treeViewItem = CreateTreeViewItem(rootCategory);
-            //    CategoryTreeView.Items.Add(treeViewItem);
-            //}
-            CategoryTreeView.ItemsSource = rootCategories;
+            else
+            {
+                CategoryTreeView.ItemsSource = _allCategories;
+            }
         }
         private TreeViewItem CreateTreeViewItem(CategoryDto category)
         {
@@ -338,9 +348,6 @@ namespace Presentation
                 MessageBox.Show("Будь ласка, виберіть категорію для видалення.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
-
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             //this.Close();

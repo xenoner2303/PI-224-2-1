@@ -12,7 +12,7 @@ namespace UI.ApiClients
 
         public async Task<bool> CreateCategoryAsync(string categoryName)
         {
-            var response = await client.PostAsJsonAsync($"category/{categoryName}", categoryName);
+            var response = await client.PostAsJsonAsync($"category", categoryName);
             return await HandleErrorAsync(response);
         }
         public async Task<bool> DeleteCategoryAsync(int categoryId)

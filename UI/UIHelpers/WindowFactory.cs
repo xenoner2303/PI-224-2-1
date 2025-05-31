@@ -12,7 +12,7 @@ internal static class WindowFactory
     private static readonly Dictionary<EnumInterfaceTypeDto, Func<BaseUserDto, IServiceProvider, Window>> windowMap = new()
     {
         { EnumInterfaceTypeDto.Registered, (user, serviceProvider) => new UserManagerWindow(serviceProvider, serviceProvider.GetRequiredService<UserApiClient>()) }, // зареєстрований
-        { EnumInterfaceTypeDto.Manager, (user, serviceProvider) => new ManagerWindow(serviceProvider.GetRequiredService<ManagerApiClient>()) },
+        { EnumInterfaceTypeDto.Manager, (user, serviceProvider) => new ManagerWindow(user, serviceProvider.GetRequiredService<ManagerApiClient>()) },
         { EnumInterfaceTypeDto.Administrator, (user, serviceProvider) => new AdminWindow(serviceProvider) }
     };
 
