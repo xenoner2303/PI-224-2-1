@@ -67,9 +67,17 @@ namespace Presentation
         {
             if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
             {
-                selectedCategoryId = (int?)selectedItem.Tag;
+                if (selectedItem.Tag is DTOsLibrary.CategoryDto category)
+                {
+                    selectedCategoryId = category.Id;  // припускаю, що Id — це int
+                }
+                else
+                {
+                    selectedCategoryId = null;
+                }
             }
         }
+
         private async Task Search()
         {
             string? keyword = SearchTextBox.Text.Trim().ToLower();
@@ -234,7 +242,7 @@ namespace Presentation
         }
         private List<AuctionLotDto>? GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
-            if (_allLots == null) 
+            if (_allLots == null)
             {
                 return new List<AuctionLotDto>();
             }
@@ -264,23 +272,41 @@ namespace Presentation
 
             try
             {
-                var newCategory = new CategoryDto { Name = newCategoryName };
-                await _client.CreateCategoryAsync(newCategory.Name);
-                _allCategories.Add(newCategory);
-                UpdateCategoryTreeView();
-                NewCategoryTextBox.Clear();
+                if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
+                {
+                    var tag = selectedItem.Tag;
+                    var newCategory = new CategoryDto
+                    {
+                        Name = newCategoryName,
+                        Parent = (CategoryDto)tag
+                    };
+
+                    if (CategoryTreeView.SelectedItem is CategoryDto parentCategory)
+                    {
+                        await _client.CreateCategoryAsync(newCategory);
+                        parentCategory.Subcategories.Add(newCategory); // 🟢 Автоматично оновиться
+                    }
+                    else
+                    {
+                        await _client.CreateCategoryAsync(newCategory);
+                        _allCategories.Add(newCategory); // 🟢 Автоматично оновиться
+                    }
+
+                    NewCategoryTextBox.Clear();
+                    UpdateCategoryTreeView(); // Оновлюємо дерево категорій після додавання
+                }
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при додаванні категорії: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private void UpdateCategoryTreeView()
         {
             if (_allCategories == null || _allCategories.Count == 0)
             {
-                CategoryTreeView.ItemsSource = null;
+                CategoryTreeView.Items.Clear();
                 CategoryTreeView.Items.Add(new TreeViewItem
                 {
                     Header = new TextBlock
@@ -291,12 +317,42 @@ namespace Presentation
                     },
                     IsEnabled = false
                 });
+                return;
             }
-            else
+
+            // Карта категорій за Id (або Name, якщо Id нема)
+            var categoryItems = new Dictionary<CategoryDto, TreeViewItem>();
+
+            // Створюємо TreeViewItem для кожної категорії
+            foreach (var category in _allCategories)
             {
-                CategoryTreeView.ItemsSource = _allCategories;
+                var item = new TreeViewItem
+                {
+                    Header = category.Name,
+                    Tag = category
+                };
+
+                categoryItems[category] = item;
+            }
+
+            // Додаємо елементи до батьків або до кореня
+            foreach (var category in _allCategories)
+            {
+                var item = categoryItems[category];
+
+                if (category.Parent != null && categoryItems.ContainsKey(category.Parent))
+                {
+                    categoryItems[category.Parent].Items.Add(item);
+                }
+                else
+                {
+                    // Якщо немає батьківської категорії — додаємо до TreeView
+                    CategoryTreeView.Items.Add(item);
+                }
             }
         }
+
+
         private TreeViewItem CreateTreeViewItem(CategoryDto category)
         {
             var item = new TreeViewItem
@@ -305,7 +361,7 @@ namespace Presentation
                 Tag = category.Id
             };
 
-            var children = _allCategories.Where(c => c.Parent.Id == category.Id);
+            var children = _allCategories.Where(c => c.Parent?.Id == category.Id);
             foreach (var child in children)
             {
                 item.Items.Add(CreateTreeViewItem(child));
@@ -329,14 +385,13 @@ namespace Presentation
         }
         private void DeleteSelectedCategory()
         {
-            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem &&
-                selectedItem.Tag is int categoryId)
+            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem && selectedItem.Tag is CategoryDto categorydto)
             {
-                var categoryToRemove = _allCategories.FirstOrDefault(c => c.Id == categoryId);
+                var categoryToRemove = _allCategories.FirstOrDefault(c => c.Id == categorydto.Id);
                 if (categoryToRemove != null)
                 {
                     _allCategories.Remove(categoryToRemove);
-                    _client.DeleteCategoryAsync(categoryId).Wait();
+                    _client.DeleteCategoryAsync(categorydto.Id).Wait();
                     UpdateCategoryTreeView();
                 }
             }

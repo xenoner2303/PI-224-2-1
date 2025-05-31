@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;
 using System;
@@ -11,11 +12,11 @@ namespace BLL.Commands.ManagerManipulationCommands
 {
     public class CreateCategoryCommand : AbstrCommandWithDA<bool>
     {
-        private readonly string _categoryName;
-        public CreateCategoryCommand(string categoryName, IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly CategoryModel _category;
+        public CreateCategoryCommand(CategoryModel category, IUnitOfWork unitOfWork, IMapper mapper)
             : base(unitOfWork, mapper)
         {
-            _categoryName = categoryName;
+            _category = category;
         }
 
         public override string Name => "Ствоерення нової категорії";
@@ -27,46 +28,19 @@ namespace BLL.Commands.ManagerManipulationCommands
             {
                 var newCategory = new Category
                 {
-                    Name = _categoryName,
-                    ParentId = null // категорія без батька
+                    Name = _category.Name,
+                    ParentId = _category.Parent?.Id // якщо ParentId == null, то це коренева категорія
                 };
-
+                
                 dAPoint.CategoryRepository.Add(newCategory);
                 dAPoint.Save();
-                LogAction($"{Name} \"{_categoryName}\"");
+                LogAction($"{Name} \"{_category.Name}\"");
                 return true;
             }
             catch(ArgumentException ex)
             {
                 return false;
             }
-        }
-
-        //якщо у категорії є батько (ця категорія - підкатегорія)
-        public bool Execute(int parentCategoryId)
-        {
-            var newCategory = new DAL.Entities.Category
-            {
-                Name = _categoryName,
-                ParentId = parentCategoryId // категорія з батьком
-            };
-
-            var parentCategory = dAPoint.CategoryRepository.GetAll()
-                .FirstOrDefault(c => c.Id == parentCategoryId);
-            if (parentCategory != null) {
-                parentCategory.Subcategories.Add(newCategory);
-                dAPoint.CategoryRepository.Update(parentCategory);
-                dAPoint.Save();
-            }
-            else
-            {
-                throw new ArgumentNullException(nameof(parentCategoryId), "Батьківська категорія не знайдена.");
-            }
-
-            dAPoint.CategoryRepository.Add(newCategory);
-            dAPoint.Save();
-            LogAction($"{Name} \"{_categoryName}\", яка є підкатегорією для категорії {parentCategory.Name}");
-            return true;
         }
     }
 }

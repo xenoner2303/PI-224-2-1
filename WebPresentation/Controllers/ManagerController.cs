@@ -24,9 +24,9 @@ public class ManagerController : ControllerBase
     }
 
     [HttpPost("category")]
-    public IActionResult CreateCategory([FromBody]string categoryName)
+    public IActionResult CreateCategory([FromBody]CategoryModel category)
     {
-        var result = _manager.CreateCategory(categoryName);
+        var result = _manager.CreateCategory(category);
 
         if (result)
         {
