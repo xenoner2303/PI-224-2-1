@@ -21,6 +21,11 @@ internal static class WindowFactory
 
     internal static Window CreateWindow(BaseUserDto user, IServiceProvider serviceProvider)
     {
+        if(user == null)
+        {
+            throw new ArgumentNullException(nameof(user), "Користувач не може бути null");
+        }
+
         if (windowMap.TryGetValue(user.InterfaceType, out var windowCreator))
         {
             return windowCreator(user, serviceProvider);
