@@ -39,7 +39,7 @@ namespace Presentation
             {
                 var userDto = await client.AuthorizeUserAsync(login, password);
 
-                if(userDto == null)
+                if (userDto == null)
                 {
                     return;
                 }

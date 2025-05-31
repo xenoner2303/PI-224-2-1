@@ -2,9 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using DTOsLibrary;
 using UI.ApiClients;
-using Presentation.UIHelpers.SubControls;
-using UI;
-using System.Windows.Controls;
 using DTOsLibrary.DTOEnums;
 using OnlineAuction;
 
