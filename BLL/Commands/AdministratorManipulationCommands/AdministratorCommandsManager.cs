@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.EntityBLLModels;
 using DAL.Data;
+using DAL.Entities;
 
 namespace BLL.Commands;
 
@@ -49,5 +50,33 @@ public class AdministratorCommandsManager : AbstractCommandManager
     {
         var command = new RemoveUserCommand(userModel, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося видалити користувача");
+    }
+
+    public BaseUserModel? GetUserById(int id)
+    {
+        try
+        {
+            var user = unitOfWork.UserRepository.GetById(id);
+            return user != null ? mapper.Map<BaseUserModel>(user) : null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Помилка при отриманні користувача: {ex.Message}");
+            return null;
+        }
+    }
+
+    public SecretCodeRealizatorModel? GetSecretCodeRealizatorById(int id)
+    {
+        try
+        {
+            var realizator = unitOfWork.SecretCodeRealizatorRepository.GetById(id);
+            return realizator != null ? mapper.Map<SecretCodeRealizatorModel>(realizator) : null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Помилка при отриманні реалізатора: {ex.Message}");
+            return null;
+        }
     }
 }
