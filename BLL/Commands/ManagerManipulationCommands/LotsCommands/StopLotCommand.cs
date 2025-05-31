@@ -19,6 +19,7 @@ namespace BLL.Commands.ManagerManipulationCommands
         {
             var auctionLot = dAPoint.AuctionLotRepository.GetAll()
                 .FirstOrDefault(l => l.Id == _lotId);
+
             if (auctionLot != null)
             {
                 auctionLot.Status = DAL.Entities.EnumLotStatuses.Completed;

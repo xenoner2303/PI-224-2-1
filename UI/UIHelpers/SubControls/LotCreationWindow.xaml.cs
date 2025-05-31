@@ -48,19 +48,21 @@ namespace UI
                 return;
             }
 
-            byte[]? imageBytes = null;
+            ImageDto? image = null;
             string imagePath = ImageUrlTextBox.Text.Trim();
-            var image = new ImageDto();
 
-            if (File.Exists(imagePath))
+            if (!string.IsNullOrWhiteSpace(imagePath) && File.Exists(imagePath))
             {
                 try
                 {
-                    imageBytes = File.ReadAllBytes(imagePath);
+                    byte[] imageBytes = File.ReadAllBytes(imagePath);
                     var imageType = Path.GetExtension(imagePath).ToLowerInvariant();
 
-                    image.Bytes = imageBytes;
-                    image.ContentType = imageType;
+                    image = new ImageDto
+                    {
+                        Bytes = imageBytes,
+                        ContentType = imageType
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -76,7 +78,7 @@ namespace UI
                 Description = DescriptionTextBox.Text.Trim(),
                 StartPrice = startPrice,
                 DurationDays = durationDays,
-                Image = image,
+                Image = image, // буде null, якщо зображення не вказане або не знайдене
                 Category = selectedCategory,
                 Owner = lotOwner
             };
