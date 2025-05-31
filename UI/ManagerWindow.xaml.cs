@@ -304,9 +304,9 @@ namespace Presentation
         }
         private void UpdateCategoryTreeView()
         {
+            CategoryTreeView.Items.Clear();
             if (_allCategories == null || _allCategories.Count == 0)
             {
-                CategoryTreeView.Items.Clear();
                 CategoryTreeView.Items.Add(new TreeViewItem
                 {
                     Header = new TextBlock
@@ -351,8 +351,6 @@ namespace Presentation
                 }
             }
         }
-
-
         private TreeViewItem CreateTreeViewItem(CategoryDto category)
         {
             var item = new TreeViewItem
