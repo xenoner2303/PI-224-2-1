@@ -19,9 +19,8 @@ namespace OnlineAuction
         private List<BaseUserDto> _users;
         private List<SecretCodeRealizatorDto> _secretCodes;
 
-        public AdminWindow(IServiceProvider serviceProvider, AdminApiClient client)
+        public AdminWindow(IServiceProvider serviceProvider)
         {
-            this.adminApiClient = client;
             this.serviceProvider = serviceProvider;
             //_lots = client. і всі поля так далі
             InitializeComponent();

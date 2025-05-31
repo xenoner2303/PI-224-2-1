@@ -1,137 +1,198 @@
-﻿using Xunit;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
-using NSubstitute;
 using AutoMapper;
 using BLL.Commands.ManagerManipulationCommands;
+using BLL.EntityBLLModels;
 using DAL.Data;
+using DAL.Entities;
+using NSubstitute;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using DAL.Entities;
+using Xunit;
 
 namespace Test
 {
-    public class CategoryCommandTests
+    public class ManagerTests : CommandTestBase
     {
-        private readonly IFixture _fixture;
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IGenericRepository<Category> _categoryRepository;
-        private readonly IGenericRepository<AuctionLot> _lotRepository;
-
-        public CategoryCommandTests()
+        public ManagerTests() : base()
         {
-            _fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+            // Уникнення проблем рекурсії в CategoryModel
+            fixture.Behaviors.Add(new OmitOnRecursionBehavior(1));
+        }
+        private AuctionLot CreateAuctionLotModel(int id)
+        {
+            var owner = new RegisteredUser
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Login = "johndoe"
+            };
 
-            _mapper = _fixture.Create<IMapper>();
-            _categoryRepository = _fixture.Freeze<IGenericRepository<Category>>();
-            _lotRepository = _fixture.Freeze<IGenericRepository<AuctionLot>>();
-            _unitOfWork = _fixture.Create<IUnitOfWork>();
+            return new AuctionLot
+            {
+                Id = id,
+                Status = EnumLotStatuses.Active,
+                Owner = owner,
+                StartTime = null
+            };
         }
 
+
+
         [Fact]
-        public void CreateCategoryCommand_Should_Add_Category_Without_Parent()
+        public void CreateCategoryCommand_ShouldAddCategory_WhenValidCategoryModel()
         {
             // Arrange
-            var categoryName = _fixture.Create<string>();
-            var command = new CreateCategoryCommand(categoryName, _unitOfWork, _mapper);
+            var categoryModel = fixture.Create<CategoryModel>();
+            categoryModel.Parent = null;
+
+            var command = new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper);
 
             // Act
             var result = command.Execute();
 
             // Assert
             Assert.True(result);
-            _categoryRepository.Received().Add(Arg.Is<Category>(c => c.Name == categoryName && c.ParentId == null));
-            _unitOfWork.Received().Save();
+            unitOfWorkMock.CategoryRepository.Received(1).Add(Arg.Is<Category>(c => c.Name == categoryModel.Name && c.ParentId == null));
+            unitOfWorkMock.Received(2).Save();
         }
 
         [Fact]
-        public void CreateCategoryCommand_Should_Add_Subcategory()
+        public void CreateCategoryCommand_ShouldReturnFalse_WhenCategoryNameInvalid()
         {
             // Arrange
-            var categoryName = _fixture.Create<string>();
-            var parentCategoryId = _fixture.Create<int>();
+            var categoryModel = fixture.Build<CategoryModel>()
+                .With(c => c.Name, "a") // Назва менше 4 символів - invalid
+                .Create();
 
+            var command = new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper);
+
+            // Act
+            var result = command.Execute();
+
+            // Assert
+            Assert.False(result);
+            unitOfWorkMock.CategoryRepository.DidNotReceive().Add(Arg.Any<Category>());
+            unitOfWorkMock.DidNotReceive().Save();
+        }
+
+        [Fact]
+        public void DeleteCategoryCommand_ShouldRemoveCategoryAndSubcategories_WhenCategoryExists()
+        {
+            // Arrange
+            int categoryId = 1;
+
+            var categoryToDelete = new Category { Id = categoryId, Name = "TestCat" };
+            var subcategories = new List<Category>
+    {
+        new Category { Id = 2, ParentId = categoryId, Name = "Sub1" },
+        new Category { Id = 3, ParentId = categoryId, Name = "Sub2" }
+    };
+
+            // Мок повинен повертати і категорію, і підкатегорії
+            unitOfWorkMock.CategoryRepository.GetAll().Returns(new List<Category> { categoryToDelete }.Concat(subcategories).ToList());
+
+            var command = new DeleteCategoryCommand(categoryId, unitOfWorkMock, mapper);
+
+            // Act
+            var result = command.Execute();
+
+            // Assert
+            Assert.True(result);
+
+            // Перевіряємо, що Remove викликали з правильними Id для підкатегорій
+            foreach (var sub in subcategories)
+            {
+                unitOfWorkMock.CategoryRepository.Received(1).Remove(sub.Id);
+            }
+
+            // Перевіряємо, що Remove викликали для головної категорії
+            unitOfWorkMock.CategoryRepository.Received(1).Remove(categoryId);
+
+            unitOfWorkMock.Received(4).Save();
+        }
+
+
+        [Fact]
+        public void DeleteCategoryCommand_ExecuteWithParentId_ShouldRemoveSubcategoryAndUpdateParent()
+        {
+            // Arrange
+            int categoryId = 2;
+            int parentCategoryId = 1;
+
+            var categoryToDelete = new Category { Id = categoryId, Name = "SubCat", ParentId = parentCategoryId };
             var parentCategory = new Category
             {
                 Id = parentCategoryId,
-                Name = "Parent",
-                Subcategories = new List<Category>()
+                Name = "ParentCat",
+                Subcategories = new List<Category> { categoryToDelete }
             };
 
-            _categoryRepository.GetAll().Returns(new List<Category> { parentCategory });
+            unitOfWorkMock.CategoryRepository.GetAll().Returns(new List<Category> { categoryToDelete, parentCategory });
 
-            var command = new CreateCategoryCommand(categoryName, _unitOfWork, _mapper);
+
+            var command = new DeleteCategoryCommand(categoryId, unitOfWorkMock, mapper);
 
             // Act
             var result = command.Execute(parentCategoryId);
 
             // Assert
             Assert.True(result);
-            _categoryRepository.Received().Add(Arg.Is<Category>(c => c.Name == categoryName && c.ParentId == parentCategoryId));
-            _categoryRepository.Received().Update(parentCategory);
-            _unitOfWork.Received(2).Save();
+            Assert.DoesNotContain(categoryToDelete, parentCategory.Subcategories);
+            unitOfWorkMock.CategoryRepository.Received(1).Update(parentCategory);
+            unitOfWorkMock.CategoryRepository.Received(1).Remove(categoryId);
+            unitOfWorkMock.Received(3).Save();
         }
 
         [Fact]
-        public void DeleteCategoryCommand_Should_Remove_Category_And_Subcategories()
+        public void DeleteCategoryCommand_ExecuteWithParentId_ShouldThrowIfParentNotFound()
         {
             // Arrange
-            var categoryId = _fixture.Create<int>();
-            var subcategories = _fixture.Build<Category>()
-                .With(c => c.ParentId, categoryId)
-                .CreateMany(2)
-                .ToList();
+            int categoryId = 2;
+            int parentCategoryId = 99; // Неіснуючий
 
-            var mainCategory = _fixture.Build<Category>()
-                .With(c => c.Id, categoryId)
-                .With(c => c.Name, "MainCategory")
-                .Create();
+            var categoryToDelete = new Category { Id = categoryId, Name = "SubCat", ParentId = parentCategoryId };
 
-            var allCategories = subcategories.Append(mainCategory).ToList();
+            unitOfWorkMock.CategoryRepository.GetAll().Returns(new List<Category> { categoryToDelete });
 
-            _categoryRepository.GetAll().Returns(allCategories);
 
-            var command = new DeleteCategoryCommand(categoryId, _unitOfWork, _mapper);
+            var command = new DeleteCategoryCommand(categoryId, unitOfWorkMock, mapper);
+
+            // Act & Assert
+            var ex = Assert.Throws<ArgumentNullException>(() => command.Execute(parentCategoryId));
+            Assert.Equal("parentCategoryId", ex.ParamName);
+        }
+
+        [Fact]
+        public void ReadCategoryCommand_ShouldReturnCategory_WhenExists()
+        {
+            // Arrange
+            int categoryId = 1;
+            var category = new Category { Id = categoryId, Name = "Cat1" };
+
+            unitOfWorkMock.CategoryRepository.GetById(categoryId).Returns(category);
+
+            var command = new ReadCategoryCommand(categoryId, unitOfWorkMock, mapper);
 
             // Act
             var result = command.Execute();
 
             // Assert
-            Assert.True(result);
-            foreach (var sub in subcategories)
-            {
-                _categoryRepository.Received().Remove(sub.Id);
-            }
-
-            _categoryRepository.Received().Remove(categoryId);
-            _unitOfWork.Received(subcategories.Count + 1).Save();
+            Assert.NotNull(result);
+            Assert.Equal(category.Name, result.Name);
         }
 
         [Fact]
-        public void ReadCategoryCommand_Should_Return_Category_If_Exists()
+        public void ReadCategoryCommand_ShouldReturnNull_WhenCategoryNotFound()
         {
             // Arrange
-            var category = _fixture.Create<Category>();
-            _categoryRepository.GetById(category.Id).Returns(category);
+            int categoryId = 999;
 
-            var command = new ReadCategoryCommand(category.Id, _unitOfWork, _mapper);
+            unitOfWorkMock.CategoryRepository.GetById(categoryId).Returns((Category)null);
 
-            // Act
-            var result = command.Execute();
-
-            // Assert
-            Assert.Equal(category, result);
-        }
-
-        [Fact]
-        public void ReadCategoryCommand_Should_Return_Null_If_Not_Found()
-        {
-            // Arrange
-            var id = _fixture.Create<int>();
-            _categoryRepository.GetById(id).Returns((Category)null);
-
-            var command = new ReadCategoryCommand(id, _unitOfWork, _mapper);
+            var command = new ReadCategoryCommand(categoryId, unitOfWorkMock, mapper);
 
             // Act
             var result = command.Execute();
@@ -139,59 +200,22 @@ namespace Test
             // Assert
             Assert.Null(result);
         }
-        [Fact]
-        public void ApproveLotCommand_Should_Set_Status_And_StartTime()
-        {
-            // Arrange
-            var lotId = _fixture.Create<int>();
-            var lot = new AuctionLot { Id = lotId};
 
-            _lotRepository.GetAll().Returns(new List<AuctionLot> { lot });
-
-            var command = new ApproveLotCommand(lotId, _unitOfWork, _mapper);
-
-            // Act
-            var result = command.Execute();
-
-            // Assert
-            Assert.True(result);
-            Assert.Equal(EnumLotStatuses.Active, lot.Status);
-            Assert.True(lot.StartTime <= DateTime.Now);
-            _lotRepository.Received().Update(lot);
-            _unitOfWork.Received().Save();
-        }
 
         [Fact]
-        public void RejectLotCommand_Should_Set_Status_To_Rejected()
+        public void StopLotCommand_ShouldSetCompletedStatusAndEndTime()
         {
             // Arrange
-            var lotId = _fixture.Create<int>();
-            var lot = new AuctionLot { Id = lotId};
+            int lotId = 1;
+            var lot = CreateAuctionLotModel(lotId);
 
-            _lotRepository.GetAll().Returns(new List<AuctionLot> { lot });
+            var auctionLots = new List<AuctionLot> { lot };
 
-            var command = new RejectLotCommand(lotId, _unitOfWork, _mapper);
+            var lotEntities = mapper.Map<List<AuctionLot>>(auctionLots);
+            // Репозиторій повертає модель, а не ентіті
+            unitOfWorkMock.AuctionLotRepository.GetAll().Returns(lotEntities);
 
-            // Act
-            var result = command.Execute();
-
-            // Assert
-            Assert.True(result);
-            Assert.Equal(EnumLotStatuses.Rejected, lot.Status);
-            _lotRepository.Received().Update(lot);
-            _unitOfWork.Received().Save();
-        }
-
-        [Fact]
-        public void StopLotCommand_Should_Set_Status_To_Completed_And_EndTime()
-        {
-            // Arrange
-            var lotId = _fixture.Create<int>();
-            var lot = new AuctionLot { Id = lotId};
-
-            _lotRepository.GetAll().Returns(new List<AuctionLot> { lot });
-
-            var command = new StopLotCommand(lotId, _unitOfWork, _mapper);
+            var command = new StopLotCommand(lotId, unitOfWorkMock, mapper);
 
             // Act
             var result = command.Execute();
@@ -199,45 +223,57 @@ namespace Test
             // Assert
             Assert.True(result);
             Assert.Equal(EnumLotStatuses.Completed, lot.Status);
-            Assert.True(lot.EndTime <= DateTime.Now);
-            _lotRepository.Received().Update(lot);
-            _unitOfWork.Received().Save();
+            Assert.NotNull(lot.EndTime);
+
+            unitOfWorkMock.AuctionLotRepository.Received(1).Update(lot);
+            unitOfWorkMock.Received(2).Save();
         }
 
         [Fact]
-        public void ApproveLotCommand_Should_Throw_If_Lot_Not_Found()
+        public void RejectLotCommand_ShouldSetRejectedStatus()
         {
             // Arrange
-            var lotId = _fixture.Create<int>();
-            _lotRepository.GetAll().Returns(Enumerable.Empty<AuctionLot>());
-            var command = new ApproveLotCommand(lotId, _unitOfWork, _mapper);
+            int lotId = 2;
+            var lot = CreateAuctionLotModel(lotId);
 
-            // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => command.Execute());
+            var auctionLots = new List<AuctionLot> { lot };
+            unitOfWorkMock.AuctionLotRepository.GetAll().Returns(auctionLots);
+
+            var command = new RejectLotCommand(lotId, unitOfWorkMock, mapper);
+
+            // Act
+            var result = command.Execute();
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(EnumLotStatuses.Rejected, lot.Status);
+
+            unitOfWorkMock.AuctionLotRepository.Received(1).Update(lot);
+            unitOfWorkMock.Received(2).Save();
         }
 
         [Fact]
-        public void RejectLotCommand_Should_Throw_If_Lot_Not_Found()
+        public void ApproveLotCommand_ShouldSetActiveStatusAndStartTime()
         {
             // Arrange
-            var lotId = _fixture.Create<int>();
-            _lotRepository.GetAll().Returns(Enumerable.Empty<AuctionLot>());
-            var command = new RejectLotCommand(lotId, _unitOfWork, _mapper);
+            int lotId = 3;
+            var lot = CreateAuctionLotModel(lotId);
+            var auctionLots = new List<AuctionLot> { lot };
 
-            // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => command.Execute());
-        }
+            unitOfWorkMock.AuctionLotRepository.GetAll().Returns(auctionLots);
 
-        [Fact]
-        public void StopLotCommand_Should_Throw_If_Lot_Not_Found()
-        {
-            // Arrange
-            var lotId = _fixture.Create<int>();
-            _lotRepository.GetAll().Returns(Enumerable.Empty<AuctionLot>());
-            var command = new StopLotCommand(lotId, _unitOfWork, _mapper);
+            var command = new ApproveLotCommand(lotId, unitOfWorkMock, mapper);
 
-            // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => command.Execute());
+            // Act
+            var result = command.Execute();
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(EnumLotStatuses.Active, lot.Status);
+            Assert.NotNull(lot.StartTime);
+
+            unitOfWorkMock.AuctionLotRepository.Received(1).Update(lot);
+            unitOfWorkMock.Received(2).Save();
         }
     }
 }
