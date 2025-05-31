@@ -265,16 +265,37 @@ namespace Presentation
             try
             {
                 var newCategory = new CategoryDto { Name = newCategoryName };
-                await _client.CreateCategoryAsync(newCategory.Name);
-                _allCategories.Add(newCategory);
-                UpdateCategoryTreeView();
-                NewCategoryTextBox.Clear();
+
+                // Перевіряємо, чи є вибраний елемент у TreeView
+                if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
+                {
+                    // Отримуємо категорію батька (Tag це твої дані, можливо це CategoryDto або інший об'єкт)
+                    var parentCategory = selectedItem.Tag as CategoryDto;
+
+                    // Якщо є батьківська категорія, додаємо нову категорію як підкатегорію
+                    if (parentCategory != null)
+                    {
+                        // Тут логіка для створення підкатегорії
+                        await _client.CreateCategoryAsync(newCategory);
+                        parentCategory.Subcategories.Add(newCategory);  // Наприклад, додаємо до списку підкатегорій
+                    }
+                }
+                else
+                {
+                    // Якщо немає вибраної категорії, додаємо нову категорію на верхньому рівні
+                    await _client.CreateCategoryAsync(newCategory.Name);
+                    _allCategories.Add(newCategory);
+                }
+
+                UpdateCategoryTreeView();  // Оновлюємо відображення TreeView
+                NewCategoryTextBox.Clear();  // Очищаємо поле вводу
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при додаванні категорії: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private void UpdateCategoryTreeView()
         {

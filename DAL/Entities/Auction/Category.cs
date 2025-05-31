@@ -24,7 +24,7 @@ public class Category
     }
 
     public int? ParentId { get; set; } // nullable, бо у кореневих категорій нема батька
-    public Category Parent { get; set; } // батько для вкладеності категорії
+    public Category? Parent { get; set; } // батько для вкладеності категорії
 
     public List<Category> Subcategories { get; set; } = new List<Category>(); // підкатегорії
     public List<AuctionLot> Lots { get; set; } = new List<AuctionLot>(); // 1 категорія - багато лотів
