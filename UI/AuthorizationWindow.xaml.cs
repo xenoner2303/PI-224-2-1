@@ -38,6 +38,12 @@ namespace Presentation
             try
             {
                 var userDto = await client.AuthorizeUserAsync(login, password);
+
+                if(userDto == null)
+                {
+                    return;
+                }
+
                 //додати перевірку на null(якщо незареєстрований користувач хоче ввійти)
                 if (userDto.InterfaceType == EnumInterfaceTypeDto.Registered)
                 {
