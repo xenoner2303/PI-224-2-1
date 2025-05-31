@@ -4,7 +4,7 @@ using DAL.Entities;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
-    internal class ReadCategoryCommand : AbstrCommandWithDA<Category>
+    public class ReadCategoryCommand : AbstrCommandWithDA<Category>
     {
         private readonly int _categoryId;
 

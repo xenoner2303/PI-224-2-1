@@ -3,7 +3,7 @@ using DAL.Data;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
-    internal class StopLotCommand : AbstrCommandWithDA<bool>
+    public class StopLotCommand : AbstrCommandWithDA<bool>
     {
         private readonly int _lotId;
 
