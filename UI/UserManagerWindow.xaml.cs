@@ -226,28 +226,28 @@ namespace Presentation
 
         private async void LoadUserManagerWindowEntities()
         {
-            var categories = await client.GetCategoriesAsync();
+            //var categories = await client.GetCategoriesAsync();
 
-            if (categories == null || categories.Count == 0)
-            {
-                CategoryTreeView.ItemsSource = null;
-                CategoryTreeView.Items.Clear();
-                CategoryTreeView.Items.Add(new TreeViewItem
-                {
-                    Header = new TextBlock
-                    {
-                        Text = "Категорії відсутні.",
-                        Foreground = Brushes.Gray,
-                        FontStyle = FontStyles.Italic
-                    },
-                    IsEnabled = false
-                });
-            }
-            else
-            {
-                CategoryTreeView.ItemsSource = categories;
-                flatCategoryList = categories;
-            }
+            //if (categories == null || categories.Count == 0)
+            //{
+            //    CategoryTreeView.ItemsSource = null;
+            //    CategoryTreeView.Items.Clear();
+            //    CategoryTreeView.Items.Add(new TreeViewItem
+            //    {
+            //        Header = new TextBlock
+            //        {
+            //            Text = "Категорії відсутні.",
+            //            Foreground = Brushes.Gray,
+            //            FontStyle = FontStyles.Italic
+            //        },
+            //        IsEnabled = false
+            //    });
+            //}
+            //else
+            //{
+            //    CategoryTreeView.ItemsSource = categories;
+            //    flatCategoryList = categories;
+            //}
         }
 
         private void FillLotsPanel(List<AuctionLotDto> lots, StackPanel panel)

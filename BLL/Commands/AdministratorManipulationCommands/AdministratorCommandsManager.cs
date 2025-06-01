@@ -27,9 +27,9 @@ public class AdministratorCommandsManager : AbstractCommandManager
         return ExecuteCommand(command, "Не вдалося завантажити користувачів");
     }
 
-    public bool RemoveSecretCodeRealizator(SecretCodeRealizatorModel realizatorModel)
+    public bool RemoveSecretCodeRealizator(int id)
     {
-        var command = new RemoveSecretCodeRealizatorCommand(realizatorModel, unitOfWork, mapper);
+        var command = new RemoveSecretCodeRealizatorByIdCommand(id, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося видалити реалізатора");
     }
 
@@ -45,9 +45,9 @@ public class AdministratorCommandsManager : AbstractCommandManager
         return ExecuteCommand(command, "Не вдалося зберегти зміни користувачів");
     }
 
-    public bool RemoveUser(BaseUserModel userModel)
+    public bool RemoveUser(int id)
     {
-        var command = new RemoveUserCommand(userModel, unitOfWork, mapper);
+        var command = new RemoveUserByIdCommand(id, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося видалити користувача");
     }
 }

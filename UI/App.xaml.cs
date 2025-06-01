@@ -45,6 +45,11 @@ public partial class App : Application
             client.BaseAddress = new Uri("http://localhost:5000/api/Manager/");
         });
 
+        services.AddHttpClient<AdministratorApiClient>(client =>
+        {
+            client.BaseAddress = new Uri("http://localhost:5000/api/Administrator/");
+        });
+
         // реєструємо вікна
         services.AddTransient<UserManagerWindow>();
 

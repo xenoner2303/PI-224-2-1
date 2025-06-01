@@ -1,5 +1,6 @@
 ﻿using BLL.AutoMapperProfiles;
 using BLL.AutoMapperProfiles.ValueResolvers;
+using BLL.Commands;
 using BLL.Commands.ManagerManipulationCommands;
 using BLL.Commands.PreUsersManipulationCommands;
 using BLL.Commands.UserManipulationsCommands;
@@ -20,9 +21,10 @@ public static class BLLInitializer
     {
         // ініціалізація залежностей рівня дал
         DALInitializer.AddDataAccessServices(services);
-
+        
         services.AddScoped<PreUserCommandsManager>();
         services.AddScoped<ManagerCommandsManager>();
+        services.AddScoped<AdministratorCommandsManager>();
         services.AddScoped<UserCommandManager>();
         services.AddScoped<BytesToImageResolver>();
         services.AddScoped<ImageToBytesImageModelResolver>();
