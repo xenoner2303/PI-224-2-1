@@ -1,9 +1,13 @@
 ﻿using DTOsLibrary;
 using DTOsLibrary.DTOEnums;
+using MaterialDesignThemes.Wpf;
+using Microsoft.Extensions.DependencyInjection;
 using Presentation.UIHelpers;
 using Presentation.UIHelpers.SubControls;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -28,40 +32,71 @@ namespace Presentation
     {
         private readonly ManagerApiClient _client;
         private BaseUserDto _userDto;
-        private List<AuctionLotDto> _allLots;
-        private List<CategoryDto> _allCategories;
+        private IServiceProvider _serviceProvider;
         private AuctionLotDto? _selectedLot;
         private int? selectedCategoryId = null;
 
-        public ManagerWindow(BaseUserDto userDto, ManagerApiClient client) : base()
+        public ManagerWindow(BaseUserDto userDto, IServiceProvider serviceProvider, ManagerApiClient client) : base()
         {
             ArgumentNullException.ThrowIfNull(client);
 
             InitializeComponent();
+            _serviceProvider = serviceProvider;
             _client = client;
             _userDto = userDto;
             Loaded += ManagerWindow_Loaded;
+            DataContext = this;
         }
 
         private async void ManagerWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                _allCategories = await _client.GetCategoriesAsync();
-                _allLots = await _client.GetAuctionLotsAsync();
+                var allCategories = await _client.GetAllCategoriesAsync();
 
-                ManagerNameTextBlock.Text = _userDto?.Login ?? "Manager"; // Якщо _userDto ще не ініціалізовано, перевірте це теж
+                ManagerNameTextBlock.Text = _userDto?.Login ?? "Manager";
 
-                UpdateCategoryTreeView();
+                await LoadCategoriesAsync();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Помилка завантаження даних: " + ex.Message);
             }
         }
-        private void CategoryTreeView_Load(object sender, RoutedEventArgs e)
+
+        private List<CategoryDto> BuildCategoryTree(List<CategoryDto> categories)
         {
-            UpdateCategoryTreeView();
+            var lookup = categories.ToDictionary(c => c.Id);
+            List<CategoryDto> rootCategories = new();
+
+            foreach (var category in categories)
+            {
+                category.Subcategories = new(); // очищення перед побудовою
+
+                if (category.ParentId == null)
+                {
+                    rootCategories.Add(category);
+                }
+                else if (lookup.TryGetValue(category.ParentId.Value, out var parent))
+                {
+                    parent.Subcategories.Add(category);
+                }
+            }
+
+            return rootCategories;
+        }
+        private async Task CategoryTreeView_Load(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var categories = await _client.GetAllCategoriesAsync();
+                var tree = BuildCategoryTree(categories);
+                CategoryTreeView.ItemsSource = tree;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка завантаження: {ex.Message}");
+            }
         }
         private void CategoryTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
@@ -77,7 +112,38 @@ namespace Presentation
                 }
             }
         }
+        private async Task UpdateCategoryTreeView()
+        {
+            try
+            {
+                var allCategories = await _client.GetAllCategoriesAsync();
 
+                if (allCategories == null || allCategories.Count == 0)
+                {
+                    CategoryTreeView.ItemsSource = null;
+                    CategoryTreeView.Items.Clear();
+                    CategoryTreeView.Items.Add(new TreeViewItem
+                    {
+                        Header = new TextBlock
+                        {
+                            Text = "Категорії відсутні.",
+                            Foreground = Brushes.Gray,
+                            FontStyle = FontStyles.Italic
+                        },
+                        IsEnabled = false
+                    });
+                }
+                else
+                {
+                    var tree = BuildCategoryTree(allCategories);
+                    CategoryTreeView.ItemsSource = tree;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не вдалося оновити дерево категорій: " + ex.Message);
+            }
+        }
         private async Task Search()
         {
             string? keyword = SearchTextBox.Text.Trim().ToLower();
@@ -90,75 +156,34 @@ namespace Presentation
 
             var receiveLots = await _client.SearchLotsAsync(search);
 
-            UpdateLotsTab(receiveLots);
-        }
-        private static DataGrid FindDataGridInTab(TabItem tab)
-        {
-            return FindChild<DataGrid>(tab);
-        }
-        public static T FindChild<T>(DependencyObject parent) where T : DependencyObject
-        {
-            if (parent == null) return null;
+            var status = receiveLots[0].Status;
 
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            switch (status)
             {
-                var child = VisualTreeHelper.GetChild(parent, i);
-
-                if (child is T tChild)
-                    return tChild;
-
-                var result = FindChild<T>(child);
-                if (result != null)
-                    return result;
+                case EnumLotStatusesDto.Pending:
+                    PendingDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 0;
+                    break;
+                case EnumLotStatusesDto.Active:
+                    ActiveLotsDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 1;
+                    break;
+                case EnumLotStatusesDto.Completed:
+                    FinishedLotsDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 2;
+                    break;
+                case EnumLotStatusesDto.Rejected:
+                    RejectedLotsDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 3;
+                    break;
+                default:
+                    MessageBox.Show("Невідомий статус лотів.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
             }
 
-            return null;
         }
-        private void UpdateLotsTab(List<AuctionLotDto> receiveLots)
+        private void UpdateLotsTab()
         {
-            // Отримати обрану вкладку
-            var selectedTab = MainTabControl.SelectedItem as TabItem;
-
-            if (selectedTab == null)
-                return;
-
-            // Знайти DataGrid у вкладці
-            var dataGrid = FindDataGridInTab(selectedTab);
-
-            if (dataGrid == null)
-                return;
-
-            if (receiveLots.Count == 0 || receiveLots == null)
-            {
-                dataGrid.ItemsSource = null;
-
-                // Заміна таблиці на повідомлення про відсутність лотів
-                // Очистити parent і додати повідомлення
-                var parent = dataGrid.Parent as Panel;
-                if (parent != null)
-                {
-                    parent.Children.Clear();
-                    parent.Children.Add(new TextBlock
-                    {
-                        Text = "Лоти не знайдено.",
-                        Foreground = Brushes.Gray,
-                        FontSize = 16,
-                        Margin = new Thickness(10)
-                    });
-                }
-            }
-            else
-            {
-                // Якщо лоти є — відновити DataGrid
-                var parent = dataGrid.Parent as Panel;
-                if (parent != null && !parent.Children.Contains(dataGrid))
-                {
-                    parent.Children.Clear();
-                    parent.Children.Add(dataGrid);
-                }
-
-                dataGrid.ItemsSource = receiveLots;
-            }
         }
         private async void AcceptLot_Click(object sender, RoutedEventArgs e)
         {
@@ -226,182 +251,160 @@ namespace Presentation
                 switch (header)
                 {
                     case "Непідтверджені лоти":
-                        PendingDataGrid.ItemsSource = GetNeededLots(EnumLotStatusesDto.Pending);
+                        GetNeededLots(EnumLotStatusesDto.Pending);
                         break;
                     case "Активні торги":
-                        ActiveLotsDataGrid.ItemsSource = GetNeededLots(EnumLotStatusesDto.Active);
+                        GetNeededLots(EnumLotStatusesDto.Active);
                         break;
                     case "Завершені торги":
-                        FinishedLotsDataGrid.ItemsSource = GetNeededLots(EnumLotStatusesDto.Completed);
+                        GetNeededLots(EnumLotStatusesDto.Completed);
                         break;
                     case "Відхилені лоти":
-                        RejectedLotsDataGrid.ItemsSource = GetNeededLots(EnumLotStatusesDto.Rejected);
+                        GetNeededLots(EnumLotStatusesDto.Rejected);
                         break;
                 }
             }
         }
-        private List<AuctionLotDto>? GetNeededLots(EnumLotStatusesDto enumLotStatus)
+        private async Task GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
-            if (_allLots == null)
+            List<AuctionLotDto>? allLots = await _client.GetAuctionLotsAsync();
+
+            if (allLots == null)
             {
-                return new List<AuctionLotDto>();
+                return;
             }
 
             switch (enumLotStatus)
             {
                 case EnumLotStatusesDto.Pending:
-                    return _allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Pending).ToList();
+                    PendingDataGrid.ItemsSource = allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Pending).ToList();
+                    break;
                 case EnumLotStatusesDto.Active:
-                    return _allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Active).ToList();
+                    ActiveLotsDataGrid.ItemsSource = allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Active).ToList();
+                    break;
                 case EnumLotStatusesDto.Completed:
-                    return _allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Completed).ToList();
+                    FinishedLotsDataGrid.ItemsSource = allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Completed).ToList();
+                    break;
                 case EnumLotStatusesDto.Rejected:
-                    return _allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Rejected).ToList();
+                    RejectedLotsDataGrid.ItemsSource = allLots.Where(lot => lot.Status == DTOsLibrary.DTOEnums.EnumLotStatusesDto.Rejected).ToList();
+                    break;
                 default:
-                    return null;
+                    return;
             }
         }
         private async void AddCategoryButton_Click(object sender, RoutedEventArgs e)
         {
-            string newCategoryName = NewCategoryTextBox.Text;
-            if (string.IsNullOrWhiteSpace(newCategoryName))
+            var selectedTreeViewItem = CategoryTreeView.SelectedItem as TreeViewItem;
+            var selectedCategory = selectedTreeViewItem?.Tag as CategoryDto;
+            string name = NewCategoryTextBox.Text;
+            if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Будь ласка, введіть назву категорії.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Введіть назву категорії.");
                 return;
             }
 
-            try
+            var newCategoryDto = new CategoryDto
             {
-                if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
-                {
-                    var tag = selectedItem.Tag;
-                    var newCategory = new CategoryDto
-                    {
-                        Name = newCategoryName,
-                        Parent = (CategoryDto)tag
-                    };
-
-                    if (CategoryTreeView.SelectedItem is CategoryDto parentCategory)
-                    {
-                        await _client.CreateCategoryAsync(newCategory);
-                        parentCategory.Subcategories.Add(newCategory); // 🟢 Автоматично оновиться
-                    }
-                    else
-                    {
-                        await _client.CreateCategoryAsync(newCategory);
-                        _allCategories.Add(newCategory); // 🟢 Автоматично оновиться
-                    }
-
-                    NewCategoryTextBox.Clear();
-                    UpdateCategoryTreeView(); // Оновлюємо дерево категорій після додавання
-                }
-            }
-
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Помилка при додаванні категорії: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        private void UpdateCategoryTreeView()
-        {
-            CategoryTreeView.Items.Clear();
-            if (_allCategories == null || _allCategories.Count == 0)
-            {
-                CategoryTreeView.Items.Add(new TreeViewItem
-                {
-                    Header = new TextBlock
-                    {
-                        Text = "Категорії відсутні.",
-                        Foreground = Brushes.Gray,
-                        FontStyle = FontStyles.Italic
-                    },
-                    IsEnabled = false
-                });
-                return;
-            }
-
-            // Карта категорій за Id (або Name, якщо Id нема)
-            var categoryItems = new Dictionary<CategoryDto, TreeViewItem>();
-
-            // Створюємо TreeViewItem для кожної категорії
-            foreach (var category in _allCategories)
-            {
-                var item = new TreeViewItem
-                {
-                    Header = category.Name,
-                    Tag = category
-                };
-
-                categoryItems[category] = item;
-            }
-
-            // Додаємо елементи до батьків або до кореня
-            foreach (var category in _allCategories)
-            {
-                var item = categoryItems[category];
-
-                if (category.Parent != null && categoryItems.ContainsKey(category.Parent))
-                {
-                    categoryItems[category.Parent].Items.Add(item);
-                }
-                else
-                {
-                    // Якщо немає батьківської категорії — додаємо до TreeView
-                    CategoryTreeView.Items.Add(item);
-                }
-            }
-        }
-        private TreeViewItem CreateTreeViewItem(CategoryDto category)
-        {
-            var item = new TreeViewItem
-            {
-                Header = category.Name,
-                Tag = category.Id
+                Name = name,
+                ParentId = selectedCategory?.Id
             };
 
-            var children = _allCategories.Where(c => c.Parent?.Id == category.Id);
-            foreach (var child in children)
+            var createdCategory = await _client.CreateCategoryAsync(newCategoryDto);
+            if (createdCategory != null)
             {
-                item.Items.Add(CreateTreeViewItem(child));
-            }
-
-            return item;
-        }
-        private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            TreeViewItem item = sender as TreeViewItem;
-            if (item != null)
-            {
-                item.IsSelected = true; // Встановлюємо вибраний елемент
-                e.Handled = true;       // Щоб подія не "йшла" далі
-            }
-            MenuItem menuItem = new MenuItem
-            {
-                Header = "Видалити"
-            };
-            menuItem.Click += (s, args) => DeleteSelectedCategory();
-        }
-        private void DeleteSelectedCategory()
-        {
-            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem && selectedItem.Tag is CategoryDto categorydto)
-            {
-                var categoryToRemove = _allCategories.FirstOrDefault(c => c.Id == categorydto.Id);
-                if (categoryToRemove != null)
-                {
-                    _allCategories.Remove(categoryToRemove);
-                    _client.DeleteCategoryAsync(categorydto.Id).Wait();
-                    UpdateCategoryTreeView();
-                }
+                await UpdateCategoryTreeView(); // тут await!
+                NewCategoryTextBox.Clear();
+                MessageBox.Show("Категорію успішно створено!");
             }
             else
             {
-                MessageBox.Show("Будь ласка, виберіть категорію для видалення.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Не вдалося створити категорію.");
+            }
+        }
+        private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TreeViewItem item && item.DataContext is CategoryDto category)
+            {
+                item.IsSelected = true;
+                e.Handled = true;
+
+                var icon = new PackIcon
+                {
+                    Kind = PackIconKind.Delete,
+                    Width = 16,
+                    Height = 16,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 2, 0)
+                };
+
+                MenuItem deleteItem = new MenuItem
+                {
+                    Icon = icon
+                };
+
+                deleteItem.Click += async (s, args) => await DeleteSelectedCategory(category);
+
+                ContextMenu contextMenu = new ContextMenu();
+                contextMenu.Items.Add(deleteItem);
+                item.ContextMenu = contextMenu;
+                contextMenu.IsOpen = true;
+            }
+        }
+        private async Task DeleteSelectedCategory(CategoryDto categoryDto)
+        {
+            try
+            {
+                var allCategories = await _client.GetAllCategoriesAsync();
+                if (categoryDto != null)
+                {
+                    // Знайти всі підкатегорії
+                    List<CategoryDto>? childCategories = allCategories
+                        .Where(c => c.ParentId != null && c.ParentId == categoryDto.Id)
+                        .ToList();
+
+                    // Рекурсивно видалити їх
+                    foreach (var child in childCategories)
+                    {
+                        await DeleteSelectedCategory(child);
+                    }
+
+                    // Видалити саму категорію
+                    allCategories.Remove(categoryDto);
+                    await _client.DeleteCategoryAsync(categoryDto.Id);
+                    UpdateCategoryTreeView();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
-            //this.Close();
-            //відкрити вікно авторизації
+            var client = _serviceProvider.GetRequiredService<PreUserApiClient>();
+
+            var authWindow = new AuthorizationWindow(_serviceProvider, client, user =>
+            {
+                _userDto = user;
+            });
+
+            authWindow.Owner = this;
+            authWindow.ShowDialog();
         }
+        private async Task LoadCategoriesAsync()
+        {
+            try
+            {
+                var allCategories = await _client.GetAllCategoriesAsync();
+                var tree = BuildCategoryTree(allCategories);
+                CategoryTreeView.ItemsSource = tree;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не вдалося завантажити категорії: " + ex.Message);
+            }
+        }
+
+
     }
 }

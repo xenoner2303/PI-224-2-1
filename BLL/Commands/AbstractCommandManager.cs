@@ -22,7 +22,7 @@ public abstract class AbstractCommandManager
         var result = command.Execute();
 
         if (result is bool success && !success)
-        {
+        {            
             throw new InvalidOperationException(errorMessage);
         }
 

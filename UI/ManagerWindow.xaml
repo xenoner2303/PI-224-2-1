@@ -99,8 +99,27 @@
                 <TextBlock Text="Категорії" FontSize="16" Margin="0,0,0,10"/>
 
                 <!-- Дерево -->
-                <TreeView Name="CategoryTreeView" SelectedItemChanged="CategoryTreeView_SelectedItemChanged" 
-                          Loaded="CategoryTreeView_Load" MouseRightButtonDown="TreeViewItem_PreviewMouseRightButtonDown" Height="400"/>
+                <TreeView x:Name="CategoryTreeView"
+                          ItemsSource="{Binding RootCategories}"
+                          SelectedItemChanged="CategoryTreeView_SelectedItemChanged"
+                          Height="400"> 
+
+                    <TreeView.Resources>
+                        <!-- Стиль TreeViewItem з подією, що базується на системному стилі -->
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <EventSetter Event="PreviewMouseRightButtonDown"
+                         Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
+                        </Style>
+                    </TreeView.Resources>
+
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Subcategories}">
+                            <TextBlock Text="{Binding Name}" />
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+
+
 
                 <!-- Панель додавання -->
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
@@ -236,3 +255,4 @@
         </Grid>
     </DockPanel>
 </Window>
+    
