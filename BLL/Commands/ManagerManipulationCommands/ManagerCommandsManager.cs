@@ -52,10 +52,10 @@ namespace BLL.Commands.ManagerManipulationCommands
             return ExecuteCommand<List<CategoryModel>>(command, "Не вдалося завантажити категорії");
         }
 
-        public List<AuctionLot> SearchLots(string? keyword, int? categoryId)
+        public List<AuctionLotModel> SearchLots(string? keyword, int? categoryId)
         {
             var command = new SearchLotsCommand(keyword, categoryId, unitOfWork, mapper);
-            return ExecuteCommand<List<AuctionLot>>(command, "Не вдалося виконати пошук лотів");
+            return ExecuteCommand<List<AuctionLotModel>>(command, "Не вдалося виконати пошук лотів");
         }
     }
 }

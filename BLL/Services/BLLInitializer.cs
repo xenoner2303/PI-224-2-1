@@ -1,5 +1,6 @@
 ﻿using BLL.AutoMapperProfiles;
 using BLL.AutoMapperProfiles.ValueResolvers;
+using BLL.Commands.ManagerManipulationCommands;
 using BLL.Commands.PreUsersManipulationCommands;
 using BLL.Commands.UserManipulationsCommands;
 using DAL.Data;
@@ -21,6 +22,7 @@ public static class BLLInitializer
         DALInitializer.AddDataAccessServices(services);
 
         services.AddScoped<PreUserCommandsManager>();
+        services.AddScoped<ManagerCommandsManager>();
         services.AddScoped<UserCommandManager>();
         services.AddScoped<BytesToImageResolver>();
         services.AddScoped<ImageToBytesImageModelResolver>();

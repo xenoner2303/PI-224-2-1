@@ -73,6 +73,7 @@ namespace Presentation
             {
                 MessageBox.Show("Ставку успішно зроблено");
                 BidTextBox.Text = ""; // очищуємо поле
+                Search_Click(sender, e);
             }
             else
             {
@@ -108,7 +109,7 @@ namespace Presentation
                 return;
             }
 
-            FillLotsPanel(receiveLots);
+            FillLotsPanel(receiveLots, MainLotsCoursePanel);
         }
 
         private async void CreateLot_Click(object sender, RoutedEventArgs e)
@@ -199,7 +200,7 @@ namespace Presentation
             UpdateTabAccess();
         }
 
-        private void UpdateTabAccess()
+        private async void UpdateTabAccess()
         {
             bool userState = currentUser != null;
 
@@ -212,6 +213,9 @@ namespace Presentation
                 LoginButton.Visibility = Visibility.Collapsed;
                 UserNameText.Text = currentUser.Login;
                 UserInfoPanel.Visibility = Visibility.Visible;
+
+                var userLots = await client.GetUserLotsAsync(currentUser.Id);
+                FillLotsPanel(userLots, UserLotsPanel);
             }
             else
             {
@@ -244,18 +248,11 @@ namespace Presentation
                 CategoryTreeView.ItemsSource = categories;
                 flatCategoryList = categories;
             }
-
-            if (currentUser != null)
-            {
-                var userLots = await client.GetUserLotsAsync(currentUser.Id);
-
-                FillLotsPanel(userLots);
-            }
         }
 
-        private void FillLotsPanel(List<AuctionLotDto> lots)
+        private void FillLotsPanel(List<AuctionLotDto> lots, StackPanel panel)
         {
-            UserLotsPanel.Children.Clear(); // очищаємо панель перед додаванням нових елементів
+            panel.Children.Clear(); // очищаємо панель перед додаванням нових елементів
 
             foreach (var lot in lots)
             {
@@ -274,7 +271,7 @@ namespace Presentation
                     selectedLotControl.IsSelected = true;
                 };
 
-                UserLotsPanel.Children.Add(lotControl);
+                panel.Children.Add(lotControl);
             }
         }
     }

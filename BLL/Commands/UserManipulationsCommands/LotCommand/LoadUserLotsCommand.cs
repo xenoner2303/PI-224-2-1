@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.UserManipulationsCommands
 {
-    internal class LoadUserLotsCommand : AbstrCommandWithDA<List<AuctionLot>>
+    internal class LoadUserLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
     {
         private readonly int userId;
         public LoadUserLotsCommand(int userId, IUnitOfWork unitOfWork, IMapper mapper)
@@ -15,11 +17,17 @@ namespace BLL.Commands.UserManipulationsCommands
 
         public override string Name => "Отримання лотів";
 
-        public override List<AuctionLot> Execute()
+        public override List<AuctionLotModel> Execute()
         {
-            var usersLots = dAPoint.AuctionLotRepository.GetAll().Where(l => l.OwnerId == userId).ToList();
+            var usersLots = dAPoint.AuctionLotRepository.GetQueryable()
+                .Include(lot => lot.Owner)
+                .Include(lot => lot.Bids)
+                .Where(l => l.OwnerId == userId)
+                .ToList();
 
-            return usersLots;
+            LogAction($"Було завантажено {usersLots.Count} лотів користувача з айді {userId}");
+
+            return mapper.Map<List<AuctionLotModel>>(usersLots); ;
         }
     }
 }

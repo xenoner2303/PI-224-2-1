@@ -14,4 +14,6 @@ public class BaseUserDto
     public string? Password { get; set; } // відкрите поле для нехешованого паролю, яке потім буде хешуватися
     public string? SecretCode { get; set; }
     public EnumInterfaceTypeDto InterfaceType { get; set; }
+
+    public override string ToString() => $"{FirstName} {LastName} ({Login})";
 }

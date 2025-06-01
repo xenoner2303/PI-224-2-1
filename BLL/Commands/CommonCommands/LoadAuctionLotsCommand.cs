@@ -2,6 +2,7 @@
 using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.CommonCommands;
 
@@ -14,7 +15,9 @@ internal class LoadAuctionLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>
 
     public override List<AuctionLotModel> Execute()
     {
-        var lots = dAPoint.AuctionLotRepository.GetAll()
+        var lots = dAPoint.AuctionLotRepository.GetQueryable()
+            .Include(lot => lot.Owner)
+            .Include(lot => lot.Bids)
             .Where(lot => lot.Status != EnumLotStatuses.Pending &&
                           lot.Status != EnumLotStatuses.Rejected)
             .ToList();

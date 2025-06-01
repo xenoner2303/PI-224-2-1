@@ -15,6 +15,7 @@ namespace Presentation.UIHelpers.SubControls
     {
         public AuctionLotDto auctionLotDto;
         public event EventHandler? LotSelected;
+        private bool isSelected = false;
 
         public bool IsSelected
         {
@@ -22,11 +23,9 @@ namespace Presentation.UIHelpers.SubControls
             set
             {
                 isSelected = value;
-                Background = isSelected ? Brushes.LightBlue : Brushes.Transparent;
+                MainBorder.Background = isSelected ? Brushes.LightBlue : (Brush)new BrushConverter().ConvertFrom("#FFF0F0F0");
             }
         }
-        private bool isSelected = false;
-
 
         public LotDemonstrationControl(AuctionLotDto auctionLotDto)
         {
@@ -51,6 +50,9 @@ namespace Presentation.UIHelpers.SubControls
             LotNameTextBlock.Text = auctionLotDto.Title;
             PosterNameTextBlock.Text = auctionLotDto.Owner?.ToString() ?? "Невідомий";
             DescriptionTextBlock.Text = auctionLotDto.Description;
+
+            var maxBid = auctionLotDto.Bids?.OrderByDescending(b => b.Amount).FirstOrDefault(); // впорядковую колекцію від найбільшої ставки до найменшої та беру найбільшу
+            BidAmountTextBlock.Text = maxBid != null ? maxBid.ToString() : "Ставок ще немає";
 
             LotImage.Source = UILoadHelper.LoadImage(auctionLotDto);
         }
