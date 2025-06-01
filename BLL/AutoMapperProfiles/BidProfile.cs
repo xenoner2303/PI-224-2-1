@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.AutoMapperProfiles.ValueResolvers;
 using BLL.EntityBLLModels;
 using DAL.Entities;
 
@@ -8,6 +9,10 @@ public class BidProfile : Profile
 {
     public BidProfile()
     {
-        CreateMap<Bid, BidModel>().ReverseMap();
+        CreateMap<Bid, BidModel>();
+
+        CreateMap<BidModel, Bid>()
+            .ForMember(dest => dest.User, opt => opt.Ignore()) // ігноруємо мапінг Owner
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.Id)); // явно задаємо OwnerId
     }
 }

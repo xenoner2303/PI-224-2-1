@@ -133,7 +133,7 @@ namespace DAL.Migrations
                     b.Property<int?>("ManagerId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ManagerId1")
+                    b.Property<int?>("ManagerId1")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("OwnerId")
@@ -265,9 +265,7 @@ namespace DAL.Migrations
 
                     b.HasOne("DAL.Entities.Manager", "Manager")
                         .WithMany()
-                        .HasForeignKey("ManagerId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ManagerId1");
 
                     b.HasOne("DAL.Entities.RegisteredUser", "Owner")
                         .WithMany("OwnLots")

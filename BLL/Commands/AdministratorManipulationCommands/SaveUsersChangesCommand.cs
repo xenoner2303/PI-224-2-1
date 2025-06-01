@@ -43,6 +43,12 @@ internal class SaveUsersChangesCommand : AbstrCommandWithDA<bool>
             }
             bool isChanged = false;
 
+            if (dbUser.Login != userModel.Login)
+            {
+                dbUser.Login = userModel.Login;
+                isChanged = true;
+            }
+
             if (dbUser.FirstName != userModel.FirstName)
             {
                 dbUser.FirstName = userModel.FirstName;
@@ -132,5 +138,4 @@ internal class SaveUsersChangesCommand : AbstrCommandWithDA<bool>
         dAPoint.Save();
         LogAction($"Користувач {oldUser.Login} змінено на роль {newRole}");
     }
-
 }

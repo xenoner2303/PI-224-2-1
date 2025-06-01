@@ -4,7 +4,7 @@ public class AuctionLot
 {
     private string title;
     private string description;
-    private string relativeImagePath;
+    private string? relativeImagePath;
     private decimal startPrice;
     private DateTime? startTime;
     private DateTime? endTime;
@@ -45,14 +45,12 @@ public class AuctionLot
         get => relativeImagePath;
         set
         { // базові перевірки на неіснуючий файл та шлях з недопустимими
-            if (!string.IsNullOrWhiteSpace(value) && !File.Exists(value))
+            if (value != null)
             {
-                throw new FileNotFoundException("Файл зображення не знайдено за вказаним шляхом");
-            }
-
-            if (value.IndexOfAny(Path.GetInvalidPathChars()) != -1)
-            {
-                throw new ArgumentException("Шлях містить недопустимі символи");
+                if (value.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+                {
+                    throw new ArgumentException("Шлях містить недопустимі символи");
+                }
             }
 
             relativeImagePath = value;
@@ -74,7 +72,6 @@ public class AuctionLot
     }
 
     public EnumLotStatuses Status { get; set; }
-
 
     public DateTime? StartTime
     {
@@ -126,7 +123,6 @@ public class AuctionLot
         }
     }
 
-
     public int OwnerId { get; set; } // зовнішній ключ
     public RegisteredUser Owner { get; set; } // навігаційна властивість - власник лоту
 
@@ -134,7 +130,7 @@ public class AuctionLot
     public Category Category { get; set; } // навігаційна властивість - категорія лоту
 
     public int? ManagerId { get; set; } // зовнішній ключ
-    public Manager Manager { get; set; } // навігаційна властивість - менеджер лоту
+    public Manager? Manager { get; set; } // навігаційна властивість - менеджер лоту
 
     public List<Bid> Bids { get; set; } = new List<Bid>(); // 1 лот - багато ставок
 }

@@ -98,7 +98,7 @@ namespace DAL.Migrations
                     OwnerId = table.Column<int>(type: "INTEGER", nullable: false),
                     CategoryId = table.Column<int>(type: "INTEGER", nullable: false),
                     ManagerId = table.Column<int>(type: "INTEGER", nullable: true),
-                    ManagerId1 = table.Column<int>(type: "INTEGER", nullable: false)
+                    ManagerId1 = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -118,8 +118,7 @@ namespace DAL.Migrations
                         name: "FK_AuctionLots_Users_ManagerId1",
                         column: x => x.ManagerId1,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AuctionLots_Users_OwnerId",
                         column: x => x.OwnerId,

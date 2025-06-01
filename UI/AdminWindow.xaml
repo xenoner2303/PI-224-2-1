@@ -146,7 +146,7 @@
                     <Button x:Name="btnUsers" Content="Користувачі" Style="{StaticResource ModernButton}" Click="btnUsers_Click"/>
                     <Button x:Name="btnCategories" Content="Категорії" Style="{StaticResource ModernButton}" Click="btnCategories_Click"/>
                     <Button x:Name="btnSecretCodes" Content="Секретні коди" Style="{StaticResource ModernButton}" Click="btnSecretCodes_Click"/>
-                    <Button x:Name="btnReports" Content="Звіти" Style="{StaticResource ModernButton}" Click="btnReports_Click"/>
+                    <Button x:Name="btnLogs" Content="Логи" Style="{StaticResource ModernButton}" Click="btnLogs_Click"/>
 
                     <Separator Margin="0 20" Background="#555" Height="1"/>
 
@@ -176,14 +176,20 @@
                               Style="{StaticResource HeaderTextStyle}"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock x:Name="LogDateText" Margin="0 10 0 0" Visibility="Hidden" Text="Оберіть дату для перегляду логів:" />
+                        <DatePicker x:Name="LogDatePicker" Margin="6 0 15 0" Visibility="Hidden" />
+                        <Button x:Name="btnShowLogs" Content="Показати логи" 
+                                Background="{StaticResource SuccessColor}" 
+                                Click="ShowLogs_Click"
+                                Visibility="Hidden" />
                         <Button x:Name="btnAdd" Content="Додати" 
                                 Style="{StaticResource ActionButton}"
-                                Background="{StaticResource SuccessColor}" Click="btnAdd_Click"/>
-                        <Button x:Name="btnEdit" Content="Редагувати" 
-                                Style="{StaticResource ActionButton}" Click="btnEdit_Click"/>
+                                Width ="Auto" Background="{StaticResource SuccessColor}" Click="btnAdd_Click"/>
+                        <Button x:Name="btnEdit" Content="Зберегти зміни" 
+                                Width ="Auto" Style="{StaticResource ActionButton}" Click="btnEdit_Click"/>
                         <Button x:Name="btnDelete" Content="Видалити" 
                                 Style="{StaticResource ActionButton}"
-                                Background="{StaticResource DangerColor}" Click="btnDelete_Click"/>
+                                Width ="Auto" Background="{StaticResource DangerColor}" Click="btnDelete_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -193,6 +199,7 @@
                 <Grid>
                     <DataGrid x:Name="dgMainData" 
                               Style="{StaticResource ModernDataGrid}"
+                              CanUserAddRows="False"
                               ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" SelectionChanged="dgMainData_SelectionChanged">
                         <DataGrid.Columns>
                             <!-- Приклад колонок для лотів -->
@@ -226,4 +233,4 @@
             </Border>
         </Grid>
     </Grid>
-</Window>
+</Window> 

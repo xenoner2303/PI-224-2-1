@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.EntityBLLModels;
 using DAL.Data;
 using BLL.EntityBLLModels;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,13 @@ internal class SearchLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
     public override List<AuctionLotModel> Execute()
     {
         var query = dAPoint.AuctionLotRepository.GetQueryable()
-            .Include(l => l.Bids)
-            .Include(l => l.Category).ToList();
-        var queryModel = _mapper.Map<List<AuctionLotModel>>(query);
+            .Include(lot => lot.Owner)
+            .Include(lot => lot.Bids)
+            .Include(lot => lot.Category)
+            .Where(lot => lot.Status != EnumLotStatuses.Pending &&
+                        lot.Status != EnumLotStatuses.Rejected)
+            .ToList();
+
         // пошук по ключовому слову - тексту в усіх string полях класу AuctionLot
         if (!string.IsNullOrWhiteSpace(keyword))
         {
@@ -59,7 +64,7 @@ internal class SearchLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
             }
         }
 
-        return queryModel;
+        return mapper.Map<List<AuctionLotModel>>(query);
     }
 
     private List<int> GetCategoryAndDescendantIds(CategoryModel root, List<CategoryModel> all) // для полегшення, просто збираємо наші всі підкатегорії за айді

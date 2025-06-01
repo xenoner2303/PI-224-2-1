@@ -1,11 +1,8 @@
 ﻿using DTOsLibrary;
-using Presentation.UIHelpers;
 using System.IO;
-using System.Net.Mime;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace UI
 {
@@ -17,15 +14,15 @@ namespace UI
         private BaseUserDto lotOwner;
         public AuctionLotDto? CreatedLot { get; private set; }
 
-        public LotCreationWindow(BaseUserDto lotOwner, List<CategoryDto> categories)
+        public LotCreationWindow(BaseUserDto lotOwner, List<CategoryDto> flatCategoryList)
         {
             ArgumentNullException.ThrowIfNull(lotOwner, nameof(lotOwner));
-            ArgumentNullException.ThrowIfNull(categories, nameof(categories));
+            ArgumentNullException.ThrowIfNull(flatCategoryList, nameof(flatCategoryList));
 
             InitializeComponent();
-            this.lotOwner = lotOwner;
 
-            UILoadHelper.LoadEntities(categories, CategoryComboBox, "Name");
+            this.lotOwner = lotOwner;
+            CategoryTreeView.ItemsSource = flatCategoryList;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -42,7 +39,7 @@ namespace UI
                 return;
             }
 
-            if (CategoryComboBox.SelectedItem is not CategoryDto selectedCategory)
+            if (CategoryTreeView.SelectedItem is not CategoryDto selectedCategory)
             {
                 MessageBox.Show("Оберіть категорію");
                 return;

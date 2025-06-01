@@ -35,10 +35,10 @@ public class UserCommandManager : AbstractCommandManager
         return ExecuteCommand(command, "Не вдалося видалити лот");
     }
 
-    public List<AuctionLot> LoadUserLots(int userId)
+    public List<AuctionLotModel> LoadUserLots(int userId)
     {
         var command = new LoadUserLotsCommand(userId, unitOfWork, mapper);
-        return ExecuteCommand<List<AuctionLot>>(command, "Не вдалося зчитати лоти користувача");
+        return ExecuteCommand<List<AuctionLotModel>>(command, "Не вдалося зчитати лоти користувача");
     }
 
     public List<CategoryModel> LoadCategories()

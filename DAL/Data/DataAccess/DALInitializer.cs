@@ -14,6 +14,6 @@ public static class DALInitializer
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // реєстрація сервісу для збереження-клонування зображень
-        services.AddScoped<IImageService>(provider => new ImageService("Images")); // директорією буде Images
+        services.AddScoped<IImageService>(provider => new ImageService("Images", "C:\\Users\\Zver\\source\\repos\\xenoner2303\\InternetAuction\\DAL\\Data\\")); // директорією буде Images
     }
 }
