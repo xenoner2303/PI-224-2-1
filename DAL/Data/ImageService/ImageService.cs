@@ -7,12 +7,12 @@ public class ImageService : IImageService
     private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".tmp" };
     private string basePath;
 
-    public ImageService(string directoryName)
+    public ImageService(string directoryName, string destPath)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(directoryName);
 
         this.directoryName = directoryName;
-        basePath = Path.GetFullPath(@"..\DAL");
+        basePath = destPath;
 
         if (string.IsNullOrWhiteSpace(basePath))
         {
