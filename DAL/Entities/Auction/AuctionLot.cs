@@ -75,7 +75,6 @@ public class AuctionLot
 
     public EnumLotStatuses Status { get; set; }
 
-
     public DateTime? StartTime
     {
         get => startTime;
@@ -125,7 +124,6 @@ public class AuctionLot
             endTime = value;
         }
     }
-
 
     public int OwnerId { get; set; } // зовнішній ключ
     public RegisteredUser Owner { get; set; } // навігаційна властивість - власник лоту

@@ -15,6 +15,8 @@ public class AuctionLotProfile : Profile
             .ForMember(dest => dest.Image, opt => opt.MapFrom<ImageToBytesImageModelResolver>());
 
         CreateMap<AuctionLotModel, AuctionLot>()
-            .ForMember(dest => dest.RelativeImagePath, opt => opt.MapFrom<BytesToImageResolver>());
+            .ForMember(dest => dest.RelativeImagePath, opt => opt.MapFrom<BytesToImageResolver>())
+            .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => src.Owner.Id))
+            .ForMember(dest => dest.Owner, opt => opt.Ignore());
     }
 }

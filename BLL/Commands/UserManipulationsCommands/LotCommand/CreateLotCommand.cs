@@ -3,7 +3,7 @@ using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;
 
-namespace BLL.Commands.UserManipulationsCommands;
+namespace BLL.Commands.UserManipulationCommands;
 
 public class CreateLotCommand : AbstrCommandWithDA<bool>
 {

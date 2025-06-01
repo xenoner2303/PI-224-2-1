@@ -5,12 +5,20 @@ public class ImageService : IImageService
     private string directoryName;
     private readonly string imagesDir;
     private readonly string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".tmp" };
+    private string basePath;
 
     public ImageService(string directoryName)
     {
-        this.directoryName = directoryName;
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(directoryName);
 
-        string basePath = AppContext.BaseDirectory;
+        this.directoryName = directoryName;
+        basePath = Path.GetFullPath(@"..\DAL");
+
+        if (string.IsNullOrWhiteSpace(basePath))
+        {
+            throw new InvalidOperationException("Не вдалося визначити базовий шлях до директорії");
+        }
+
         imagesDir = Path.Combine(basePath, directoryName);
 
         if (!Directory.Exists(imagesDir))
@@ -44,7 +52,7 @@ public class ImageService : IImageService
 
     public byte[] LoadImage(string relativePath)
     {
-        string fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
+        string fullPath = Path.Combine(basePath, relativePath);
 
         if (!File.Exists(fullPath))
         {

@@ -19,7 +19,6 @@ namespace Presentation
         private readonly UserApiClient client;
         private List<CategoryDto> flatCategoryList;
         private LotDemonstrationControl? selectedLotControl; // для нормального опрацювання лотів
-        private CategoryDto? selectedCategory;
 
         public UserManagerWindow(IServiceProvider serviceProvider, UserApiClient client)
         {
@@ -84,6 +83,7 @@ namespace Presentation
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
             string? keyword = SearchBox.Text.Trim().ToLower();
+            var selectedCategory = CategoryTreeView.SelectedItem as CategoryDto;
 
             SearchLotsDto search = new SearchLotsDto
             {
@@ -126,8 +126,6 @@ namespace Presentation
 
             if (lotCreationWindow.DialogResult == true && lotCreationWindow.CreatedLot is AuctionLotDto newLot)
             {
-                newLot.Owner = currentUser;
-
                 var success = await client.CreateLotAsync(newLot);
 
                 if (success)
@@ -190,11 +188,6 @@ namespace Presentation
 
             authWindow.Owner = this; // ставимо власником це вікно + щоб блокувалося якщо використовується ShowDialog()
             authWindow.ShowDialog();
-        }
-
-        private void CategoryTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            selectedCategory = CategoryTreeView.SelectedItem as CategoryDto;
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

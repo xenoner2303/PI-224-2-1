@@ -44,8 +44,16 @@
         <TextBox Grid.Row="3" Grid.Column="1" Name="DurationDaysTextBox" Margin="0,5" Text="1"/>
 
         <!-- Категорія -->
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Категорія:" VerticalAlignment="Center" Margin="0,5"/>
-        <ComboBox Grid.Row="4" Grid.Column="1" Name="CategoryComboBox" Margin="0,5"/>
+        <!-- Категорія -->
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Категорія:" VerticalAlignment="Top" Margin="0,5"/>
+        <TreeView Grid.Row="4" Grid.Column="1" Name="CategoryTreeView" Height="150" Margin="0,5">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Subcategories}">
+                    <TextBlock Text="{Binding Name}" />
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
 
         <!-- Посилання на зображення -->
         <TextBlock Grid.Row="5" Grid.Column="0" Text="URL зображення:" VerticalAlignment="Center" Margin="0,5"/>
