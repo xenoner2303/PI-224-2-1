@@ -25,7 +25,10 @@ internal class SearchLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
         var query = dAPoint.AuctionLotRepository.GetQueryable()
             .Include(lot => lot.Owner)
             .Include(lot => lot.Bids)
-            .Include(lot => lot.Category).ToList();
+            .Include(lot => lot.Category)
+            .Where(lot => lot.Status != EnumLotStatuses.Pending &&
+                        lot.Status != EnumLotStatuses.Rejected)
+            .ToList();
 
         // пошук по ключовому слову - тексту в усіх string полях класу AuctionLot
         if (!string.IsNullOrWhiteSpace(keyword))
