@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.CommonCommands;
 
-internal class LoadAuctionLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
+public class LoadAuctionLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
 {
     private List<EnumLotStatuses> restrictOnes;
     public override string Name => "Завантаження списку лотів";

@@ -15,6 +15,8 @@ public static class BLLInitializer
     {
         // реєстрація автомаперу
         services.AddAutoMapper(typeof(UserProfile).Assembly);
+        services.AddScoped<BytesToImageResolver>();
+        services.AddScoped<ImageToBytesImageModelResolver>();
     }
 
     public static void AddCommandDependenciesToServices(IServiceCollection services)
@@ -26,7 +28,5 @@ public static class BLLInitializer
         services.AddScoped<ManagerCommandsManager>();
         services.AddScoped<AdministratorCommandsManager>();
         services.AddScoped<UserCommandManager>();
-        services.AddScoped<BytesToImageResolver>();
-        services.AddScoped<ImageToBytesImageModelResolver>();
     }
 }

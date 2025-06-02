@@ -4,7 +4,7 @@ using DAL.Data;
 
 namespace BLL.Commands;
 
-internal class LoadUsersCommand : AbstrCommandWithDA<List<BaseUserModel>>
+public class LoadUsersCommand : AbstrCommandWithDA<List<BaseUserModel>>
 {
     public override string Name => "Завантаження списку користувачів";
 

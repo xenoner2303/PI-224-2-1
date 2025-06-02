@@ -1,42 +1,46 @@
 ﻿using AutoMapper;
-using BLL.Commands;
 using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;
 
-namespace BLL.Commands.ManagerManipulationCommands
+namespace BLL.Commands.ManagerManipulationCommands;
+
+public class CreateCategoryCommand : AbstrCommandWithDA<bool>
 {
-    public class CreateCategoryCommand : AbstrCommandWithDA<bool>
+    private CategoryModel category;
+
+    public CreateCategoryCommand(CategoryModel category, IUnitOfWork unitOfWork, IMapper mapper)
+        : base(unitOfWork, mapper)
     {
-        private CategoryModel category;
+        ArgumentNullException.ThrowIfNull(category, nameof(category));
 
-        public CreateCategoryCommand(CategoryModel category, IUnitOfWork unitOfWork, IMapper mapper)
-            : base(unitOfWork, mapper)
+        this.category = category;
+
+        ValidateModel();
+    }
+
+    public override string Name => "Створення нової категорії";
+
+    public override bool Execute()
+    {
+            var newCategory = mapper.Map<Category>(category);
+
+            dAPoint.CategoryRepository.Add(newCategory);
+            dAPoint.Save();
+
+            LogAction($"{Name} \"{category.Name}\"");
+            return true;
+    }
+
+    private void ValidateModel()
+    {
+        if (category.ParentId.HasValue)
         {
-            ArgumentNullException.ThrowIfNull(category, nameof(category));
-
-            this.category = category;
-        }
-
-        public override string Name => "Створення нової категорії";
-
-        public override bool Execute()
-        {
-            try
+            var parentCategory = dAPoint.CategoryRepository.GetById(category.ParentId.Value);
+            if (parentCategory == null)
             {
-                var newCategory = mapper.Map<Category>(category);
-
-                dAPoint.CategoryRepository.Add(newCategory);
-                dAPoint.Save();
-
-                LogAction($"{Name} \"{category.Name}\"");
-                return true;
-            }
-            catch
-            {
-                return false;
+                throw new ArgumentException("Батьківська категорія не знайдена", nameof(category.ParentId));
             }
         }
-
     }
 }

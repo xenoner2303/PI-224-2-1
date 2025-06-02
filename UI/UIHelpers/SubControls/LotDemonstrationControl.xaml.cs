@@ -34,6 +34,8 @@ namespace UI.Subcontrols
 
         public LotDemonstrationControl(AuctionLotDto auctionLotDto)
         {
+            ArgumentNullException.ThrowIfNull(auctionLotDto, "Лот для демонстрації не може бути порожнім");
+
             InitializeComponent();
 
             this.auctionLotDto = auctionLotDto;

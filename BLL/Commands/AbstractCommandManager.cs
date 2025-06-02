@@ -21,7 +21,7 @@ public abstract class AbstractCommandManager
     {
         var result = command.Execute();
 
-        if (result is bool success && !success)
+        if (result is bool success && !success) // валідація тру/фолс для специфічних валідацій, менше пов'язаних з даними
         {
             throw new InvalidOperationException(errorMessage);
         }
