@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigrate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -95,6 +95,7 @@ namespace DAL.Migrations
                     StartTime = table.Column<DateTime>(type: "TEXT", nullable: true),
                     DurationDays = table.Column<int>(type: "INTEGER", nullable: false),
                     EndTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RejectionReason = table.Column<string>(type: "TEXT", nullable: true),
                     OwnerId = table.Column<int>(type: "INTEGER", nullable: false),
                     CategoryId = table.Column<int>(type: "INTEGER", nullable: false)
                 },

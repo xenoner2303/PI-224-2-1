@@ -13,7 +13,7 @@ public class AuctionLotModel
     public DateTime? StartTime { get; set; }
     public int DurationDays { get; set; }
     public DateTime? EndTime { get; set; }
-
+    public string? RejectionReason { get; set; } = string.Empty;
     public BaseUserModel Owner { get; set; }
     public CategoryModel Category { get; set; }
 

@@ -1,34 +1,30 @@
 ﻿using AutoMapper;
 using DAL.Data;
 using Microsoft.EntityFrameworkCore;
+using BLL.EntityBLLModels;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
     public class RejectLotCommand : AbstrCommandWithDA<bool>
     {
-        private readonly int _lotId;
-        public RejectLotCommand(int lotId, IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly AuctionLotModel _lotModel;
+        public RejectLotCommand(AuctionLotModel lotModel, IUnitOfWork unitOfWork, IMapper mapper)
             : base(unitOfWork, mapper)
         {
-            if (lotId <= 0)
-            {
-                throw new ArgumentException("Id лоту повинне бути більше 0", nameof(lotId));
-            }
-
-            _lotId = lotId;
+            _lotModel = lotModel ?? throw new ArgumentNullException(nameof(lotModel), "Лот не може бути null");
         }
 
-        public override string Name => "Форсована зупинка аукціону";
+        public override string Name => "Відхилення лоту";
 
         public override bool Execute()
         {
-            var auctionLot = dAPoint.AuctionLotRepository.GetQueryable()
-                .Include(lot => lot.Owner)
-                .FirstOrDefault(l => l.Id == _lotId);
+            var auctionLot = dAPoint.AuctionLotRepository.GetById(_lotModel.Id);
 
             if (auctionLot != null)
             {
                 auctionLot.Status = DAL.Entities.EnumLotStatuses.Rejected;
+                auctionLot.EndTime = DateTime.Now;
+                auctionLot.RejectionReason = _lotModel.RejectionReason;
                 dAPoint.AuctionLotRepository.Update(auctionLot);
                 dAPoint.Save();
 
@@ -37,7 +33,7 @@ namespace BLL.Commands.ManagerManipulationCommands
             }
             else
             {
-                throw new InvalidOperationException($"Лот з ID {_lotId} не знайдено.");
+                throw new InvalidOperationException($"Лот не знайдено.");
             }
         }
     }

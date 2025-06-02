@@ -19,7 +19,7 @@ public class AuctionLotDto
     public DateTime? StartTime { get; set; }
     public int DurationDays { get; set; }
     public DateTime? EndTime { get; set; }
-
+    public string? RejectionReason { get; set; } = string.Empty;
     public BaseUserDto Owner { get; set; }
     public CategoryDto Category { get; set; }
 

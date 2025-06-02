@@ -14,9 +14,10 @@ internal class LoadCategoriesCommand : AbstrCommandWithDA<List<CategoryModel>>
 
     public override List<CategoryModel> Execute()
     {
-        var categories = dAPoint.CategoryRepository.GetQueryable()
-            .Include(c => c.Subcategories)
-            .ToList();
+        var categories = dAPoint.CategoryRepository
+             .GetQueryable()
+             .Include(c => c.Subcategories)
+             .ToList();
 
         LogAction($"Було завантажено {categories.Count} категорій");
 
