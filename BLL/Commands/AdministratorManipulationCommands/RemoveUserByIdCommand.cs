@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using BLL.EntityBLLModels;
 using DAL.Data;
 
 namespace BLL.Commands;
 
-internal class RemoveUserByIdCommand : AbstrCommandWithDA<bool>
+public class RemoveUserByIdCommand : AbstrCommandWithDA<bool>
 {
     private int id;
 

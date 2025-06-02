@@ -2,11 +2,10 @@
 using BLL.EntityBLLModels;
 using DAL.Data;
 using BLL.Services;
-using DAL.Entities;
 
 namespace BLL.Commands.PreUsersManipulationCommands;
 
-internal class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
+public class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
 {
     private readonly string login;
     private readonly string password;

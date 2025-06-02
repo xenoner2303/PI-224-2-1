@@ -16,8 +16,8 @@ namespace UI.Subcontrols
 
         public LotCreationWindow(BaseUserDto lotOwner, List<CategoryDto> flatCategoryList)
         {
-            ArgumentNullException.ThrowIfNull(lotOwner, nameof(lotOwner));
-            ArgumentNullException.ThrowIfNull(flatCategoryList, nameof(flatCategoryList));
+            ArgumentNullException.ThrowIfNull(lotOwner, "Власник лота не може бути порожнім");
+            ArgumentNullException.ThrowIfNull(flatCategoryList, "Наявність категорій є обов'язковою");
 
             InitializeComponent();
 

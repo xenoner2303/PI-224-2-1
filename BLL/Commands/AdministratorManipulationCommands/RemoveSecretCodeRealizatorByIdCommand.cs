@@ -3,7 +3,7 @@ using DAL.Data;
 
 namespace BLL.Commands;
 
-internal class RemoveSecretCodeRealizatorByIdCommand : AbstrCommandWithDA<bool>
+public class RemoveSecretCodeRealizatorByIdCommand : AbstrCommandWithDA<bool>
 {
     private int id;
 

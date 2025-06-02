@@ -4,7 +4,7 @@ using DAL.Data;
 
 namespace BLL.Commands;
 
-internal class LoadSecretCodeRealizatorsCommand : AbstrCommandWithDA<List<SecretCodeRealizatorModel>>
+public class LoadSecretCodeRealizatorsCommand : AbstrCommandWithDA<List<SecretCodeRealizatorModel>>
 {
     public override string Name => "Команда із завантаження реалізаторів кодів реєстрації";
 
