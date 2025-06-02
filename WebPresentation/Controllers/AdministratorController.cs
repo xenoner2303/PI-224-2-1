@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using BLL.Commands;
 using BLL.EntityBLLModels;
-using DAL.Entities;
 using DTOsLibrary;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 public class AdministratorController : ControllerBase
 {
     private readonly AdministratorCommandsManager _commandsManager;
+    private readonly IMapper _mapper;
 
-    public AdministratorController(AdministratorCommandsManager commandsManager)
+    public AdministratorController(AdministratorCommandsManager manager, IMapper mapper)
     {
-        _commandsManager = commandsManager;
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        this._commandsManager = manager;
+        this._mapper = mapper;
     }
 
     #region Users Endpoints
@@ -23,7 +27,9 @@ public class AdministratorController : ControllerBase
         try
         {
             var users = _commandsManager.LoadUsers();
-            return Ok(users);
+            var dtos = _mapper.Map<List<BaseUserDto>>(users);
+
+            return Ok(dtos);
         }
         catch (Exception ex)
         {
@@ -58,6 +64,22 @@ public class AdministratorController : ControllerBase
             return BadRequest($"Помилка: {ex.Message}");
         }
     }
+
+    [HttpGet("lots")]
+    public ActionResult<List<AuctionLotDto>> GetAuctionLots()
+    {
+        try
+        {
+            var models = _commandsManager.LoadAuctionLots();
+            var dtos = _mapper.Map<List<AuctionLotDto>>(models);
+
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
     #endregion
 
     #region SecretCodeRealizators Endpoints
@@ -67,7 +89,9 @@ public class AdministratorController : ControllerBase
         try
         {
             var realizators = _commandsManager.LoadSecretCodeRealizators();
-            return Ok(realizators);
+            var dtos = _mapper.Map<List<SecretCodeRealizatorDto>>(realizators);
+
+            return Ok(dtos);
         }
         catch (Exception ex)
         {
@@ -111,7 +135,9 @@ public class AdministratorController : ControllerBase
         try
         {
             var logs = _commandsManager.LoadLogs(date);
-            return Ok(logs);
+            var dtos = _mapper.Map<List<ActionLogDto>>(logs);
+
+            return Ok(dtos);
         }
         catch (Exception ex)
         {

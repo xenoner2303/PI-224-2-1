@@ -1,9 +1,9 @@
-﻿using DTOsLibrary;
+﻿using UI;
+using DTOsLibrary;
 using System.Windows;
-using Microsoft.Extensions.DependencyInjection;
 using UI.ApiClients;
+using Microsoft.Extensions.DependencyInjection;
 using Presentation.UIHelpers.SubControls;
-using UI;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -33,6 +33,7 @@ namespace Presentation
             LoadUserManagerWindowEntities();
         }
 
+        // зробити ставку
         private async void PlaceBid_Click(object sender, RoutedEventArgs e)
         {
             // очищаємо повідомлення зауваження
@@ -81,6 +82,7 @@ namespace Presentation
             }
         }
 
+        // знайти лоти за текстом та категорією
         private async void Search_Click(object sender, RoutedEventArgs e)
         {
             string? keyword = SearchBox.Text.Trim().ToLower();
@@ -112,6 +114,7 @@ namespace Presentation
             FillLotsPanel(receiveLots, MainLotsCoursePanel);
         }
 
+        // створити лот
         private async void CreateLot_Click(object sender, RoutedEventArgs e)
         {
             if (currentUser == null) // додатковий захист
@@ -132,6 +135,9 @@ namespace Presentation
                 if (success)
                 {
                     MessageBox.Show("Лот успішно створено");
+
+                    var userLots = await client.GetUserLotsAsync(currentUser.Id);
+                    FillLotsPanel(userLots, UserLotsPanel);
                 }
                 else
                 {
@@ -140,6 +146,7 @@ namespace Presentation
             }
         }
 
+        // видалити лот
         private async void DeleteLot_Click(object sender, RoutedEventArgs e)
         {
             if (currentUser == null)
@@ -177,6 +184,7 @@ namespace Presentation
             }
         }
 
+        // перейти до авторизації (вікно юзера блокується вікном авторизації)
         private void Login_Click(object sender, RoutedEventArgs e)
         {
             var client = serviceProvider.GetRequiredService<PreUserApiClient>();
@@ -191,6 +199,7 @@ namespace Presentation
             authWindow.ShowDialog();
         }
 
+        // вийти з юзера
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
             currentUser = null;
@@ -200,6 +209,7 @@ namespace Presentation
             UpdateTabAccess();
         }
 
+        // допоміжний метод з налаштувань доступу до вкладок та кнопок зареєстрований/незареєстрований користувач
         private async void UpdateTabAccess()
         {
             bool userState = currentUser != null;
@@ -224,32 +234,34 @@ namespace Presentation
             }
         }
 
+        // допоміжний метод із завантаження базових сутностей вікна
         private async void LoadUserManagerWindowEntities()
         {
-            //var categories = await client.GetCategoriesAsync();
+            var categories = await client.GetCategoriesAsync();
 
-            //if (categories == null || categories.Count == 0)
-            //{
-            //    CategoryTreeView.ItemsSource = null;
-            //    CategoryTreeView.Items.Clear();
-            //    CategoryTreeView.Items.Add(new TreeViewItem
-            //    {
-            //        Header = new TextBlock
-            //        {
-            //            Text = "Категорії відсутні.",
-            //            Foreground = Brushes.Gray,
-            //            FontStyle = FontStyles.Italic
-            //        },
-            //        IsEnabled = false
-            //    });
-            //}
-            //else
-            //{
-            //    CategoryTreeView.ItemsSource = categories;
-            //    flatCategoryList = categories;
-            //}
+            if (categories == null || categories.Count == 0)
+            {
+                CategoryTreeView.ItemsSource = null;
+                CategoryTreeView.Items.Clear();
+                CategoryTreeView.Items.Add(new TreeViewItem
+                {
+                    Header = new TextBlock
+                    {
+                        Text = "Категорії відсутні.",
+                        Foreground = Brushes.Gray,
+                        FontStyle = FontStyles.Italic
+                    },
+                    IsEnabled = false
+                });
+            }
+            else
+            {
+                CategoryTreeView.ItemsSource = categories;
+                flatCategoryList = categories;
+            }
         }
 
+        // допоміжний метод для заповнення панелі лотів
         private void FillLotsPanel(List<AuctionLotDto> lots, StackPanel panel)
         {
             panel.Children.Clear(); // очищаємо панель перед додаванням нових елементів

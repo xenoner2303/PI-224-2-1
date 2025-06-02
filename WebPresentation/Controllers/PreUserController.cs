@@ -22,6 +22,7 @@ public class PreUserController : ControllerBase
         this.mapper = mapper;
     }
 
+    // Post: api/PreUser/register
     [HttpPost("register")]
     public IActionResult Register([FromBody] BaseUserDto userDto)
     {
@@ -37,6 +38,7 @@ public class PreUserController : ControllerBase
         }
     }
 
+    // Post: api/PreUser/authorizate
     [HttpPost("authorizate")]
     public ActionResult<BaseUserDto> Authorizate([FromBody] AuthorizationDto loginDto)
     {

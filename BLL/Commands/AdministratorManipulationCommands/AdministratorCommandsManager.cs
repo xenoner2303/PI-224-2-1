@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.Commands.CommonCommands;
 using BLL.EntityBLLModels;
 using DAL.Data;
 
@@ -49,5 +50,11 @@ public class AdministratorCommandsManager : AbstractCommandManager
     {
         var command = new RemoveUserByIdCommand(id, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося видалити користувача");
+    }
+
+    public List<AuctionLotModel> LoadAuctionLots()
+    {
+        var command = new LoadAuctionLotsCommand(null, unitOfWork, mapper);
+        return ExecuteCommand(command, "Не вдалося завантажити лоти");
     }
 }

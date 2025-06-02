@@ -3,9 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Height="130" Width="Auto">
 
+    <UserControl.Resources>
+        <!-- Кольори вибору та невибору -->
+        <SolidColorBrush x:Key="ChosenColor" Color="LightBlue"/>
+        <SolidColorBrush x:Key="StandartViewColor" Color="#FFF0F0F0"/>
+    </UserControl.Resources>
+    
     <!-- Загальний фон, рамка, заокруглення -->
     <Border x:Name="MainBorder"
-            Background="#FFF0F0F0" 
+            Background = "{StaticResource StandartViewColor}" 
             Padding="5" 
             CornerRadius="5" 
             BorderBrush="Gray" 

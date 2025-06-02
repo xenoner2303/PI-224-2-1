@@ -1,10 +1,7 @@
 ﻿using DTOsLibrary;
-using System.IO;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace Presentation.UIHelpers.SubControls
 {
@@ -23,7 +20,14 @@ namespace Presentation.UIHelpers.SubControls
             set
             {
                 isSelected = value;
-                MainBorder.Background = isSelected ? Brushes.LightBlue : (Brush)new BrushConverter().ConvertFrom("#FFF0F0F0");
+
+                var chosenBrush = this.TryFindResource("ChosenColor") as Brush;
+                var standardBrush = this.TryFindResource("StandartViewColor") as Brush;
+
+                if(chosenBrush != null && standardBrush != null)
+                {
+                    MainBorder.Background = isSelected ? chosenBrush : standardBrush;
+                }
             }
         }
 

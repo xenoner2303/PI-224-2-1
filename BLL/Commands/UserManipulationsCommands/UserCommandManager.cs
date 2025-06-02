@@ -13,7 +13,13 @@ public class UserCommandManager : AbstractCommandManager
 
     public List<AuctionLotModel> LoadAuctionLots()
     {
-        var command = new LoadAuctionLotsCommand(unitOfWork, mapper);
+        List<EnumLotStatuses> banedLotStatuses = new List<EnumLotStatuses>
+        {
+            EnumLotStatuses.Pending,
+            EnumLotStatuses.Rejected
+        };
+
+        var command = new LoadAuctionLotsCommand(banedLotStatuses, unitOfWork, mapper);
         return ExecuteCommand(command, "Не вдалося завантажити лоти");
     }
 

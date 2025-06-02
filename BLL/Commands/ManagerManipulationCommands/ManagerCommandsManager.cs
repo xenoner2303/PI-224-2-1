@@ -43,7 +43,7 @@ namespace BLL.Commands.ManagerManipulationCommands
         }
         public List<AuctionLotModel> LoadAuctionLots()
         {
-            var command = new LoadAuctionLotsCommand(unitOfWork, mapper);
+            var command = new LoadAuctionLotsCommand(null, unitOfWork, mapper);
             return ExecuteCommand(command, "Не вдалося завантажити лоти");
         }
         public List<CategoryModel> LoadCategories()

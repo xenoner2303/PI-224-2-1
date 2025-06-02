@@ -10,6 +10,12 @@ namespace UI.ApiClients
     {
         public AdministratorApiClient(HttpClient client) : base(client) { }
 
+        public async Task<List<AuctionLotDto>> GetAuctionLotsAsync()
+        {
+            var response = await client.GetAsync("lots");
+            return await HandleResponseAsync<List<AuctionLotDto>>(response);
+        }
+
         // ============ Користувачі ============
         public async Task<List<BaseUserDto>> GetUsersAsync()
         {

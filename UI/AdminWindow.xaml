@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OnlineAuction"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
         mc:Ignorable="d"
         Title="Адміністративна панель аукціону" 
         Height="700" Width="1100"
@@ -21,6 +22,21 @@
         <SolidColorBrush x:Key="ActiveNavColor" Color="#FF2980B9"/>
         <SolidColorBrush x:Key="BorderColor" Color="#FFBDC3C7"/>
 
+        <Style x:Key="RoundedGrayPanel" TargetType="Border">
+            <Setter Property="Background" Value="#FFD0D0D0"/>
+            <!-- світло-сірий -->
+            <Setter Property="CornerRadius" Value="15"/>
+            <!-- округлені краї -->
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Gray" BlurRadius="5" ShadowDepth="1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
         <!-- Стиль для кнопок -->
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
@@ -142,12 +158,11 @@
                                FontWeight="Bold"
                                Margin="0 0 0 20"/>
 
-                    <Button x:Name="btnLots" Content="Лоти" Style="{StaticResource ModernButton}" Click="btnLots_Click"/>
                     <Button x:Name="btnUsers" Content="Користувачі" Style="{StaticResource ModernButton}" Click="btnUsers_Click"/>
-                    <Button x:Name="btnCategories" Content="Категорії" Style="{StaticResource ModernButton}" Click="btnCategories_Click"/>
                     <Button x:Name="btnSecretCodes" Content="Секретні коди" Style="{StaticResource ModernButton}" Click="btnSecretCodes_Click"/>
                     <Button x:Name="btnLogs" Content="Логи" Style="{StaticResource ModernButton}" Click="btnLogs_Click"/>
-
+                    <Button x:Name="btnReport" Content="Звітність" Style="{StaticResource ModernButton}" Click="btnReport_Click"/>
+                    
                     <Separator Margin="0 20" Background="#555" Height="1"/>
 
                     <Button x:Name="btnLogout" Content="Вийти" 
@@ -210,27 +225,64 @@
                             <DataGridTextColumn Header="Статус" Width="Auto" Binding="{Binding Status}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-
-                    <!-- Статистика -->
-                    <StackPanel x:Name="statsPanel" 
-                                VerticalAlignment="Top" 
-                                HorizontalAlignment="Right"
-                                Margin="10" 
-                                Width="300">
-                        <Border Style="{StaticResource CardStyle}">
-                            <StackPanel>
-                                <TextBlock Text="Статистика аукціону" Style="{StaticResource HeaderTextStyle}"/>
-                                <StackPanel Margin="0 10">
-                                    <TextBlock Text="Активних лотів: 24" Margin="0 5"/>
-                                    <TextBlock Text="Завершених лотів: 156" Margin="0 5"/>
-                                    <TextBlock Text="Користувачів: 342" Margin="0 5"/>
-                                    <TextBlock Text="Загальний оборот: $12,450" Margin="0 5"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
                 </Grid>
             </Border>
+
+            <Grid Grid.Row="1" Visibility="Collapsed" x:Name="statsBorder">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Верхня ліва частина - Статистика користувачів + кругова діаграма -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Статистика користувачів" Style="{StaticResource HeaderTextStyle}"/>
+                        <!-- Тут додай бажані числові показники -->
+                        <TextBlock x:Name="TotalUserCount" />
+
+                        <!-- Кругова діаграма з співвідношення учасників -->
+                        <lvc:PieChart x:Name="UserPieChart" Height="150" Margin="10" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Верхня права частина - Капітал + діаграма -->
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Звітність щодо капіталу" Style="{StaticResource HeaderTextStyle}"/>
+                        <TextBlock x:Name="TotalCapital" FontWeight="Bold" FontSize="16"/>
+                        <!-- Діаграма -->
+                        <lvc:PieChart x:Name="CapitalChart" Height="150" Margin="10" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Нижня ліва частина - Інтервал існування + найактивніший / найпасивніший день -->
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Інтервал існування програми" Style="{StaticResource HeaderTextStyle}"/>
+                        <TextBlock x:Name="CreateDataText"/>
+                        <TextBlock x:Name="LastDataText" Margin="0 10" />
+                        <TextBlock x:Name="MostActivityText" />
+                        <TextBlock x:Name="LeastActivityText"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Нижня права частина - Кількість лотів + діаграма за типами -->
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Статистика по лотах" Style="{StaticResource HeaderTextStyle}"/>
+                        <TextBlock x:Name="TotalLotsText"/>
+                        <TextBlock x:Name="BiggestBidLotText"/>
+                        <TextBlock x:Name="LowestBidLotText"/>
+                        <!-- Діаграма типів -->
+                        <lvc:PieChart x:Name="LotTypeChart" Height="150" Margin="10"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window> 

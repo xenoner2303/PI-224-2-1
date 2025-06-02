@@ -30,6 +30,7 @@ namespace Presentation
             this.onLoginSuccess = onLoginSuccess;
         }
 
+        // обробка кнопки "Вхід" для завершення авторизації
         private async void Authorization_Click(object sender, RoutedEventArgs e)
         {
             string login = LoginTextBox.Text;
@@ -68,6 +69,7 @@ namespace Presentation
             }
         }
 
+        // перехід до вікна реєстрації
         private void GoRegistration_Click(object sender, RoutedEventArgs e)
         {
             // отримуємо RegistrationWindow через DI

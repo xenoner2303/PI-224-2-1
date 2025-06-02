@@ -22,12 +22,14 @@ namespace Presentation
             this.client = client;
         }
 
+        // обробка події завантаження вікна (для безпеки що обрано саме перший крок реєстрації)
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             isLoaded = true;
             StepsListBox.SelectedIndex = 0;
         }
 
+        // обробка зміни вибору в списку кроків реєстрації
         private void StepsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!isLoaded) return;
@@ -59,6 +61,7 @@ namespace Presentation
             }
         }
 
+        // обробка кнопок "Назад" та "Далі" для навігації між кроками реєстрації
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             if (StepsListBox.SelectedIndex > 0)
@@ -76,6 +79,7 @@ namespace Presentation
             }
         }
 
+        // обробка кнопки "Зареєструватися" для завершення реєстрації
         private async void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
             try

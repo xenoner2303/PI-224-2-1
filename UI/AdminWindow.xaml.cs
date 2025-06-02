@@ -7,10 +7,11 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using DTOsLibrary;
 using DTOsLibrary.DTOEnums;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore;
 using Microsoft.Extensions.DependencyInjection;
 using Presentation;
 using UI.ApiClients;
-using static MaterialDesignThemes.Wpf.Theme;
 
 namespace OnlineAuction
 {
@@ -20,8 +21,9 @@ namespace OnlineAuction
         private List<BaseUserDto> _users = new List<BaseUserDto>();
         private List<SecretCodeRealizatorDto> _secretCodes = new List<SecretCodeRealizatorDto>();
         private List<ActionLogDto> _logs = new List<ActionLogDto>();
+        private List<AuctionLotDto> _auctionLots = new List<AuctionLotDto>();
 
-        private enum AdminSection { Users, SecretCodes, Logs }
+        private enum AdminSection { Users, SecretCodes, Logs, Report }
         private AdminSection _currentSection = AdminSection.Users;
 
         public AdminWindow(AdministratorApiClient adminApiClient)
@@ -44,6 +46,16 @@ namespace OnlineAuction
                 _users = await _adminApiClient.GetUsersAsync();
                 _secretCodes = await _adminApiClient.GetCodeRealizatorsAsync();
                 _logs = await _adminApiClient.GetLogsAsync(null);
+                _auctionLots = await _adminApiClient.GetAuctionLotsAsync();
+
+                foreach (var lot in _auctionLots)
+                {
+                    if (lot.Bids != null && lot.Bids.Any())
+                    {
+                        var highestBid = lot.Bids.MaxBy(b => b.Amount);
+                        lot.Bids = new List<BidDto> { highestBid }; // залишаємо лише найвищу ставку для звільнення місця
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -56,6 +68,9 @@ namespace OnlineAuction
         {
             _currentSection = AdminSection.Users;
             tbCurrentSection.Text = "Керування користувачами";
+
+            dgMainData.Visibility = Visibility.Visible;
+
             dgMainData.IsReadOnly = false;
             dgMainData.ItemsSource = _users;
 
@@ -66,7 +81,7 @@ namespace OnlineAuction
             dgMainData.Columns.Add(new DataGridTextColumn { Header = "Логін", Binding = new Binding("Login") });
             dgMainData.Columns.Add(new DataGridTextColumn { Header = "Ім'я", Binding = new Binding("FirstName") });
             dgMainData.Columns.Add(new DataGridTextColumn { Header = "Прізвище", Binding = new Binding("LastName") });
-            dgMainData.Columns.Add(new DataGridTextColumn { Header = "Пароль", Binding = new Binding("Password") }); 
+            dgMainData.Columns.Add(new DataGridTextColumn { Header = "Пароль", Binding = new Binding("Password") });
             // буде засекреченим навіть для адміністратора через налаштування профілю автомаперу
             dgMainData.Columns.Add(new DataGridComboBoxColumn { Header = "Роль", SelectedItemBinding = new Binding("InterfaceType") });
 
@@ -83,9 +98,8 @@ namespace OnlineAuction
             LogDatePicker.Visibility = Visibility.Collapsed;
             LogDateText.Visibility = Visibility.Collapsed;
             btnShowLogs.Visibility = Visibility.Collapsed;
-            statsPanel.Visibility = Visibility.Visible;
+            statsBorder.Visibility = Visibility.Collapsed;
             btnAdd.Visibility = Visibility.Collapsed; // Кнопка "Додати" не потрібна для користувачів
-            UpdateStatsPanel();
             UpdateNavButtonsStyle();
         }
 
@@ -93,6 +107,9 @@ namespace OnlineAuction
         {
             _currentSection = AdminSection.SecretCodes;
             tbCurrentSection.Text = "Секретні коди доступу";
+
+            dgMainData.Visibility = Visibility.Visible;
+
             dgMainData.ItemsSource = _secretCodes;
 
             dgMainData.Columns.Clear();
@@ -105,7 +122,7 @@ namespace OnlineAuction
             LogDatePicker.Visibility = Visibility.Collapsed;
             LogDateText.Visibility = Visibility.Collapsed;
             btnShowLogs.Visibility = Visibility.Collapsed;
-            statsPanel.Visibility = Visibility.Collapsed;
+            statsBorder.Visibility = Visibility.Collapsed;
             btnAdd.Visibility = Visibility.Visible; // кнопка "Додати" активна для кодів
             btnEdit.Visibility = Visibility.Collapsed; // редагування кодів не передбачено
             UpdateNavButtonsStyle();
@@ -115,6 +132,9 @@ namespace OnlineAuction
         {
             _currentSection = AdminSection.Logs;
             tbCurrentSection.Text = "Журнал логів";
+
+            dgMainData.Visibility = Visibility.Visible;
+
             dgMainData.ItemsSource = _logs;
 
             dgMainData.Columns.Clear();
@@ -136,35 +156,36 @@ namespace OnlineAuction
             LogDatePicker.Visibility = Visibility.Visible; // показуємо календар для фільтрації логів
             LogDateText.Visibility = Visibility.Visible; // показуємо текст для вибору дати
             btnShowLogs.Visibility = Visibility.Visible; // кнопка для фільтрації логів за датою
-            statsPanel.Visibility = Visibility.Collapsed;
+            statsBorder.Visibility = Visibility.Collapsed;
             btnAdd.Visibility = Visibility.Collapsed; // кнопка "Додати" не потрібна для логів
             btnDelete.Visibility = Visibility.Collapsed; // видалення логів не передбачено
             UpdateNavButtonsStyle();
         }
 
-        private void UpdateStatsPanel()
+        private void ShowReportSection()
         {
-            var adminCount = _users.Count(u => u.InterfaceType == EnumInterfaceTypeDto.Administrator);
-            var managerCount = _users.Count(u => u.InterfaceType == EnumInterfaceTypeDto.Manager);
-            var userCount = _users.Count(u => u.InterfaceType == EnumInterfaceTypeDto.Registered);
+            _currentSection = AdminSection.Report;
+            tbCurrentSection.Text = "Звітність акціону";
 
-            statsPanel.Children.Clear();
-            statsPanel.Children.Add(new TextBlock
-            {
-                Text = $"Адміністраторів: {adminCount}\nМенеджерів: {managerCount}\nКористувачів: {userCount}",
-                Margin = new Thickness(0, 10, 0, 0),
-                FontSize = 14
-            });
+            dgMainData.Visibility = Visibility.Collapsed; // приховуємо таблицю, оскільки звіт не прив'язаний до датасітки
+            LogDatePicker.Visibility = Visibility.Collapsed; // показуємо календар для фільтрації логів
+            LogDateText.Visibility = Visibility.Collapsed; // показуємо текст для вибору дати
+            btnShowLogs.Visibility = Visibility.Collapsed; // кнопка для фільтрації логів за датою
+            btnAdd.Visibility = Visibility.Collapsed; // кнопка "Додати" не потрібна для логів
+            btnDelete.Visibility = Visibility.Collapsed; // видалення логів не передбачено
+
+            FillReportControls();
+            statsBorder.Visibility = Visibility.Visible;
+            UpdateNavButtonsStyle();
         }
 
         private void UpdateNavButtonsStyle()
         {
             // Скидаємо стилі всіх кнопок навігації
-            btnLots.Style = (Style)FindResource("ModernButton");
             btnUsers.Style = (Style)FindResource("ModernButton");
-            btnCategories.Style = (Style)FindResource("ModernButton");
             btnSecretCodes.Style = (Style)FindResource("ModernButton");
             btnLogs.Style = (Style)FindResource("ModernButton");
+            btnReport.Style = (Style)FindResource("ModernButton");
 
             // Встановлюємо активний стиль для поточної кнопки
             switch (_currentSection)
@@ -178,27 +199,117 @@ namespace OnlineAuction
                 case AdminSection.Logs:
                     btnLogs.Style = (Style)FindResource("ActiveNavButton");
                     break;
+                case AdminSection.Report:
+                    btnReport.Style = (Style)FindResource("ActiveNavButton");
+                    break;
             }
         }
 
+        private void FillReportControls()
+        {
+            // налаштовуємо ліво-вверх звітності про користувачів
+            TotalUserCount.Text = _users.Count.ToString();
+            UserPieChart.Series = new ISeries[]
+            {
+                new PieSeries<BaseUserDto> { Values = _users.Where(x => x.InterfaceType == EnumInterfaceTypeDto.Registered).ToList(),
+                    Name = "Звичайні користувачі" },
+                new PieSeries<BaseUserDto> { Values = _users.Where(x => x.InterfaceType == EnumInterfaceTypeDto.Manager).ToList(),
+                    Name = "Менеджери" },
+                new PieSeries<BaseUserDto> { Values = _users.Where(x => x.InterfaceType == EnumInterfaceTypeDto.Administrator).ToList(),
+                    Name = "Адміністратори" }
+            };
+
+            // налаштовуємо праву-вверх звітності про капітал
+            decimal totalHighestBids = 0;
+            decimal totalActiveHighestBids = 0;
+            decimal totalCompleteHighestBids = 0;
+
+            foreach (var lot in _auctionLots)
+            {
+                if (lot.Bids != null && lot.Bids.Any())
+                {
+                    totalHighestBids += lot.Bids[0].Amount; // бо ми вже зберегли лише найвищу ставку
+
+                    if (lot.Status == EnumLotStatusesDto.Active)
+                    {
+                        totalActiveHighestBids += lot.Bids[0].Amount;
+                    }
+                    else if (lot.Status == EnumLotStatusesDto.Completed)
+                    {
+                        totalCompleteHighestBids += lot.Bids[0].Amount;
+                    }
+                }
+            }
+
+            TotalCapital.Text = totalHighestBids.ToString();
+            CapitalChart.Series = new ISeries[]
+            {
+                new PieSeries<decimal> { Values = [totalActiveHighestBids], // зручний синтаксичний цукор 
+                    Name = "Загальний активний капітал" },
+                new PieSeries<decimal> { Values = [totalCompleteHighestBids],
+                    Name = "Загальний пасивний капітал" }
+            };
+
+            // налаштовуємо ліво-вниз звітності про програму по логам
+            CreateDataText.Text = _logs.MinBy(b => b.ActionTime)?.ActionTime.ToString();
+            LastDataText.Text = _logs.MaxBy(b => b.ActionTime)?.ActionTime.ToString();
+
+            // групуємо логи по даті (без часу)
+            var logsByDate = _logs.GroupBy(log => log.ActionTime.Date).ToList();
+            var mostActiveDay = logsByDate.OrderByDescending(g => g.Count()).FirstOrDefault();
+            var leastActiveDay = logsByDate.OrderBy(g => g.Count()).FirstOrDefault();
+
+            MostActivityText.Text = mostActiveDay != null
+                ? $"{mostActiveDay.Key:yyyy-MM-dd} ({mostActiveDay.Count()} логів)"
+                : "немає даних";
+
+            LeastActivityText.Text = leastActiveDay != null
+                ? $"{leastActiveDay.Key:yyyy-MM-dd} ({leastActiveDay.Count()} логів)"
+                : "немає даних";
+
+            // налаштовуємо право-вниз звітності саме про лоти
+            TotalLotsText.Text = _auctionLots.Count.ToString();
+
+            var lotWithBiggestBid = _auctionLots
+                .Where(lot => lot.Bids != null && lot.Bids.Count > 0)
+                .OrderByDescending(lot => lot.Bids[0].Amount)
+                .FirstOrDefault();
+
+            BiggestBidLotText.Text = lotWithBiggestBid != null ?
+                $"Власник: {lotWithBiggestBid.Owner} Лот: {lotWithBiggestBid.Title} Ставка: {lotWithBiggestBid.Bids[0].Amount}"
+                : "Нема даних";
+
+            var lotWithLowestBid = _auctionLots
+                .Where(lot => lot.Bids != null && lot.Bids.Count > 0)
+                .OrderBy(lot => lot.Bids[0].Amount)
+                .FirstOrDefault();
+
+            LowestBidLotText.Text = lotWithLowestBid != null ?
+                $"Власник: {lotWithLowestBid.Owner} Лот: {lotWithLowestBid.Title} Ставка: {lotWithLowestBid.Bids[0].Amount}"
+                : "Нема даних";
+
+            var statuses = Enum.GetValues(typeof(EnumLotStatusesDto)).Cast<EnumLotStatusesDto>();
+            var series = new List<ISeries>();
+
+            foreach (var status in statuses)
+            {
+                int count = _auctionLots.Count(lot => lot.Status == status);
+
+                //додаємо PieSeries з кількістю лотів для цього статусу
+                series.Add(new PieSeries<int>
+                {
+                    Values = new List<int> { count },
+                    Name = status.ToString()
+                });
+            }
+
+            LotTypeChart.Series = series;
+        }
         // ========== Обробники подій ==========
-        private void btnLots_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Функціонал для лотів у розробці", "Інформація",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void btnUsers_Click(object sender, RoutedEventArgs e) => ShowUsersSection();
-
-        private void btnCategories_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Функціонал для категорій у розробці", "Інформація",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
+        private void btnReport_Click(object sender, RoutedEventArgs e) => ShowReportSection();
         private void btnSecretCodes_Click(object sender, RoutedEventArgs e) => ShowSecretCodesSection();
-
         private void btnLogs_Click(object sender, RoutedEventArgs e) => ShowLogsSection();
+        private void btnUsers_Click(object sender, RoutedEventArgs e) => ShowUsersSection();
 
         private async void btnAdd_Click(object sender, RoutedEventArgs e)
         {
@@ -304,17 +415,14 @@ namespace OnlineAuction
 
                 if (result)
                 {
-                    MessageBox.Show(successMessage, "Успіх",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(successMessage, "Успіх", MessageBoxButton.OK, MessageBoxImage.Information);
+
                     dgMainData.Items.Refresh();
-                    if (_currentSection == AdminSection.Users)
-                        UpdateStatsPanel();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка при видаленні: {ex.Message}", "Помилка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Помилка при видаленні: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
