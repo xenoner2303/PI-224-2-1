@@ -23,10 +23,11 @@ public class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
     }
 
     public override BaseUserModel Execute()
-    {
+    {/*
         ManagerSecretCodeRealizator ds = new ManagerSecretCodeRealizator(PasswordHasher.HashPassword("qwerty"), 99);
         dAPoint.SecretCodeRealizatorRepository.Add(ds);
-        dAPoint.Save();
+        dAPoint.Save();*/
+
         var matchedUser = dAPoint.UserRepository
             .GetQueryable()
             .ToList() // переносимо на клієнську сторону, бо в sql запит наш код транслюватися не може
