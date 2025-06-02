@@ -6,7 +6,7 @@ public class CategoryDto
 
     public string Name { get; set; }
 
-    public CategoryDto? Parent { get; set; }
+    public int? ParentId { get; set; }
 
     public List<CategoryDto> Subcategories { get; set; } = new List<CategoryDto>();
 }

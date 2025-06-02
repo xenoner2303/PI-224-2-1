@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿/*using AutoMapper;
 using BLL.EntityBLLModels;
 using DAL.Entities;
 
@@ -53,3 +53,4 @@ internal class CategoriesListResolver : ITypeConverter<IEnumerable<Category>, Li
         return false;
     }
 }
+*/

@@ -1,46 +1,47 @@
 ﻿using AutoMapper;
+using BLL.Commands;
 using BLL.EntityBLLModels;
 using DAL.Data;
 using DAL.Entities;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace BLL.Commands.ManagerManipulationCommands
 {
     public class CreateCategoryCommand : AbstrCommandWithDA<bool>
     {
-        private readonly CategoryModel _category;
-        public CreateCategoryCommand(CategoryModel category, IUnitOfWork unitOfWork, IMapper mapper)
+        private string _name;
+        private int? _parentId;
+
+        public CreateCategoryCommand(string name, IUnitOfWork unitOfWork, IMapper mapper, int? parentId = null)
             : base(unitOfWork, mapper)
         {
-            _category = category;
+            _name = name;
+            _parentId = parentId;
         }
 
-        public override string Name => "Ствоерення нової категорії";
+        public override string Name => "Створення нової категорії";
 
-        //якщо у категорії нема батька
         public override bool Execute()
         {
             try
             {
-                var newCategory = new Category
+                var category = new Category
                 {
-                    Name = _category.Name,
-                    ParentId = _category.Parent?.Id // якщо ParentId == null, то це коренева категорія
+                    Name = _name,
+                    ParentId = _parentId
                 };
-                
-                dAPoint.CategoryRepository.Add(newCategory);
+                dAPoint.CategoryRepository.Add(category);
                 dAPoint.Save();
-                LogAction($"{Name} \"{_category.Name}\"");
+
+                LogAction($"{Name} \"{_name}\"");
                 return true;
             }
-            catch(ArgumentException ex)
+            catch
             {
                 return false;
             }
         }
+
     }
 }

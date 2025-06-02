@@ -24,9 +24,9 @@ public class ManagerController : ControllerBase
     }
 
     [HttpPost("category")]
-    public IActionResult CreateCategory([FromBody]CategoryModel category)
+    public IActionResult CreateCategory([FromBody] CategoryDto categoryDto)
     {
-        var result = _manager.CreateCategory(category);
+        var result = _manager.CreateCategory(categoryDto.Name, categoryDto.ParentId);
 
         if (result)
         {
@@ -35,8 +35,8 @@ public class ManagerController : ControllerBase
         return BadRequest("Failed to create category");
     }
 
-    [HttpDelete("category")]
-    public IActionResult DeleteCategory([FromBody]int categoryId)
+    [HttpDelete("category/{categoryId}")]
+    public IActionResult DeleteCategory(int categoryId)
     {
         var result = _manager.DeleteCategory(categoryId);
 
@@ -46,18 +46,31 @@ public class ManagerController : ControllerBase
         }
         return BadRequest("Failed to delete category");
     }
-
-    [HttpGet("category")]
-    public ActionResult<CategoryDto> LoadCategories()
+    [HttpGet("category/{categoryId}")]
+    public ActionResult<CategoryDto> GetCategory(int categoryId)
     {
-        var result = _manager.LoadCategories();
+        var result = _manager.ReadCategory(categoryId);
         if (result != null)
         {
-            return Ok("Category read successfully");
+            var dto = _mapper.Map<CategoryDto>(result);
+            return Ok(dto);
         }
-        return BadRequest("Failed to read category");
+        return NotFound("Category not found");
     }
-
+    [HttpGet("categories")]
+    public ActionResult<List<CategoryDto>> LoadAllCategories()
+    {
+        try
+        {
+            var models = _manager.LoadAllCategories();
+            var dtos = _mapper.Map<List<CategoryDto>>(models);
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
     [HttpPost("approve-lot")]
     public IActionResult ApproveLot([FromBody]int lotId)
     {
@@ -101,20 +114,6 @@ public class ManagerController : ControllerBase
             var models = _manager.LoadAuctionLots();
             var dtos = _mapper.Map<List<AuctionLotDto>>(models);
 
-            return dtos;
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-    [HttpGet("categories")]
-    public ActionResult<List<CategoryDto>> GetCategories()
-    {
-        try
-        {
-            var models = _manager.LoadCategories();
-            var dtos = _mapper.Map<List<CategoryDto>>(models);
             return dtos;
         }
         catch (Exception ex)

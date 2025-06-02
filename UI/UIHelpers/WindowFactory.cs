@@ -13,7 +13,7 @@ internal static class WindowFactory
     {
         { EnumInterfaceTypeDto.Registered, (user, serviceProvider) => new UserManagerWindow(serviceProvider, serviceProvider.GetRequiredService<UserApiClient>()) }, // зареєстрований
         { EnumInterfaceTypeDto.Manager, (user, serviceProvider) => new ManagerWindow(user, serviceProvider.GetRequiredService<ManagerApiClient>()) },
-        { EnumInterfaceTypeDto.Administrator, (user, serviceProvider) => new AdminWindow(serviceProvider.GetRequiredService<AdministratorApiClient>()) }
+        { EnumInterfaceTypeDto.Administrator, (user, serviceProvider) => new AdminWindow(serviceProvider) }
     };
 
     internal static Window CreateWindow(BaseUserDto user, IServiceProvider serviceProvider)
