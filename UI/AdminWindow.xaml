@@ -1,0 +1,288 @@
+﻿<Window x:Class="UI.AdminWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UI"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        mc:Ignorable="d"
+        Title="Адміністративна панель аукціону" 
+        Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <!-- Стилі та кольори -->
+        <SolidColorBrush x:Key="PrimaryColor" Color="#FF2C3E50"/>
+        <SolidColorBrush x:Key="SecondaryColor" Color="#FF34495E"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#FF3498DB"/>
+        <SolidColorBrush x:Key="TextColor" Color="#FFF5F5F5"/>
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#FFECF0F1"/>
+        <SolidColorBrush x:Key="SuccessColor" Color="#FF27AE60"/>
+        <SolidColorBrush x:Key="DangerColor" Color="#FFE74C3C"/>
+        <SolidColorBrush x:Key="ActiveNavColor" Color="#FF2980B9"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#FFBDC3C7"/>
+
+        <Style x:Key="RoundedGrayPanel" TargetType="Border">
+            <Setter Property="Background" Value="#FFD0D0D0"/>
+            <!-- світло-сірий -->
+            <Setter Property="CornerRadius" Value="15"/>
+            <!-- округлені краї -->
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Gray" BlurRadius="5" ShadowDepth="1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Стиль для кнопок -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8 4"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="3"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="Center"
+                                              Margin="10,0,10,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF2980B9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#FF1A5276"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Стиль для активної кнопки навігації -->
+        <Style x:Key="ActiveNavButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="{StaticResource ActiveNavColor}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- Стиль для кнопок дій (Додати, Редагувати, Видалити) -->
+        <Style x:Key="ActionButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+        </Style>
+
+        <!-- Стиль для текстового блоку заголовка -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0 0 0 10"/>
+        </Style>
+
+        <!-- Стиль для карток -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Стиль для DataGrid -->
+        <Style x:Key="ModernDataGrid" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#FAFAFA"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <!-- Стиль для заголовків DataGrid -->
+        <Style x:Key="DataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10 5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Бічна панель навігації -->
+        <Border Grid.Column="0" Background="{StaticResource PrimaryColor}">
+            <StackPanel>
+                <StackPanel Margin="10 20" Orientation="Vertical">
+                    <TextBlock Text="Адмін-панель" 
+                               Foreground="{StaticResource TextColor}" 
+                               FontSize="20" 
+                               FontWeight="Bold"
+                               Margin="0 0 0 20"/>
+
+                    <Button x:Name="btnUsers" Content="Користувачі" Style="{StaticResource ModernButton}" Click="btnUsers_Click"/>
+                    <Button x:Name="btnSecretCodes" Content="Секретні коди" Style="{StaticResource ModernButton}" Click="btnSecretCodes_Click"/>
+                    <Button x:Name="btnLogs" Content="Логи" Style="{StaticResource ModernButton}" Click="btnLogs_Click"/>
+                    <Button x:Name="btnReport" Content="Звітність" Style="{StaticResource ModernButton}" Click="btnReport_Click"/>
+                    
+                    <Separator Margin="0 20" Background="#555" Height="1"/>
+
+                    <Button x:Name="btnLogout" Content="Вийти" 
+                            Style="{StaticResource ModernButton}"
+                            Background="{StaticResource DangerColor}" Click="btnLogout_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Основний вміст -->
+        <Grid Grid.Column="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Заголовок та кнопки дій -->
+            <Border Style="{StaticResource CardStyle}" Grid.Row="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="tbCurrentSection" Text="Лоти аукціону" 
+                              Style="{StaticResource HeaderTextStyle}"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock x:Name="LogDateText" Margin="0 10 0 0" Visibility="Hidden" Text="Оберіть дату для перегляду логів:" />
+                        <DatePicker x:Name="LogDatePicker" Margin="6 0 15 0" Visibility="Hidden" />
+                        <Button x:Name="btnShowLogs" Content="Показати логи" 
+                                Background="{StaticResource SuccessColor}" 
+                                Click="ShowLogs_Click"
+                                Visibility="Hidden" />
+                        <Button x:Name="btnAdd" Content="Додати" 
+                                Style="{StaticResource ActionButton}"
+                                Width ="Auto" Background="{StaticResource SuccessColor}" Click="btnAdd_Click"/>
+                        <Button x:Name="btnEdit" Content="Зберегти зміни" 
+                                Width ="Auto" Style="{StaticResource ActionButton}" Click="btnEdit_Click"/>
+                        <Button x:Name="btnDelete" Content="Видалити" 
+                                Style="{StaticResource ActionButton}"
+                                Width ="Auto" Background="{StaticResource DangerColor}" Click="btnDelete_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Основні дані -->
+            <Border Style="{StaticResource CardStyle}" Grid.Row="1">
+                <Grid>
+                    <DataGrid x:Name="dgMainData" 
+                              Style="{StaticResource ModernDataGrid}"
+                              CanUserAddRows="False"
+                              ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" SelectionChanged="dgMainData_SelectionChanged">
+                        <DataGrid.Columns>
+                            <!-- Приклад колонок для лотів -->
+                            <DataGridTextColumn Header="ID" Width="Auto" Binding="{Binding Id}"/>
+                            <DataGridTextColumn Header="Назва" Width="*" Binding="{Binding Title}"/>
+                            <DataGridTextColumn Header="Поточна ставка" Width="Auto" Binding="{Binding CurrentBid, StringFormat=C2}"/>
+                            <DataGridTextColumn Header="Кінцева дата" Width="Auto" Binding="{Binding EndDate, StringFormat=dd.MM.yyyy HH:mm}"/>
+                            <DataGridTextColumn Header="Статус" Width="Auto" Binding="{Binding Status}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1" Visibility="Collapsed" x:Name="statsBorder">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Верхня ліва частина - Статистика користувачів + кругова діаграма -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Статистика користувачів" Style="{StaticResource HeaderTextStyle}"/>
+                        <!-- Тут додай бажані числові показники -->
+                        <TextBlock x:Name="TotalUserCount" />
+
+                        <!-- Кругова діаграма з співвідношення учасників -->
+                        <lvc:PieChart x:Name="UserPieChart" Height="150" Margin="10" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Верхня права частина - Капітал + діаграма -->
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Звітність щодо капіталу" Style="{StaticResource HeaderTextStyle}"/>
+                        <TextBlock x:Name="TotalCapital" FontWeight="Bold" FontSize="16"/>
+                        <!-- Діаграма -->
+                        <lvc:PieChart x:Name="CapitalChart" Height="150" Margin="10" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Нижня ліва частина - Інтервал існування + найактивніший / найпасивніший день -->
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Інтервал існування програми" Style="{StaticResource HeaderTextStyle}"/>
+                        <TextBlock x:Name="CreateDataText"/>
+                        <TextBlock x:Name="LastDataText" Margin="0 10" />
+                        <TextBlock x:Name="MostActivityText" />
+                        <TextBlock x:Name="LeastActivityText"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Нижня права частина - Кількість лотів + діаграма за типами -->
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource RoundedGrayPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Статистика по лотах" Style="{StaticResource HeaderTextStyle}"/>
+                        <TextBlock x:Name="TotalLotsText"/>
+                        <TextBlock x:Name="BiggestBidLotText"/>
+                        <TextBlock x:Name="LowestBidLotText"/>
+                        <!-- Діаграма типів -->
+                        <lvc:PieChart x:Name="LotTypeChart" Height="150" Margin="10"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window> 
