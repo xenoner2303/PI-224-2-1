@@ -3,7 +3,7 @@ using DAL.Data;
 
 namespace BLL.Commands;
 
-public class RemoveUserByIdCommand : AbstrCommandWithDA<bool>
+internal class RemoveUserByIdCommand : AbstrCommandWithDA<bool>
 {
     private int id;
 

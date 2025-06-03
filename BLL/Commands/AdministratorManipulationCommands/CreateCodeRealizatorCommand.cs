@@ -6,7 +6,7 @@ using DAL.Entities;
 
 namespace BLL.Commands;
 
-public class CreateCodeRealizatorCommand : AbstrCommandWithDA<bool>
+internal class CreateCodeRealizatorCommand : AbstrCommandWithDA<bool>
 {
     private readonly SecretCodeRealizatorModel codeRealizatorModel;
 

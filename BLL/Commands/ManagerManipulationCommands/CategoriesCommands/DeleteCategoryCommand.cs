@@ -3,7 +3,7 @@ using DAL.Data;
 
 namespace BLL.Commands.ManagerManipulationCommands;
 
-public class DeleteCategoryCommand : AbstrCommandWithDA<bool>
+internal class DeleteCategoryCommand : AbstrCommandWithDA<bool>
 {
     private readonly int _categoryId;
     public DeleteCategoryCommand(int categoryId, IUnitOfWork unitOfWork, IMapper mapper)

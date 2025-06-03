@@ -4,7 +4,7 @@ using BLL.EntityBLLModels;
 
 namespace BLL.Commands.ManagerManipulationCommands;
 
-public class ReadCategoryCommand : AbstrCommandWithDA<CategoryModel?>
+internal class ReadCategoryCommand : AbstrCommandWithDA<CategoryModel?>
 {
     IMapper _mapper;
     private readonly int _categoryId;

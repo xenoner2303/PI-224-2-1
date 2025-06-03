@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.ManagerManipulationCommands;
 
-public class StopLotCommand : AbstrCommandWithDA<bool>
+internal class StopLotCommand : AbstrCommandWithDA<bool>
 {
     private readonly int _lotId;
 

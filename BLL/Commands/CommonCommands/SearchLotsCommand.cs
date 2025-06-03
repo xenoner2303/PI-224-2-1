@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.CommonCommands;
 
-public class SearchLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
+internal class SearchLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
 {
     private readonly string? keyword;
     private readonly int? categoryId;

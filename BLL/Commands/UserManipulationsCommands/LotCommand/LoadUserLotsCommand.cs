@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.UserManipulationsCommands;
 
-public class LoadUserLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
+internal class LoadUserLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>>
 {
     private readonly int userId;
     public LoadUserLotsCommand(int userId, IUnitOfWork unitOfWork, IMapper mapper)

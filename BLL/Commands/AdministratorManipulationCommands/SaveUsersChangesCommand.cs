@@ -6,7 +6,7 @@ using DAL.Entities;
 
 namespace BLL.Commands;
 
-public class SaveUsersChangesCommand : AbstrCommandWithDA<bool>
+internal class SaveUsersChangesCommand : AbstrCommandWithDA<bool>
 {
     private readonly List<BaseUserModel> users;
     private readonly Dictionary<BusinessEnumInterfaceType, Func<AbstractUser>> userFactoryMap

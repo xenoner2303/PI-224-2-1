@@ -17,7 +17,7 @@ public abstract class AbstractCommandManager
         this.mapper = mapper;
     }
 
-    protected TResult ExecuteCommand<TResult>(IBaseCommand<TResult> command, string errorMessage)
+    internal TResult ExecuteCommand<TResult>(IBaseCommand<TResult> command, string errorMessage)
     {
         var result = command.Execute();
 

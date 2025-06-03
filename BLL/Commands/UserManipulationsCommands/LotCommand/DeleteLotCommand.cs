@@ -3,9 +3,10 @@ using DAL.Data;
 
 namespace BLL.Commands.UserManipulationsCommands;
 
-public class DeleteLotCommand : AbstrCommandWithDA<bool>
+internal class DeleteLotCommand : AbstrCommandWithDA<bool>
 {
     private readonly int lotId;
+
     public DeleteLotCommand(int lotId, IUnitOfWork unitOfWork, IMapper mapper)
         : base(unitOfWork, mapper)
     {
@@ -23,6 +24,8 @@ public class DeleteLotCommand : AbstrCommandWithDA<bool>
     {
         dAPoint.AuctionLotRepository.Remove(lotId);
         dAPoint.Save();
+
+        LogAction($"Було видалено лот з Id {lotId}");
         return true;
     }
 }

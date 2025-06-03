@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace BLL.Commands.PreUsersManipulationCommands;
 
-public class CreateUserCommand : AbstrCommandWithDA<bool>
+internal class CreateUserCommand : AbstrCommandWithDA<bool>
 {
     private readonly BaseUserModel userModel;
 

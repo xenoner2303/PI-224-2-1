@@ -29,6 +29,11 @@ public static class PasswordHasher
 
     public static bool VerifyPassword(string password, string storedHash)
     {
+        if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(storedHash))
+        {
+            return false;
+        }
+
         var parts = storedHash.Split('.');
         if (parts.Length != 2)
         {

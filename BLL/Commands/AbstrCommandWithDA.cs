@@ -4,7 +4,7 @@ using DAL.Entities;
 
 namespace BLL.Commands;
 
-public abstract class AbstrCommandWithDA<TResult> : IBaseCommand<TResult>
+internal abstract class AbstrCommandWithDA<TResult> : IBaseCommand<TResult>
 {
     protected readonly IUnitOfWork dAPoint;
     protected readonly IMapper mapper;

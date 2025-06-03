@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.CommonCommands;
 
-public class LoadCategoriesCommand : AbstrCommandWithDA<List<CategoryModel>>
+internal class LoadCategoriesCommand : AbstrCommandWithDA<List<CategoryModel>>
 {
     public override string Name => "Завантаження категорій";
 
