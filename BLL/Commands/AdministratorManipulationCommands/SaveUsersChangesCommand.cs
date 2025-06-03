@@ -10,12 +10,12 @@ internal class SaveUsersChangesCommand : AbstrCommandWithDA<bool>
 {
     private readonly List<BaseUserModel> users;
     private readonly Dictionary<BusinessEnumInterfaceType, Func<AbstractUser>> userFactoryMap
-    = new()
-    {
-        { BusinessEnumInterfaceType.Registered, () => new RegisteredUser() },
-        { BusinessEnumInterfaceType.Manager, () => new Manager() },
-        { BusinessEnumInterfaceType.Administrator, () => new Administrator() }
-    };
+        = new()
+        {
+            { BusinessEnumInterfaceType.Registered, () => new RegisteredUser() },
+            { BusinessEnumInterfaceType.Manager, () => new Manager() },
+            { BusinessEnumInterfaceType.Administrator, () => new Administrator() }
+        };
 
     public override string Name => "Збереження змін користувачів";
 
