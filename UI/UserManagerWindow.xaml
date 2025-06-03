@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:UI"
         mc:Ignorable="d"
         Title="Інтернет-аукціон" Height="600" Width="900"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
     <Grid Margin="10">
         <Grid.RowDefinitions>

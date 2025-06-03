@@ -8,7 +8,8 @@
         mc:Ignorable="d"
         Title="Адміністративна панель аукціону" 
         Height="700" Width="1100"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
     <Window.Resources>
         <!-- Стилі та кольори -->
