@@ -33,7 +33,12 @@ public class UserCommandsTests : CommandTestBase
     public void CreateBid_ShouldCreateBid_WhenValid()
     {
         // Arrange
-        var lot = new AuctionLot { Id = 2, StartPrice = 100, Bids = new List<Bid> { new Bid { Amount = 120 } } };
+        var lot = new AuctionLot
+        {
+            Id = 2,
+            StartPrice = 100,
+            Bids = new List<Bid> { new Bid { Amount = 120 } }
+        };
         var user = new RegisteredUser { Id = 1 };
 
         var lotModel = fixture.Build<AuctionLotModel>()
@@ -44,20 +49,26 @@ public class UserCommandsTests : CommandTestBase
             .Create();
 
         var bidModel = fixture.Build<BidModel>()
-            .With(b => b.Amount, lot.StartPrice + 50)
+            .With(b => b.Amount, lot.StartPrice + 50) // 150, більша за існуючу ставку 120
             .With(b => b.User, fixture.Build<BaseUserModel>().With(u => u.Id, user.Id).Create())
             .With(b => b.Lot, lotModel)
             .Create();
 
-        lotRepositoryMock.GetById(lot.Id).Returns(lot);
+        // Моки репозиторіїв
+        lotRepositoryMock.GetById(lot.Id).Returns(lot); // на випадок, якщо десь використовується
+        lotRepositoryMock.GetQueryable().Returns(new List<AuctionLot> { lot }.AsQueryable());
+
         registerUserRepositoryMock.GetById(user.Id).Returns(user);
+
+        // Тут можна замокати Save у UnitOfWork, якщо потрібно
+        unitOfWorkMock.When(uow => uow.Save());
 
         // Act
         var result = manager.CreateBid(bidModel);
 
         // Assert
         Assert.True(result);
-        unitOfWorkMock.Received(2).Save(); // один для ставки, один для логу
+        unitOfWorkMock.Received(2).Save(); // Один для збереження ставки, один для логування
     }
 
     [Fact]
@@ -151,9 +162,9 @@ public class UserCommandsTests : CommandTestBase
         // Arrange
         var lot = new AuctionLot { Id = 2, StartPrice = 100, Bids = new List<Bid>() };
         var user = new RegisteredUser { Id = 1 };
-        var lotModel = fixture.Build<AuctionLotModel>() // залишаємо, щоб тест був повноцінним та не міг викликати інші виключення
+        var lotModel = fixture.Build<AuctionLotModel>()
            .With(l => l.Id, lot.Id)
-           .Without(l => l.StartTime)// не потрібно для цього тесту
+           .Without(l => l.StartTime)
            .Without(l => l.EndTime)
            .Without(l => l.Image)
            .Create();
@@ -164,7 +175,10 @@ public class UserCommandsTests : CommandTestBase
             .With(b => b.Lot, lotModel)
             .Create();
 
+        // Замокаємо обидва методи, які використовуються для пошуку лоту
         lotRepositoryMock.GetById(lot.Id).Returns(lot);
+        lotRepositoryMock.GetQueryable().Returns(new List<AuctionLot> { lot }.AsQueryable());
+
         registerUserRepositoryMock.GetById(user.Id).Returns(user);
 
         // Act & Assert
@@ -174,6 +188,7 @@ public class UserCommandsTests : CommandTestBase
         unitOfWorkMock.BidRepository.DidNotReceive().Add(Arg.Any<Bid>());
         unitOfWorkMock.DidNotReceive().Save();
     }
+
 
     [Theory]
     [InlineData(true, false, "Лот не співпадає з бд")]
