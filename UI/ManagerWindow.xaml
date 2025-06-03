@@ -137,38 +137,18 @@
                             <DataGridTextColumn Header="Назва" Binding="{Binding Title}"/>
                             <DataGridTextColumn Header="Категорія" Binding="{Binding Category.Name}"/>
                             <DataGridTextColumn Header="Статус" Binding="{Binding Status}"/>
-                            <!-- Колонка з кнопками "Підтвердити та зупинити торги" -->
-                            <DataGridTemplateColumn Header="Дії" Width="260">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button x:Name="ConfirmationButton" Content="Підтвердити" Margin="2" Click="AcceptLot_Click" Cursor="Hand"/>
-                                            <Button x:Name="RejectionButton" Content="Відхилити" Margin="2" Click="RejectLot_Click" Cursor="Hand"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
 
                 <TabItem Header="Активні торги">
-                    <DataGrid x:Name="ActiveLotsDataGrid" IsReadOnly = "False" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10" SelectionChanged="LotsDataGrid_SelectionChanged">
+                    <DataGrid x:Name="ActiveLotsDataGrid" IsReadOnly = "True" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10" SelectionChanged="LotsDataGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
                             <DataGridTextColumn Header="Назва" Binding="{Binding Title}" />
                             <DataGridTextColumn Header="Категорія" Binding="{Binding Category.Name}" />
                             <DataGridTextColumn Header="Ціна поточна" Binding="{Binding CurrentPrice}"/>
                             <DataGridTextColumn Header="Час завершення" Binding="{Binding EndTime}" />
-
-                            <!-- Колонка з кнопкою "Зупинити торги" -->
-                            <DataGridTemplateColumn Header="Дії">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Content="Зупинити" Margin="2" Click="StopLot_Click" Cursor="Hand"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
@@ -210,27 +190,58 @@
 
                         <!-- Заголовок -->
                         <TextBlock Grid.Column="0"
-                       Text="Деталі лота"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Margin="0 0 0 10"
-                       VerticalAlignment="Center"/>
+               Text="Деталі лота"
+               FontSize="18"
+               FontWeight="Bold"
+               Margin="0 0 0 10"
+               VerticalAlignment="Center"/>
 
                         <!-- Панель підтвердження -->
                         <StackPanel x:Name="RejectionPanel"
-                        Grid.Column="1"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Visibility="Collapsed"
-                        VerticalAlignment="Center">
-                            <TextBox x:Name="DelitionReasonTextBox"
-                         Width="200"
-                         Height="30"
-                         Margin="0,0,10,0"/>
-                            <Button x:Name="ConfirmButton"
-                        Content="Підтвердити"
-                        Width="100"
-                        Height="30" Click="RejectionButton_Click"/>
+                Grid.Column="1"
+                Orientation="Vertical"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                                    Visibility="Visible">
+
+                            <!-- Горизонтальний ряд з трьома кнопками -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5" Width="320" HorizontalAlignment="Right">
+                                <Button x:Name="AcceptButton"
+                    Content="Прийняти"
+                    Width="100"
+                    Height="30"
+                    Margin="0,0,10,0"
+                    Click="AcceptButton_Click"
+                                        Visibility="Hidden"/>
+                                <Button x:Name="RejectButton"
+                    Content="Відхилити"
+                    Width="100"
+                    Height="30"
+                    Margin="0,0,10,0"
+                    Click="RejectButton_Click"
+                                        Visibility="Hidden"/>
+                                <Button x:Name="StopButton"
+                    Content="Зупинити"
+                    Width="100"
+                    Height="30"
+                    Click="StopButton_Click"
+                    Visibility="Hidden"/>
+                            </StackPanel>
+
+                            <!-- TextBox і ConfirmButton в один ряд -->
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="DelitionReasonTextBox"
+                     Width="220"
+                     Height="30"
+                     Margin="0,0,10,0"
+                                         Visibility="Hidden"/>
+                                <Button x:Name="ConfirmButton"
+                    Content="Підтвердити"
+                    Width="120"
+                    Height="30"
+                    Click="RejectionButton_Click"
+                                        Visibility="Hidden"/>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
 

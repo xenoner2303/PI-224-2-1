@@ -42,9 +42,9 @@ namespace UI.ApiClients
             var response = await client.PostAsJsonAsync("approve-lot", lotId);
             return await HandleErrorAsync(response);
         }
-        public async Task<bool> RejectLotAsync(int lotId)
+        public async Task<bool> RejectLotAsync(AuctionLotDto auctionLotDto)
         {
-            var response = await client.PostAsJsonAsync("reject-lot", lotId);
+            var response = await client.PostAsJsonAsync("reject-lot", auctionLotDto);
             return await HandleErrorAsync(response);
         }
         public async Task<bool> StopLotAsync(int lotId)

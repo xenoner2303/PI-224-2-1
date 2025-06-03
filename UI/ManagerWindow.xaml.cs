@@ -33,6 +33,7 @@ namespace UI
             _userDto = userDto;
             Loaded += ManagerWindow_Loaded;
             DataContext = this;
+            WinnerInfoPanel.Visibility = Visibility.Collapsed;
         }
 
         private async void ManagerWindow_Loaded(object sender, RoutedEventArgs e)
@@ -207,36 +208,42 @@ namespace UI
                 MessageBox.Show("Не вдалося створити категорію.");
             }
         }
-
-
-        private async void AcceptLot_Click(object sender, RoutedEventArgs e)
+        private async void AcceptButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is AuctionLotDto lot)
-            {
-                await _client.ApproveLotAsync(lot.Id);
-            }
+            await _client.ApproveLotAsync(_selectedLot.Id);
+            PendingDataGrid.SelectedItem = null;
+            _selectedLot = null;
+            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот      
+            GetNeededLots(EnumLotStatusesDto.Pending); // Оновити список лотів
+            AcceptButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
+            RejectButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
         }
-        private async void RejectLot_Click(object sender, RoutedEventArgs e)
+        private void RejectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is AuctionLotDto lot)
-            {
-                _selectedLot = lot; // щоб знати, який лот відхиляється
-                RejectionPanel.Visibility = Visibility.Visible;
-            }
+            DelitionReasonTextBox.Visibility = Visibility.Visible;
+            ConfirmButton.Visibility = Visibility.Visible;
         }
         private async void RejectionButton_Click(object sender, RoutedEventArgs e)
         {
-            var lotForDelition = _client.GetAuctionLotsAsync().Result
-                .FirstOrDefault(lot => lot.Id == _selectedLot.Id);
-            lotForDelition.RejectionReason = DelitionReasonTextBox.Text;
-            await _client.RejectLotAsync(_selectedLot.Id);
+            _selectedLot.RejectionReason = DelitionReasonTextBox.Text;
+            await _client.RejectLotAsync(_selectedLot);
+            PendingDataGrid.SelectedItem = null;
+            _selectedLot = null;
+            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот
+            GetNeededLots(EnumLotStatusesDto.Pending); // Оновити список лотів
+            AcceptButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
+            RejectButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
+            DelitionReasonTextBox.Visibility = Visibility.Collapsed; // Сховати поле для причини
+            ConfirmButton.Visibility = Visibility.Collapsed; // Сховати кнопку підтвердження
         }
-        private async void StopLot_Click(object sender, RoutedEventArgs e)
+        private void StopButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is AuctionLotDto lot)
-            {
-                await _client.StopLotAsync(lot.Id);
-            }
+            _client.StopLotAsync(_selectedLot.Id);
+            PendingDataGrid.SelectedItem = null;
+            _selectedLot = null;
+            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот
+            GetNeededLots(EnumLotStatusesDto.Active); // Оновити список лотів
+            StopButton.Visibility = Visibility.Collapsed; // Сховати кнопку після зупинки
         }
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
@@ -244,41 +251,74 @@ namespace UI
         }
         private void LotsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is DataGrid dataGrid && dataGrid.SelectedItem is AuctionLotDto selectedLot)
+            if (sender is DataGrid dg && dg.SelectedItem is AuctionLotDto lot)
             {
-                _selectedLot = selectedLot;
-                ShowLotInfo(_selectedLot);
+                _selectedLot = lot;
+                ShowLotInfo(lot);
+
+                e.Handled = true;   // ← зупиняємо бульбашіння
             }
         }
+
         private void ShowLotInfo(AuctionLotDto selectedLot)
         {
-            // Заповнення загальної інформації про лот
-            LotDescriptionTextBlock.Text = selectedLot.Description;
+            if (selectedLot == null)
+            {
+                AcceptButton.Visibility = Visibility.Collapsed;
+                RejectButton.Visibility = Visibility.Collapsed;
+                DelitionReasonTextBox.Visibility = Visibility.Collapsed;
+                ConfirmButton.Visibility = Visibility.Collapsed;
+                StopButton.Visibility = Visibility.Collapsed;
+                return;
+            }
 
-            // Інформація про користувача, який створив лот
+            LotDescriptionTextBlock.Text = selectedLot.Description;
             UserFirstNameTextBlock.Text = selectedLot.Owner.FirstName;
             UserLastNameTextBlock.Text = selectedLot.Owner.LastName;
             UserPhoneNumberTextBlock.Text = selectedLot.Owner.PhoneNumber;
 
             AuctionLotImage.Source = UILoadHelper.LoadImage(selectedLot);
 
-            if (selectedLot.Status == EnumLotStatusesDto.Completed && selectedLot.Bids.Count != 0)
+            if (selectedLot.Status == EnumLotStatusesDto.Completed && selectedLot.Bids.Count > 0)
             {
-                var winner = selectedLot.Bids[selectedLot.Bids.Count - 1].User;
-                // Показати блок переможця
+                var winner = selectedLot.Bids[^1].User;
                 WinnerInfoPanel.Visibility = Visibility.Visible;
-
-                // Заповнити інформацію про переможця
                 WinnerFirstNameTextBlock.Text = winner.FirstName;
                 WinnerLastNameTextBlock.Text = winner.LastName;
                 WinnerPhoneNumberTextBlock.Text = winner.PhoneNumber;
             }
             else
             {
-                // Сховати блок переможця
                 WinnerInfoPanel.Visibility = Visibility.Collapsed;
             }
+
+            // Встановити видимість кнопок відповідно до статусу
+            switch (selectedLot.Status)
+            {
+                case EnumLotStatusesDto.Pending:
+                    AcceptButton.Visibility = Visibility.Visible;
+                    RejectButton.Visibility = Visibility.Visible;
+                    StopButton.Visibility = Visibility.Collapsed;
+                    break;
+
+                case EnumLotStatusesDto.Active:
+                    AcceptButton.Visibility = Visibility.Collapsed;
+                    RejectButton.Visibility = Visibility.Collapsed;
+                    StopButton.Visibility = Visibility.Visible;
+                    break;
+
+                default:
+                    AcceptButton.Visibility = Visibility.Collapsed;
+                    RejectButton.Visibility = Visibility.Collapsed;
+                    StopButton.Visibility = Visibility.Collapsed;
+                    break;
+            }
+
+            // Завжди приховуємо поле для причини, поки не натиснуть "Відхилити"
+            DelitionReasonTextBox.Visibility = Visibility.Collapsed;
+            ConfirmButton.Visibility = Visibility.Collapsed;
         }
+
         private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (MainTabControl.SelectedItem is TabItem selectedTab)
@@ -293,15 +333,20 @@ namespace UI
                     case "Активні торги":
                         GetNeededLots(EnumLotStatusesDto.Active);
                         break;
-                    case "Завершені торги":
+                    case "Закінчені торги":
                         GetNeededLots(EnumLotStatusesDto.Completed);
                         break;
                     case "Відхилені лоти":
                         GetNeededLots(EnumLotStatusesDto.Rejected);
                         break;
                 }
+
+                // Скидаємо попередній вибір
+                _selectedLot = null;
+                ShowLotInfo(null); // Сховає всі кнопки
             }
         }
+
         private async Task GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
             List<AuctionLotDto>? allLots = await _client.GetAuctionLotsAsync();
@@ -439,5 +484,6 @@ namespace UI
                     return;
             }
         }
+
     }
 }
