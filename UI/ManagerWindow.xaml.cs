@@ -247,7 +247,31 @@ namespace UI
         }
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            await Search();
+            var findedLots = await SearchLots(
+                SearchTextBox.Text,
+                MainTabControl.SelectedItem as TabItem,
+                CategoryTreeView.SelectedItem as CategoryDto
+            );
+            if (MainTabControl.SelectedItem is TabItem selectedTab)
+            {
+                string header = selectedTab.Header.ToString()!;
+
+                switch (header)
+                {
+                    case "Непідтверджені лоти":
+                        PendingDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Pending).ToList();
+                        break;
+                    case "Активні торги":
+                        ActiveLotsDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Active).ToList();
+                        break;
+                    case "Закінчені торги":
+                        FinishedLotsDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Completed).ToList();
+                        break;
+                    case "Відхилені лоти":
+                        RejectedLotsDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Rejected).ToList();
+                        break;
+                }
+            }
         }
         private void LotsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -259,7 +283,6 @@ namespace UI
                 e.Handled = true;   // ← зупиняємо бульбашіння
             }
         }
-
         private void ShowLotInfo(AuctionLotDto selectedLot)
         {
             if (selectedLot == null)
@@ -447,43 +470,66 @@ namespace UI
 
             authWindow!.ShowDialog(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
         }
-        private async Task Search()
-        {
-            string? keyword = SearchTextBox.Text.Trim().ToLower();
 
-            SearchLotsDto search = new SearchLotsDto
+
+        private async Task<List<AuctionLotDto>> SearchLots(string searchTitle, TabItem? searchStatus, CategoryDto searchCategory)
+        {            
+            var allLots = await _client.GetAuctionLotsAsync();
+            if (string.IsNullOrEmpty(searchTitle))
             {
-                Keyword = keyword,
-                CategoryId = selectedCategoryId
-            };
-
-            var receiveLots = await _client.SearchLotsAsync(search);
-
-            var status = receiveLots[0].Status;
-
-            switch (status)
-            {
-                case EnumLotStatusesDto.Pending:
-                    PendingDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 0;
-                    break;
-                case EnumLotStatusesDto.Active:
-                    ActiveLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 1;
-                    break;
-                case EnumLotStatusesDto.Completed:
-                    FinishedLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 2;
-                    break;
-                case EnumLotStatusesDto.Rejected:
-                    RejectedLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 3;
-                    break;
-                default:
-                    MessageBox.Show("Невідомий статус лотів.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                return allLots;
             }
+            // Отримуємо назву статусу з TabItem
+            string? header = searchStatus?.Header?.ToString() ?? string.Empty;
+
+            // Перетворюємо назву статусу в EnumLotStatusesDto, якщо можливо
+            EnumLotStatusesDto? parsedStatus = null;
+            if (!string.IsNullOrEmpty(header))
+            {
+                if (Enum.TryParse<EnumLotStatusesDto>(header, ignoreCase: true, out var status))
+                {
+                    parsedStatus = status;
+                }
+            }
+
+            bool HasPartialMatch(string title, string search)
+            {
+                if (string.IsNullOrWhiteSpace(search) || string.IsNullOrWhiteSpace(title))
+                    return false;
+
+                title = title.ToLower();
+                search = search.ToLower();
+
+                if (search.Length < 3)
+                {
+                    // Якщо пошуковий рядок менший за 3 символи, шукаємо просто Contains
+                    return title.Contains(search);
+                }
+
+                // Перевіряємо всі підрядки пошуку довжиною 3 і більше
+                for (int length = 3; length <= search.Length; length++)
+                {
+                    for (int i = 0; i <= search.Length - length; i++)
+                    {
+                        var sub = search.Substring(i, length);
+                        if (title.Contains(sub))
+                            return true;
+                    }
+                }
+                return false;
+            }
+
+            var filtered = allLots.Where(lot =>
+                (string.IsNullOrEmpty(searchTitle) || HasPartialMatch(lot.Title, searchTitle))
+                && (parsedStatus == null || lot.Status == parsedStatus)
+                && (searchCategory == null || (lot.Category != null && lot.Category.Id == searchCategory.Id))
+            ).ToList();
+
+            return filtered;
         }
+
+
+
 
     }
 }
