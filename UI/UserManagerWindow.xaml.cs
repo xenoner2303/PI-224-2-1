@@ -21,16 +21,18 @@ namespace UI
         private readonly UserApiClient client;
         private List<CategoryDto> flatCategoryList;
         private LotDemonstrationControl? selectedLotControl; // для нормального опрацювання лотів
-
-        public UserManagerWindow(IServiceProvider serviceProvider, UserApiClient client)
+        
+        public UserManagerWindow(BaseUserDto user, IServiceProvider serviceProvider, UserApiClient client)
         {
             ArgumentNullException.ThrowIfNull(serviceProvider, nameof(serviceProvider));
             ArgumentNullException.ThrowIfNull(client, nameof(client));
 
             InitializeComponent();
 
+            this.currentUser = user;
             this.serviceProvider = serviceProvider;
             this.client = client;
+
             UpdateTabAccess();
             LoadUserManagerWindowEntities();
         }
@@ -202,26 +204,16 @@ namespace UI
             {
                 var client = serviceProvider.GetRequiredService<PreUserApiClient>();
 
-                authWindow = new AuthorizationWindow(serviceProvider, client, user =>
-                {
-                    if (user.InterfaceType == EnumInterfaceTypeDto.Registered)
-                    {
-                        this.currentUser = user;
-                        UpdateTabAccess(); // оновлюємо доступ до елементів
-                        authWindow!.DialogResult = true; // закриває ShowDialog()
-                    }
-                });
-
-                authWindow.Owner = this; // ставимо власником це вікно + щоб блокувалося якщо використовується ShowDialog()
+                authWindow = new AuthorizationWindow(serviceProvider, client);
+                this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при кроку авторизації: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            authWindow!.ShowDialog(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
+            authWindow!.Show(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
         }
-
         // вийти з юзера
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
@@ -264,6 +256,7 @@ namespace UI
         }
 
         // допоміжний метод із завантаження базових сутностей вікна
+
         private async void LoadUserManagerWindowEntities()
         {
             var categories = await client.GetCategoriesAsync();

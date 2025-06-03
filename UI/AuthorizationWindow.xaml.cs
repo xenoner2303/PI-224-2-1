@@ -15,19 +15,16 @@ namespace UI
     {
         private readonly IServiceProvider serviceProvider;
         private PreUserApiClient client;
-        private readonly Action<BaseUserDto> onLoginSuccess;
 
-        public AuthorizationWindow(IServiceProvider serviceProvider, PreUserApiClient client, Action<BaseUserDto> onLoginSuccess)
+        public AuthorizationWindow(IServiceProvider serviceProvider, PreUserApiClient client)
         {
             ArgumentNullException.ThrowIfNull(serviceProvider, nameof(serviceProvider));
             ArgumentNullException.ThrowIfNull(client, nameof(client));
-            ArgumentNullException.ThrowIfNull(onLoginSuccess, nameof(onLoginSuccess));
 
             InitializeComponent();
 
             this.serviceProvider = serviceProvider;
             this.client = client;
-            this.onLoginSuccess = onLoginSuccess;
         }
 
         // обробка кнопки "Вхід" для завершення авторизації
@@ -43,16 +40,6 @@ namespace UI
                 if (userDto == null)
                 {
                     return;
-                }
-
-                if (onLoginSuccess != null)
-                {
-                    onLoginSuccess.Invoke(userDto);
-                    // припиняємо подальші дії (НЕ створюємо нове вікно)
-                    if(this.DialogResult == true)
-                    {
-                        return;
-                    }
                 }
 
                 // створюємо вікно потрібного типу якщо це не визов типу callback

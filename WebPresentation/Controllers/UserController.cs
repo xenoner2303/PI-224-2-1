@@ -42,7 +42,7 @@ namespace WebPresentation.Controllers
         // POST: api/User/lot
         [HttpPost("lot")]
         public ActionResult CreateLot([FromBody] AuctionLotDto dto)
-        {
+        {            
             try
             {
                 var lot = mapper.Map<AuctionLotModel>(dto);

@@ -440,38 +440,25 @@ namespace UI
                 }
             }
         }
+        // перейти до авторизації (вікно юзера блокується вікном авторизації)
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             AuthorizationWindow? authWindow = null;
 
             try
             {
-                var preUserApiClient = _serviceProvider.GetRequiredService<PreUserApiClient>();
+                var client = _serviceProvider.GetRequiredService<PreUserApiClient>();
 
-                authWindow = new AuthorizationWindow(
-                    _serviceProvider,
-                    preUserApiClient,
-                    user =>
-                    {
-                        if (user.InterfaceType == EnumInterfaceTypeDto.Manager)
-                        {
-                            this._userDto = user; // оновлюємо користувача
-                            authWindow!.DialogResult = true; // закриває ShowDialog()
-                        }
-                    }
-                );
-
-                authWindow.Owner = this; // ставимо власником це вікно + щоб блокувалося якщо використовується ShowDialog()
+                authWindow = new AuthorizationWindow(_serviceProvider, client);
+                this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при кроку авторизації: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            authWindow!.ShowDialog(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
+            authWindow!.Show(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
         }
-
-
         private async Task<List<AuctionLotDto>> SearchLots(string searchTitle, TabItem? searchStatus, CategoryDto searchCategory)
         {            
             var allLots = await _client.GetAuctionLotsAsync();
@@ -527,9 +514,6 @@ namespace UI
 
             return filtered;
         }
-
-
-
 
     }
 }

@@ -24,7 +24,10 @@ public partial class App : Application
         ServiceProvider = serviceCollection.BuildServiceProvider();
 
         //запускаємо головне вікно
-        var startWindow = ServiceProvider.GetRequiredService<UserManagerWindow>();
+        var startWindow = new UserManagerWindow(null, ServiceProvider,
+            ServiceProvider.GetRequiredService<UserApiClient>()           
+        );
+
         startWindow.Show();
     }
 
