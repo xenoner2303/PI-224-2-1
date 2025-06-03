@@ -12,10 +12,10 @@ namespace WebPresentation.Controllers;
 [Route("api/[controller]")]
 public class ManagerController : ControllerBase
 {
-    private readonly ManagerCommandsManager _manager;
+    private readonly ManagerCommandManager _manager;
     private readonly IMapper _mapper;
 
-    public ManagerController(ManagerCommandsManager manager, IMapper mapper)
+    public ManagerController(ManagerCommandManager manager, IMapper mapper)
     {
         ArgumentNullException.ThrowIfNull(manager);
         ArgumentNullException.ThrowIfNull(mapper);

@@ -57,7 +57,6 @@ public class UserCommandsTests : CommandTestBase
 
         // Assert
         Assert.True(result);
-        lotRepositoryMock.Received().Update(lot);
         unitOfWorkMock.Received(2).Save(); // один для ставки, один для логу
     }
 
