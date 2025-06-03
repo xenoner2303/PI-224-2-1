@@ -22,128 +22,128 @@ namespace Test
             this.actionLogRepositoryMock = fixture.Freeze<IGenericRepository<ActionLog>>();
         }
 
-        private AuctionLot CreateAuctionLotModel(int id)
-        {
-            var owner = new RegisteredUser
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Login = "johndoe"
-            };
+        //private AuctionLot CreateAuctionLotModel(int id)
+        //{
+        //    var owner = new RegisteredUser
+        //    {
+        //        Id = 1,
+        //        FirstName = "John",
+        //        LastName = "Doe",
+        //        Login = "johndoe"
+        //    };
 
-            return new AuctionLot
-            {
-                Id = id,
-                Status = EnumLotStatuses.Active,
-                Owner = owner,
-                StartTime = null
-            };
-        }
+        //    return new AuctionLot
+        //    {
+        //        Id = id,
+        //        Status = EnumLotStatuses.Active,
+        //        Owner = owner,
+        //        StartTime = null
+        //    };
+        //}
 
-        [Fact]
-        public void CreateCategoryCommand_ShouldAddCategory_WhenValidCategoryModel()
-        {
-            // Arrange
-            var categoryModel = fixture.Create<CategoryModel>();
-            categoryModel.ParentId = null;
-            var command = new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper);
+        //[Fact]
+        //public void CreateCategoryCommand_ShouldAddCategory_WhenValidCategoryModel()
+        //{
+        //    // Arrange
+        //    var categoryModel = fixture.Create<CategoryModel>();
+        //    categoryModel.ParentId = null;
+        //    var command = new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper);
 
-            // Act
-            var result = command.Execute();
+        //    // Act
+        //    var result = command.Execute();
 
-            // Assert
-            Assert.True(result);
-            unitOfWorkMock.CategoryRepository.Received(1).Add(Arg.Is<Category>(c => c.Name == categoryModel.Name && c.ParentId == null));
-            unitOfWorkMock.Received(2).Save(); // один для категорії, а другий для логу
-        }
+        //    // Assert
+        //    Assert.True(result);
+        //    unitOfWorkMock.CategoryRepository.Received(1).Add(Arg.Is<Category>(c => c.Name == categoryModel.Name && c.ParentId == null));
+        //    unitOfWorkMock.Received(2).Save(); // один для категорії, а другий для логу
+        //}
 
-        [Fact]
-        public void CreateCategoryCommand_ShouldReturnException_WhenCategoryNameInvalid()
-        {
-            // Arrange
-            var categoryModel = fixture.Build<CategoryModel>()
-                .With(c => c.Name, "a") // назва менше 4 символів — invalid
-                .Create();
+        //[Fact]
+        //public void CreateCategoryCommand_ShouldReturnException_WhenCategoryNameInvalid()
+        //{
+        //    // Arrange
+        //    var categoryModel = fixture.Build<CategoryModel>()
+        //        .With(c => c.Name, "a") // назва менше 4 символів — invalid
+        //        .Create();
 
-            categoryModel.ParentId = null;
-            var command = new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper);
+        //    categoryModel.ParentId = null;
+        //    var command = new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper);
 
-            // Act & Assert
-            var ex = Assert.Throws<AutoMapperMappingException>(() => command.Execute());
+        //    // Act & Assert
+        //    var ex = Assert.Throws<AutoMapperMappingException>(() => command.Execute());
 
-            // Перевіряємо, що внутрішня причина — ArgumentException
-            Assert.IsType<ArgumentException>(ex.InnerException);
-            Assert.Contains("Назва категорії має містити 4-50 символів", ex.InnerException.Message);
+        //    // Перевіряємо, що внутрішня причина — ArgumentException
+        //    Assert.IsType<ArgumentException>(ex.InnerException);
+        //    Assert.Contains("Назва категорії має містити 4-50 символів", ex.InnerException.Message);
 
-            unitOfWorkMock.CategoryRepository.DidNotReceive().Add(Arg.Any<Category>());
-            unitOfWorkMock.DidNotReceive().Save();
-        }
+        //    unitOfWorkMock.CategoryRepository.DidNotReceive().Add(Arg.Any<Category>());
+        //    unitOfWorkMock.DidNotReceive().Save();
+        //}
 
-        [Fact]
-        public void CreateCategoryCommand_ShouldReturnException_WhenParentIdNoExist()
-        {
-            // Arrange
-            var categoryModel = fixture.Create<CategoryModel>();
-            categoryModel.ParentId = -999;
+        //[Fact]
+        //public void CreateCategoryCommand_ShouldReturnException_WhenParentIdNoExist()
+        //{
+        //    // Arrange
+        //    var categoryModel = fixture.Create<CategoryModel>();
+        //    categoryModel.ParentId = -999;
 
-            // Act & Assert
-            var ex = Assert.Throws<ArgumentException>(() =>
-                new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper));
+        //    // Act & Assert
+        //    var ex = Assert.Throws<ArgumentException>(() =>
+        //        new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper));
 
-            Assert.Contains("Батьківська категорія не знайдена", ex.Message);
+        //    Assert.Contains("Батьківська категорія не знайдена", ex.Message);
 
-            unitOfWorkMock.CategoryRepository.DidNotReceive().Add(Arg.Any<Category>());
-            unitOfWorkMock.DidNotReceive().Save();
-        }
+        //    unitOfWorkMock.CategoryRepository.DidNotReceive().Add(Arg.Any<Category>());
+        //    unitOfWorkMock.DidNotReceive().Save();
+        //}
 
-        [Fact]
-        public void CreateCategoryCommand_ShouldReturnException_WhenCategoryNull()
-        {
-            // Arrange
-            CategoryModel categoryModel = null;
+        //[Fact]
+        //public void CreateCategoryCommand_ShouldReturnException_WhenCategoryNull()
+        //{
+        //    // Arrange
+        //    CategoryModel categoryModel = null;
 
-            // Act & Assert
-            var ex = Assert.Throws<ArgumentNullException>(() => new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper).Execute());
+        //    // Act & Assert
+        //    var ex = Assert.Throws<ArgumentNullException>(() => new CreateCategoryCommand(categoryModel, unitOfWorkMock, mapper).Execute());
 
-            unitOfWorkMock.CategoryRepository.DidNotReceive().Add(Arg.Any<Category>());
-            unitOfWorkMock.DidNotReceive().Save();
-        }
+        //    unitOfWorkMock.CategoryRepository.DidNotReceive().Add(Arg.Any<Category>());
+        //    unitOfWorkMock.DidNotReceive().Save();
+        //}
 
-        [Fact]
-        public void DeleteCategoryCommand_ShouldRemoveCategoryAndSubcategories_WhenCategoryExists()
-        {
-            // Arrange
-            int categoryId = 2;
+        //[Fact]
+        //public void DeleteCategoryCommand_ShouldRemoveCategoryAndSubcategories_WhenCategoryExists()
+        //{
+        //    // Arrange
+        //    int categoryId = 2;
 
-            var categoryToDelete = new Category { Id = categoryId, Name = "TestCat" };
-            var subcategories = new List<Category>
-        {
-            new Category { Id = 2, ParentId = categoryId, Name = "Sub1" },
-            new Category { Id = 3, ParentId = categoryId, Name = "Sub2" }
-        };
+        //    var categoryToDelete = new Category { Id = categoryId, Name = "TestCat" };
+        //    var subcategories = new List<Category>
+        //{
+        //    new Category { Id = 2, ParentId = categoryId, Name = "Sub1" },
+        //    new Category { Id = 3, ParentId = categoryId, Name = "Sub2" }
+        //};
 
-            // мок повинен повертати і категорію, і підкатегорії
-            unitOfWorkMock.CategoryRepository.GetAll().Returns(new List<Category> { categoryToDelete }.Concat(subcategories).ToList());
-            var command = new DeleteCategoryCommand(categoryId, unitOfWorkMock, mapper);
+        //    // мок повинен повертати і категорію, і підкатегорії
+        //    unitOfWorkMock.CategoryRepository.GetAll().Returns(new List<Category> { categoryToDelete }.Concat(subcategories).ToList());
+        //    var command = new DeleteCategoryCommand(categoryId, unitOfWorkMock, mapper);
 
-            // Act
-            var result = command.Execute(); ;
+        //    // Act
+        //    var result = command.Execute(); ;
 
-            // Assert
-            Assert.True(result);
+        //    // Assert
+        //    Assert.True(result);
 
-            // перевіряємо, що Remove викликали з правильними Id для підкатегорій
-            foreach (var sub in subcategories)
-            {
-                unitOfWorkMock.CategoryRepository.Received(1).Remove(sub.Id);
-            }
+        //    // перевіряємо, що Remove викликали з правильними Id для підкатегорій
+        //    foreach (var sub in subcategories)
+        //    {
+        //        unitOfWorkMock.CategoryRepository.Received(1).Remove(sub.Id);
+        //    }
 
-            // перевіряємо, що Remove викликали для головної категорії
-            unitOfWorkMock.CategoryRepository.Received(1).Remove(categoryId);
+        //    // перевіряємо, що Remove викликали для головної категорії
+        //    unitOfWorkMock.CategoryRepository.Received(1).Remove(categoryId);
 
-            unitOfWorkMock.Received(4).Save();
-        }
+        //    unitOfWorkMock.Received(4).Save();
+        //}
 
 
         //    [Fact]

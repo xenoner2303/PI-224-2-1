@@ -5,7 +5,7 @@ using BLL.Services;
 
 namespace BLL.Commands.PreUsersManipulationCommands;
 
-public class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
+internal class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
 {
     private readonly string login;
     private readonly string password;
@@ -15,8 +15,8 @@ public class AuthorizeUserCommand : AbstrCommandWithDA<BaseUserModel>
     internal AuthorizeUserCommand(string login, string password, IUnitOfWork operateUnitOfWork, IMapper mapper)
         : base(operateUnitOfWork, mapper)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(login, nameof(login));
-        ArgumentNullException.ThrowIfNullOrEmpty(password, nameof(password));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(login, nameof(login));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(password, nameof(password));
 
         this.login = login;
         this.password = password;

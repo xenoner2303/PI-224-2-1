@@ -5,7 +5,7 @@ using BLL.EntityBLLModels;
 
 namespace BLL.Commands.ManagerManipulationCommands;
 
-public class RejectLotCommand : AbstrCommandWithDA<bool>
+internal class RejectLotCommand : AbstrCommandWithDA<bool>
 {
     private readonly AuctionLotModel _auctionLotModel;
     public RejectLotCommand(AuctionLotModel auctionLotModel, IUnitOfWork unitOfWork, IMapper mapper)

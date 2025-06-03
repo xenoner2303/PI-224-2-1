@@ -5,7 +5,7 @@ using DAL.Entities;
 
 namespace BLL.Commands.ManagerManipulationCommands;
 
-public class CreateCategoryCommand : AbstrCommandWithDA<bool>
+internal class CreateCategoryCommand : AbstrCommandWithDA<bool>
 {
     private CategoryModel category;
 

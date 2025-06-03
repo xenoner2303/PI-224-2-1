@@ -5,7 +5,7 @@ using DAL.Entities;
 
 namespace BLL.Commands.UserManipulationsCommands;
 
-public class CreateLotCommand : AbstrCommandWithDA<bool>
+internal class CreateLotCommand : AbstrCommandWithDA<bool>
 {
     private readonly AuctionLotModel lotModel;
 
@@ -48,17 +48,8 @@ public class CreateLotCommand : AbstrCommandWithDA<bool>
 
     private void PreValidateModel()
     {
-        ArgumentNullException.ThrowIfNull(lotModel.Owner, nameof(lotModel.Owner));
-
-        if (lotModel.StartPrice <= 0)
-        {
-            throw new ArgumentException("Стартова ціна має бути більшою за 0");
-        }
-
-        if (lotModel.DurationDays <= 0)
-        {
-            throw new ArgumentException("Тривалість має бути більшою за 0 днів");
-        }
+        ArgumentNullException.ThrowIfNull(lotModel.Owner, "Власник не може бути попрожнім");
+        ArgumentNullException.ThrowIfNull(lotModel.Category, "Категорія не може бути порожньою");
     }
 
     private void ValidateModel(AbstractUser existingOwner, Category existingCategory)

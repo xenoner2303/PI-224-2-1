@@ -4,7 +4,7 @@ using DAL.Data;
 
 namespace BLL.Commands;
 
-public class LoadLogsCommand : AbstrCommandWithDA<List<ActionLogModel>>
+internal class LoadLogsCommand : AbstrCommandWithDA<List<ActionLogModel>>
 {
     public override string Name => "Команда із завантаження логів";
     private DateTime? timelog;

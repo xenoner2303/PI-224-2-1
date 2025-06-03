@@ -5,7 +5,7 @@ using BLL.EntityBLLModels;
 
 namespace BLL.Commands.UserManipulationsCommands;
 
-public class CreateBidCommand : AbstrCommandWithDA<bool>
+internal class CreateBidCommand : AbstrCommandWithDA<bool>
 {
     private readonly BidModel bidModel;
 
@@ -15,6 +15,8 @@ public class CreateBidCommand : AbstrCommandWithDA<bool>
         ArgumentNullException.ThrowIfNull(bidModel, nameof(bidModel));
 
         this.bidModel = bidModel;
+
+        preValidateModel();
     }
 
     public override string Name => "Створення ставки";
@@ -42,6 +44,12 @@ public class CreateBidCommand : AbstrCommandWithDA<bool>
 
         LogAction($"{Name} на суму {bidModel.Amount} користувачаем {bidModel.User}");
         return true;
+    }
+
+    private void preValidateModel()
+    {
+        ArgumentNullException.ThrowIfNull(bidModel.User, "Виконавець не може бути пустим");
+        ArgumentNullException.ThrowIfNull(bidModel.Lot, "Лот не може бути пустим");
     }
 
     private void ValidateModel(AbstractUser existingUser, AuctionLot existingLot)

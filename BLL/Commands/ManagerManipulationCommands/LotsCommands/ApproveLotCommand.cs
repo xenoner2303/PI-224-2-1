@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.ManagerManipulationCommands;
 
-public class ApproveLotCommand : AbstrCommandWithDA<bool>
+internal class ApproveLotCommand : AbstrCommandWithDA<bool>
 {
     private readonly int _lotId;
     public ApproveLotCommand(int lotId, IUnitOfWork unitOfWork, IMapper mapper)
