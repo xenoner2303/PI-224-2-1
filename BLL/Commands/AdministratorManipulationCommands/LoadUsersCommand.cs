@@ -20,4 +20,3 @@ internal class LoadUsersCommand : AbstrCommandWithDA<List<BaseUserModel>>
         return mapper.Map<List<BaseUserModel>>(users);
     }
 }
-

@@ -202,24 +202,15 @@ namespace UI
             {
                 var client = serviceProvider.GetRequiredService<PreUserApiClient>();
 
-                authWindow = new AuthorizationWindow(serviceProvider, client, user =>
-                {
-                    if (user.InterfaceType == EnumInterfaceTypeDto.Registered)
-                    {
-                        this.currentUser = user;
-                        UpdateTabAccess(); // оновлюємо доступ до елементів
-                        authWindow!.DialogResult = true; // закриває ShowDialog()
-                    }
-                });
-
-                authWindow.Owner = this; // ставимо власником це вікно + щоб блокувалося якщо використовується ShowDialog()
+                authWindow = new AuthorizationWindow(serviceProvider, client);
+                this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при кроку авторизації: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            authWindow!.ShowDialog(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
+            authWindow!.Show(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
         }
 
         // вийти з юзера

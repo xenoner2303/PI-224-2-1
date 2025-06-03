@@ -1,16 +1,10 @@
 ﻿using AutoFixture;
 using BLL.Commands.PreUsersManipulationCommands;
-using BLL.Commands.UserManipulationsCommands;
 using BLL.EntityBLLModels;
 using BLL.Services;
 using DAL.Data;
 using DAL.Entities;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test;
 
@@ -44,16 +38,12 @@ public class PreUserCommandsTests : CommandTestBase
     {
         // Arrange
         var model = fixture.Build<BaseUserModel>()
-            .With(x => x.Password, "securePass123")
-            .With(x => x.Login, "uniqueLogin")
-            .With(x => x.FirstName, "Іван")
-            .With(x => x.LastName, "Іванов")
+            .With(x => x.Password, "password")
             .With(x => x.Email, "valid@email.com")
             .With(x => x.PhoneNumber, "+380123456789")
-            .With(x => x.Age, 25)
+            .With(x => x.SecretCode, userSecretCode) // секретний код для тесту
+            .With(x => x.Age, 19)
             .Create();
-
-        model.SecretCode = userSecretCode; // секретний код для тесту
 
         // створюємо реалізатор динамічно через Activator з автоподбором контруктору за типу
         var realizator = (AbstractSecretCodeRealizator)Activator.CreateInstance(realizatorType, "hash", 3);
@@ -73,35 +63,33 @@ public class PreUserCommandsTests : CommandTestBase
     }
 
     [Theory]
-    [InlineData("", "Прізвище", "user123", "valid@email.com", "+380123456789", 25, "password", "Ім'я користувача обов'язкове і не може бути порожнім")]
-    [InlineData("Ім'я", "", "user123", "valid@email.com", "+380123456789", 25, "password", "Прізвище користувача обов'язкове і не може бути порожнім")]
-    [InlineData("Ім'я", "Прізвище", "", "valid@email.com", "+380123456789", 25, "password", "Логін користувача обов'язковий і не може бути порожнім")]
-    [InlineData("Ім'я", "Прізвище", "user123", "wrongEmail", "+380123456789", 25, "password", "Невірний формат електронної пошти")]
-    [InlineData("Ім'я", "Прізвище", "user123", "valid@email.com", "invalidPhone", 25, "password", "Невірний формат номеру телефону")]
+    [InlineData("", "Прізвище", "user123", "valid@email.com", "+380123456789", 19, "password", "Ім'я користувача обов'язкове і не може бути порожнім")]
+    [InlineData("Ім'я", "", "user123", "valid@email.com", "+380123456789", 19, "password", "Прізвище користувача обов'язкове і не може бути порожнім")]
+    [InlineData("Ім'я", "Прізвище", "", "valid@email.com", "+380123456789", 19, "password", "Логін користувача обов'язковий і не може бути порожнім")]
+    [InlineData("Ім'я", "Прізвище", "user123", "wrongEmail", "+380123456789", 19, "password", "Невірний формат електронної пошти")]
+    [InlineData("Ім'я", "Прізвище", "user123", "valid@email.com", "invalidPhone", 19, "password", "Невірний формат номеру телефону")]
     [InlineData("Ім'я", "Прізвище", "user123", "valid@email.com", "+380123456789", 0, "password", "Вік користувача повинен бути більше 0")]
-    [InlineData("Ім'я", "Прізвище", "user123", "valid@email.com", "+380123456789", 25, "123", "Пароль повинен містити щонайменше 6 символів")]
+    [InlineData("Ім'я", "Прізвище", "user123", "valid@email.com", "+380123456789", 19, "123", "Пароль повинен містити щонайменше 6 символів")]
     public void CreateUser_ShouldThrowValidationException_WhenModelIsInvalid(
-     string firstName,
-     string lastName,
-     string login,
-     string email,
-     string phone,
-     int age,
-     string password,
-     string expectedErrorMessagePart)
+        string firstName,
+        string lastName,
+        string login,
+        string email,
+        string phone,
+        int age,
+        string password,
+        string expectedErrorMessagePart)
     {
         // Arrange
-        var model = new BaseUserModel
-        {
-            FirstName = firstName,
-            LastName = lastName,
-            Login = login,
-            Email = email,
-            PhoneNumber = phone,
-            Age = age,
-            Password = password,
-            SecretCode = "qwerty"
-        };
+        var model = fixture.Build<BaseUserModel>()
+           .With(x => x.Password, password)
+           .With(x => x.Login, login)
+           .With(x => x.FirstName, firstName)
+           .With(x => x.LastName, lastName)
+           .With(x => x.Email, email)
+           .With(x => x.PhoneNumber, phone)
+           .With(x => x.Age, age)
+           .Create();
 
         // порожній репозиторій користувачів та реалізаторів
         userRepositoryMock.GetQueryable().Returns(Enumerable.Empty<AbstractUser>().AsQueryable());
@@ -117,7 +105,13 @@ public class PreUserCommandsTests : CommandTestBase
     public void AuthorizeUser_ShouldReturnUserModel_WhenParametrsAreCorrect()
     {
         // Arrange
-        var user = Substitute.For<RegisteredUser>();  // для тестування просто зареєстрований юзер
+        var user = fixture.Build<RegisteredUser>()
+            .With(u => u.OwnLots, new List<AuctionLot>())
+            .With(u => u.Bids, new List<Bid>())
+            .Without(u => u.Email)
+            .Without(u => u.PhoneNumber)
+            .Create();
+
         user.Login = "validLogin";
         user.PasswordHash = PasswordHasher.HashPassword("correctPassword");
 
@@ -136,7 +130,13 @@ public class PreUserCommandsTests : CommandTestBase
     public void AuthorizeUser_ShouldThrowException_WhenLoginIsIncorrect()
     {
         // Arrange
-        var user = Substitute.For<RegisteredUser>();
+        var user = fixture.Build<RegisteredUser>()
+            .With(u => u.OwnLots, new List<AuctionLot>())
+            .With(u => u.Bids, new List<Bid>())
+            .Without(u => u.Email)
+            .Without(u => u.PhoneNumber)
+            .Create();
+
         user.Login = "validLogin";
         user.PasswordHash = PasswordHasher.HashPassword("correctPassword");
 
@@ -151,14 +151,19 @@ public class PreUserCommandsTests : CommandTestBase
     public void AuthorizeUser_ShouldThrowException_WhenPasswordIsIncorrect()
     {
         // Arrange
-        var user = Substitute.For<RegisteredUser>();
-        user.Login = "validLogin";
+        var user = fixture.Build<RegisteredUser>()
+            .With(u => u.OwnLots, new List<AuctionLot>())
+            .With(u => u.Bids, new List<Bid>())
+            .Without(u => u.Email)
+            .Without(u => u.PhoneNumber)
+            .Create();
+
         user.PasswordHash = PasswordHasher.HashPassword("correctPassword");
 
         userRepositoryMock.GetQueryable().Returns(new[] { user }.AsQueryable());
 
         // Act & Assert
-        var ex = Assert.Throws<UnauthorizedAccessException>(() => manager.AuthorizeUser("validLogin", "wrongPassword"));
+        var ex = Assert.Throws<UnauthorizedAccessException>(() => manager.AuthorizeUser(user.Login, "wrongPassword"));
         Assert.Contains("Невірний логін або пароль", ex.Message);
     }
 

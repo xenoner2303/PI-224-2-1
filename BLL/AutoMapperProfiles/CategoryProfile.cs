@@ -11,6 +11,6 @@ public class CategoryProfile : Profile
         CreateMap<Category, CategoryModel>().ReverseMap();
 
         CreateMap<IEnumerable<Category>, List<CategoryModel>>()
-            .ConvertUsing<CategoriesListResolver>();
+            .ConvertUsing<CategoriesListConverter>();
     }
 }

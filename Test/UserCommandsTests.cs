@@ -369,7 +369,7 @@ public class UserCommandsTests : CommandTestBase
 
     // ====== Тести для LoadUserLotsCommand ======
     [Fact]
-    public void LoadUserLotsCommand_ShouldReturnLots_WhenUserHasLots()
+    public void LoadUserLotsCommand_ShouldReturnLotsModels_WhenUserHasLots()
     {
         // Arrange
         var userId = 3;
@@ -401,5 +401,26 @@ public class UserCommandsTests : CommandTestBase
         Assert.Contains("Id користувача повинне бути більше 0", ex.Message);
 
         unitOfWorkMock.AuctionLotRepository.DidNotReceive().GetQueryable();
+    }
+
+    [Fact]
+    public void LoadUserLotsCommand_ShouldReturnEmptyList_WhenNoUserLotsExist()
+    {
+        // Arrange
+        var userId = 3;
+
+        var lots = new List<AuctionLot>
+        {
+            new AuctionLot { Id = 1, OwnerId = 4, Owner = new RegisteredUser { Id = userId }, Bids = new List<Bid>() },
+            new AuctionLot { Id = 2, OwnerId = 4, Owner = new RegisteredUser { Id = userId }, Bids = new List<Bid>() }
+        };
+
+        unitOfWorkMock.AuctionLotRepository.GetQueryable().Returns(lots.AsQueryable());
+
+        // Act
+        var result = manager.LoadUserLots(userId);
+
+        // Assert
+        Assert.Empty(result);
     }
 }

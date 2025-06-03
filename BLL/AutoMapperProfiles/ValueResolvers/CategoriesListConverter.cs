@@ -4,7 +4,7 @@ using DAL.Entities;
 
 namespace BLL.AutoMapperProfiles.ValueResolvers;
 
-internal class CategoriesListResolver : ITypeConverter<IEnumerable<Category>, List<CategoryModel>>
+internal class CategoriesListConverter : ITypeConverter<IEnumerable<Category>, List<CategoryModel>>
 {
     public List<CategoryModel> Convert(IEnumerable<Category> source, List<CategoryModel> destination, ResolutionContext context)
     {
