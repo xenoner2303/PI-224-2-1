@@ -122,7 +122,7 @@ public class AuctionLot
             endTime = value;
         }
     }
-
+    public string? RejectionReason { get; set; } = string.Empty; // причина видалення лоту, якщо він видалений
     public int OwnerId { get; set; } // зовнішній ключ
     public RegisteredUser Owner { get; set; } // навігаційна властивість - власник лоту
 

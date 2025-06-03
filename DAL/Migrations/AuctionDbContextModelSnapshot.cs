@@ -133,6 +133,9 @@ namespace DAL.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("RelativeImagePath")
                         .HasColumnType("TEXT");
 

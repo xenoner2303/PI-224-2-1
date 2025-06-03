@@ -29,6 +29,7 @@ internal class LoadAuctionLotsCommand : AbstrCommandWithDA<List<AuctionLotModel>
         var lots = dAPoint.AuctionLotRepository.GetQueryable()
             .Include(lot => lot.Owner)
             .Include(lot => lot.Bids)
+            .Include(lot => lot.Category)
             .Where(lot => !restrictOnes.Contains(lot.Status))
             .ToList();
 

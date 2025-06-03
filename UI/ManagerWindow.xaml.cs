@@ -53,19 +53,69 @@ namespace UI
 
         private void CategoryTreeView_SelectedItemChanged(object sender, RoutedEventArgs e)
         {
-            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
+            if (CategoryTreeView.SelectedItem is CategoryDto category)
             {
-                if (selectedItem.Tag is CategoryDto category)
-                {
-                    selectedCategoryId = category.Id;  // припускаю, що Id — це int
-                }
-                else
-                {
-                    selectedCategoryId = null;
-                }
+
+                selectedCategoryId = category.Id;  // припускаю, що Id — це int
+
+            }
+            else
+            {
+                selectedCategoryId = null; // якщо нічого не вибрано, скидаємо Id
             }
         }
 
+        //методи для того, щоб знмати видылення з елемента дерева
+        private void CategoryTreeView_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            DependencyObject clickedElement = e.OriginalSource as DependencyObject;
+
+            // Перевірка: чи натиснуто не на TreeViewItem
+            while (clickedElement != null && !(clickedElement is TreeViewItem))
+            {
+                clickedElement = VisualTreeHelper.GetParent(clickedElement);
+            }
+
+            if (clickedElement == null)
+            {
+                // Клік поза TreeViewItem — очищаємо вибір
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    var selectedItem = CategoryTreeView.SelectedItem;
+                    if (selectedItem != null)
+                    {
+                        var treeViewItem = GetSelectedTreeViewItem(CategoryTreeView);
+                        if (treeViewItem != null)
+                        {
+                            treeViewItem.IsSelected = false;
+                        }
+                    }
+
+                    selectedCategoryId = null;
+                    // Якщо ти використовуєш привʼязку — онови Binding або ViewModel
+
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+        private TreeViewItem GetSelectedTreeViewItem(ItemsControl parent)
+        {
+            foreach (object item in parent.Items)
+            {
+                TreeViewItem childNode = parent.ItemContainerGenerator.ContainerFromItem(item) as TreeViewItem;
+
+                if (childNode == null)
+                    continue;
+
+                if (childNode.IsSelected)
+                    return childNode;
+
+                TreeViewItem result = GetSelectedTreeViewItem(childNode);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
         private async Task UpdateCategoryTreeView()
         {
             try
@@ -97,55 +147,96 @@ namespace UI
                 MessageBox.Show("Не вдалося оновити дерево категорій: " + ex.Message);
             }
         }
-        private async Task Search()
+        private async Task DeleteSelectedCategory(CategoryDto categoryDto)
         {
-            string? keyword = SearchTextBox.Text.Trim().ToLower();
-
-            SearchLotsDto search = new SearchLotsDto
+            try
             {
-                Keyword = keyword,
-                CategoryId = selectedCategoryId
+                if (categoryDto != null)
+                {
+                    if (categoryDto.Subcategories.Count != 0 && categoryDto.Subcategories != null)
+                    {
+                        foreach (var child in categoryDto.Subcategories)
+                        {
+                            //рекурсивне видалення
+                            await DeleteSelectedCategory(child);
+                        }
+                    }
+
+                    await _client.DeleteCategoryAsync(categoryDto.Id);
+                    UpdateCategoryTreeView();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        private async void AddCategoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedCategoryInTree = CategoryTreeView.SelectedItem as CategoryDto;
+
+            string name = NewCategoryTextBox.Text;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                MessageBox.Show("Введіть назву категорії.");
+                return;
+            }
+
+            if (name.Length < 4 || name.Length > 50)
+            {
+                MessageBox.Show("Назва категорії має бути від 4 до 50 символів.");
+                return;
+            }
+
+            var newCategoryDto = new CategoryDto
+            {
+                Name = name,
+                ParentId = selectedCategoryInTree?.Id
             };
 
-            var receiveLots = await _client.SearchLotsAsync(search);
-
-            var status = receiveLots[0].Status;
-
-            switch (status)
+            var createdCategory = await _client.CreateCategoryAsync(newCategoryDto);
+            if (createdCategory != null)
             {
-                case EnumLotStatusesDto.Pending:
-                    PendingDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 0;
-                    break;
-                case EnumLotStatusesDto.Active:
-                    ActiveLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 1;
-                    break;
-                case EnumLotStatusesDto.Completed:
-                    FinishedLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 2;
-                    break;
-                case EnumLotStatusesDto.Rejected:
-                    RejectedLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 3;
-                    break;
-                default:
-                    MessageBox.Show("Невідомий статус лотів.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                await UpdateCategoryTreeView(); // тут await!
+                NewCategoryTextBox.Clear();
+                MessageBox.Show("Категорію успішно створено!");
+            }
+            else
+            {
+                MessageBox.Show("Не вдалося створити категорію.");
             }
         }
 
+
         private async void AcceptLot_Click(object sender, RoutedEventArgs e)
         {
-            await _client.ApproveLotAsync(_selectedLot.Id);
+            if (sender is Button button && button.DataContext is AuctionLotDto lot)
+            {
+                await _client.ApproveLotAsync(lot.Id);
+            }
         }
         private async void RejectLot_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is Button button && button.DataContext is AuctionLotDto lot)
+            {
+                _selectedLot = lot; // щоб знати, який лот відхиляється
+                RejectionPanel.Visibility = Visibility.Visible;
+            }
+        }
+        private async void RejectionButton_Click(object sender, RoutedEventArgs e)
+        {
+            var lotForDelition = _client.GetAuctionLotsAsync().Result
+                .FirstOrDefault(lot => lot.Id == _selectedLot.Id);
+            lotForDelition.RejectionReason = DelitionReasonTextBox.Text;
             await _client.RejectLotAsync(_selectedLot.Id);
         }
         private async void StopLot_Click(object sender, RoutedEventArgs e)
         {
-            await _client.StopLotAsync(_selectedLot.Id);
+            if (sender is Button button && button.DataContext is AuctionLotDto lot)
+            {
+                await _client.StopLotAsync(lot.Id);
+            }
         }
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
@@ -157,10 +248,6 @@ namespace UI
             {
                 _selectedLot = selectedLot;
                 ShowLotInfo(_selectedLot);
-            }
-            else
-            {
-                _selectedLot = null;
             }
         }
         private void ShowLotInfo(AuctionLotDto selectedLot)
@@ -218,7 +305,6 @@ namespace UI
         private async Task GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
             List<AuctionLotDto>? allLots = await _client.GetAuctionLotsAsync();
-
             if (allLots == null)
             {
                 return;
@@ -241,100 +327,49 @@ namespace UI
                 default:
                     return;
             }
-        }
+        }     
 
-        private async void AddCategoryButton_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedCategory = CategoryTreeView.SelectedItem as CategoryDto;
-
-            string name = NewCategoryTextBox.Text;
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                MessageBox.Show("Введіть назву категорії.");
-                return;
-            }
-
-            if (name.Length < 4 || name.Length > 50)
-            {
-                MessageBox.Show("Назва категорії має бути від 4 до 50 символів.");
-                return;
-            }
-
-            var newCategoryDto = new CategoryDto
-            {
-                Name = name,
-                ParentId = selectedCategory?.Id
-            };
-
-            var createdCategory = await _client.CreateCategoryAsync(newCategoryDto);
-            if (createdCategory != null)
-            {
-                await UpdateCategoryTreeView(); // тут await!
-                NewCategoryTextBox.Clear();
-                MessageBox.Show("Категорію успішно створено!");
-            }
-            else
-            {
-                MessageBox.Show("Не вдалося створити категорію.");
-            }
-        }
         private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is TreeViewItem item && item.DataContext is CategoryDto category)
+            // Отримаємо елемент під курсором
+            DependencyObject clickedElement = e.OriginalSource as DependencyObject;
+
+            // Підіймаємось по візуальному дереву, доки не знайдемо TreeViewItem або не дійдемо до кореня
+            while (clickedElement != null && !(clickedElement is TreeViewItem))
             {
-                item.IsSelected = true;
+                clickedElement = VisualTreeHelper.GetParent(clickedElement);
+            }
+
+            if (clickedElement is TreeViewItem clickedItem)
+            {
+                clickedItem.Focus();          // Наводимо фокус
+                clickedItem.IsSelected = true; // Виділяємо цей елемент
+
                 e.Handled = true;
 
-                var icon = new PackIcon
+                if (clickedItem.DataContext is CategoryDto category)
                 {
-                    Kind = PackIconKind.Delete,
-                    Width = 16,
-                    Height = 16,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(0, 0, 2, 0)
-                };
-
-                MenuItem deleteItem = new MenuItem
-                {
-                    Icon = icon
-                };
-
-                deleteItem.Click += async (s, args) => await DeleteSelectedCategory(category);
-
-                ContextMenu contextMenu = new ContextMenu();
-                contextMenu.Items.Add(deleteItem);
-                item.ContextMenu = contextMenu;
-                contextMenu.IsOpen = true;
-            }
-        }
-        private async Task DeleteSelectedCategory(CategoryDto categoryDto)
-        {
-            try
-            {
-                var allCategories = await _client.GetAllCategoriesAsync();
-                if (categoryDto != null)
-                {
-                    // Знайти всі підкатегорії
-                    List<CategoryDto>? childCategories = allCategories
-                        .Where(c => c.ParentId != null && c.ParentId == categoryDto.Id)
-                        .ToList();
-
-                    // Рекурсивно видалити їх
-                    foreach (var child in childCategories)
+                    var icon = new PackIcon
                     {
-                        await DeleteSelectedCategory(child);
-                    }
+                        Kind = PackIconKind.Delete,
+                        Width = 16,
+                        Height = 16,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 2, 0)
+                    };
 
-                    // Видалити саму категорію
-                    allCategories.Remove(categoryDto);
-                    await _client.DeleteCategoryAsync(categoryDto.Id);
-                    UpdateCategoryTreeView();
+                    MenuItem deleteItem = new MenuItem
+                    {
+                        Icon = icon
+                    };
+
+                    deleteItem.Click += async (s, args) => await DeleteSelectedCategory(category);
+
+                    ContextMenu contextMenu = new ContextMenu();
+                    contextMenu.Items.Add(deleteItem);
+                    clickedItem.ContextMenu = contextMenu;
+                    contextMenu.IsOpen = true;
                 }
-            }
-            catch (InvalidOperationException ex)
-            {
-                MessageBox.Show(ex.Message);
             }
         }
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
@@ -366,6 +401,43 @@ namespace UI
             }
 
             authWindow!.ShowDialog(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
+        }
+        private async Task Search()
+        {
+            string? keyword = SearchTextBox.Text.Trim().ToLower();
+
+            SearchLotsDto search = new SearchLotsDto
+            {
+                Keyword = keyword,
+                CategoryId = selectedCategoryId
+            };
+
+            var receiveLots = await _client.SearchLotsAsync(search);
+
+            var status = receiveLots[0].Status;
+
+            switch (status)
+            {
+                case EnumLotStatusesDto.Pending:
+                    PendingDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 0;
+                    break;
+                case EnumLotStatusesDto.Active:
+                    ActiveLotsDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 1;
+                    break;
+                case EnumLotStatusesDto.Completed:
+                    FinishedLotsDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 2;
+                    break;
+                case EnumLotStatusesDto.Rejected:
+                    RejectedLotsDataGrid.ItemsSource = receiveLots;
+                    MainTabControl.SelectedIndex = 3;
+                    break;
+                default:
+                    MessageBox.Show("Невідомий статус лотів.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+            }
         }
     }
 }

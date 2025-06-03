@@ -36,9 +36,9 @@ namespace BLL.Commands.ManagerManipulationCommands
             var command = new ApproveLotCommand(lotId, unitOfWork, mapper);
             return ExecuteCommand(command, "Не вдалося підтвердити лот");
         }
-        public bool RejectLot(int lotId)
+        public bool RejectLot(AuctionLotModel lotModel)
         {
-            var command = new RejectLotCommand(lotId, unitOfWork, mapper);
+            var command = new RejectLotCommand(lotModel, unitOfWork, mapper);
             return ExecuteCommand(command, "Не вдалося відхилити лот");
         }
         public bool StopLot(int lotId)

@@ -4,6 +4,7 @@ using BLL.EntityBLLModels;
 using DAL.Entities;
 using DTOsLibrary;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace WebPresentation.Controllers;
 
@@ -88,10 +89,12 @@ public class ManagerController : ControllerBase
     }
 
     [HttpPost("reject-lot")]
-    public IActionResult RejectLot([FromBody]int lotId)
+    public IActionResult RejectLot([FromBody]AuctionLotDto auctionLotDto)
     {
-        var result = _manager.RejectLot(lotId);
 
+        var auctionLotModel = _mapper.Map<AuctionLotModel>(auctionLotDto);
+
+        var result = _manager.RejectLot(auctionLotModel);
         if (result)
         {
             return Ok("Lot rejected successfully");

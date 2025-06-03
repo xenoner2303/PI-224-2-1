@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AuctionDbContext))]
-    [Migration("20250602161658_initialmigrate")]
-    partial class initialmigrate
+    [Migration("20250602211948_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -135,6 +135,9 @@ namespace DAL.Migrations
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RelativeImagePath")
                         .HasColumnType("TEXT");
