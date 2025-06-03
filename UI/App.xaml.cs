@@ -25,8 +25,7 @@ public partial class App : Application
 
         //запускаємо головне вікно
         var startWindow = new UserManagerWindow(null, ServiceProvider,
-            ServiceProvider.GetRequiredService<UserApiClient>()           
-        );
+            ServiceProvider.GetRequiredService<UserApiClient>());
 
         startWindow.Show();
     }

@@ -8,7 +8,6 @@ using LiveChartsCore;
 using Microsoft.Extensions.DependencyInjection;
 using UI.Subcontrols;
 using UI.ApiClients;
-using System;
 
 namespace UI
 {
@@ -94,6 +93,8 @@ namespace UI
                 comboBoxColumn.ItemsSource = Enum.GetValues(typeof(EnumInterfaceTypeDto));
             }
 
+            btnDelete.Visibility = Visibility.Visible; // кнопка видалення активна для користувачів
+            btnEdit.Visibility = Visibility.Visible;
             LogDatePicker.Visibility = Visibility.Collapsed;
             LogDateText.Visibility = Visibility.Collapsed;
             btnShowLogs.Visibility = Visibility.Collapsed;
@@ -119,6 +120,7 @@ namespace UI
             dgMainData.Columns.Add(new DataGridTextColumn { Header = "Тип", Binding = new Binding("RealizatorType") });
             dgMainData.Columns.Add(new DataGridTextColumn { Header = "Використань", Binding = new Binding("CodeUses") });
 
+            btnDelete.Visibility = Visibility.Visible;
             LogDatePicker.Visibility = Visibility.Collapsed;
             LogDateText.Visibility = Visibility.Collapsed;
             btnShowLogs.Visibility = Visibility.Collapsed;
@@ -168,6 +170,7 @@ namespace UI
             _currentSection = AdminSection.Report;
             tbCurrentSection.Text = "Звітність акціону";
 
+            btnEdit.Visibility = Visibility.Collapsed; // редагування не потрібне в звіті
             dgMainData.Visibility = Visibility.Collapsed; // приховуємо таблицю, оскільки звіт не прив'язаний до датасітки
             LogDatePicker.Visibility = Visibility.Collapsed; // показуємо календар для фільтрації логів
             LogDateText.Visibility = Visibility.Collapsed; // показуємо текст для вибору дати
@@ -209,14 +212,20 @@ namespace UI
         private void FillReportControls()
         {
             // налаштовуємо ліво-вверх звітності про користувачів
-            TotalUserCount.Text = _users.Count.ToString();
+            TotalUserCount.Text = $"Загальна кількість користувачів: {_users.Count.ToString()}";
             UserPieChart.Series = new ISeries[]
             {
-                new PieSeries<BaseUserDto> { Values = _users.Where(x => x.InterfaceType == EnumInterfaceTypeDto.Registered).ToList(),
+                new PieSeries<int> 
+                {
+                    Values = [_users.Count(x => x.InterfaceType == EnumInterfaceTypeDto.Registered)],
                     Name = "Звичайні користувачі" },
-                new PieSeries<BaseUserDto> { Values = _users.Where(x => x.InterfaceType == EnumInterfaceTypeDto.Manager).ToList(),
+                new PieSeries<int>
+                {
+                    Values = [_users.Count(x => x.InterfaceType == EnumInterfaceTypeDto.Manager)],
                     Name = "Менеджери" },
-                new PieSeries<BaseUserDto> { Values = _users.Where(x => x.InterfaceType == EnumInterfaceTypeDto.Administrator).ToList(),
+                new PieSeries<int>
+                {
+                    Values = [_users.Count(x => x.InterfaceType == EnumInterfaceTypeDto.Administrator)],
                     Name = "Адміністратори" }
             };
 
@@ -242,52 +251,57 @@ namespace UI
                 }
             }
 
-            TotalCapital.Text = totalHighestBids.ToString();
+            TotalCapital.Text = $"Загальний капітал аукціону: {totalHighestBids.ToString()}"; // відображаємо загальний капітал у форматі валюти
+
             CapitalChart.Series = new ISeries[]
             {
-                new PieSeries<decimal> { Values = [totalActiveHighestBids], // зручний синтаксичний цукор 
+                new PieSeries<decimal> 
+                { 
+                    Values = [totalActiveHighestBids], // зручний синтаксичний цукор 
                     Name = "Загальний активний капітал" },
-                new PieSeries<decimal> { Values = [totalCompleteHighestBids],
+                new PieSeries<decimal> 
+                { 
+                    Values = [totalCompleteHighestBids],
                     Name = "Загальний пасивний капітал" }
             };
 
             // налаштовуємо ліво-вниз звітності про програму по логам
-            CreateDataText.Text = _logs.MinBy(b => b.ActionTime)?.ActionTime.ToString();
-            LastDataText.Text = _logs.MaxBy(b => b.ActionTime)?.ActionTime.ToString();
+            CreateDataText.Text = $"Початок роботи програми за логами: {_logs.MinBy(b => b.ActionTime)?.ActionTime.ToString()}";
+            LastDataText.Text = $"Останній день роботи програми за логами: {_logs.MaxBy(b => b.ActionTime)?.ActionTime.ToString()}";
 
             // групуємо логи по даті (без часу)
             var logsByDate = _logs.GroupBy(log => log.ActionTime.Date).ToList();
             var mostActiveDay = logsByDate.OrderByDescending(g => g.Count()).FirstOrDefault();
             var leastActiveDay = logsByDate.OrderBy(g => g.Count()).FirstOrDefault();
 
-            MostActivityText.Text = mostActiveDay != null
+            MostActivityText.Text = "Найбільш активний лень: " + (mostActiveDay != null
                 ? $"{mostActiveDay.Key:yyyy-MM-dd} ({mostActiveDay.Count()} логів)"
-                : "немає даних";
+                : "немає даних");
 
-            LeastActivityText.Text = leastActiveDay != null
+            LeastActivityText.Text = "Найменш активний лень: " + (leastActiveDay != null
                 ? $"{leastActiveDay.Key:yyyy-MM-dd} ({leastActiveDay.Count()} логів)"
-                : "немає даних";
+                : "немає даних");
 
             // налаштовуємо право-вниз звітності саме про лоти
-            TotalLotsText.Text = _auctionLots.Count.ToString();
+            TotalLotsText.Text = $"Загальна кількість лотів: {_auctionLots.Count.ToString()}";
 
             var lotWithBiggestBid = _auctionLots
                 .Where(lot => lot.Bids != null && lot.Bids.Count > 0)
                 .OrderByDescending(lot => lot.Bids[0].Amount)
                 .FirstOrDefault();
 
-            BiggestBidLotText.Text = lotWithBiggestBid != null ?
-                $"Власник: {lotWithBiggestBid.Owner} Лот: {lotWithBiggestBid.Title} Ставка: {lotWithBiggestBid.Bids[0].Amount}"
-                : "Нема даних";
+            BiggestBidLotText.Text = "Власник: " + (lotWithBiggestBid != null ?
+                $"{lotWithBiggestBid.Owner} Лот: {lotWithBiggestBid.Title} Ставка: {lotWithBiggestBid.Bids[0].Amount}"
+                : "немає даних");
 
             var lotWithLowestBid = _auctionLots
                 .Where(lot => lot.Bids != null && lot.Bids.Count > 0)
                 .OrderBy(lot => lot.Bids[0].Amount)
                 .FirstOrDefault();
 
-            LowestBidLotText.Text = lotWithLowestBid != null ?
-                $"Власник: {lotWithLowestBid.Owner} Лот: {lotWithLowestBid.Title} Ставка: {lotWithLowestBid.Bids[0].Amount}"
-                : "Нема даних";
+            LowestBidLotText.Text = "Власник: " + (lotWithLowestBid != null ?
+                $"{lotWithLowestBid.Owner} Лот: {lotWithLowestBid.Title} Ставка: {lotWithLowestBid.Bids[0].Amount}"
+                : "немає даних");
 
             var statuses = Enum.GetValues(typeof(EnumLotStatusesDto)).Cast<EnumLotStatusesDto>();
             var series = new List<ISeries>();
@@ -299,13 +313,14 @@ namespace UI
                 //додаємо PieSeries з кількістю лотів для цього статусу
                 series.Add(new PieSeries<int>
                 {
-                    Values = new List<int> { count },
+                    Values = [count],
                     Name = status.ToString()
                 });
             }
 
             LotTypeChart.Series = series;
         }
+
         // ========== Обробники подій ==========
         private void btnReport_Click(object sender, RoutedEventArgs e) => ShowReportSection();
         private void btnSecretCodes_Click(object sender, RoutedEventArgs e) => ShowSecretCodesSection();

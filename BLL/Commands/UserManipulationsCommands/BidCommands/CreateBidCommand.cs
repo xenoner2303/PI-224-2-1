@@ -2,6 +2,7 @@
 using DAL.Data;
 using DAL.Entities;
 using BLL.EntityBLLModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Commands.UserManipulationsCommands;
 
@@ -28,7 +29,9 @@ internal class CreateBidCommand : AbstrCommandWithDA<bool>
 
         // перевіряємо чи існують об'єкти в БД
         var existingUser = dAPoint.RegisteredUserRepository.GetById(bidModel.User.Id);
-        var existingLot = dAPoint.AuctionLotRepository.GetById(bidModel.Lot.Id);
+        var existingLot = dAPoint.AuctionLotRepository.GetQueryable()
+            .Include(lot => lot.Bids)
+            .FirstOrDefault(l => l.Id == bidModel.Lot.Id);
 
         ValidateModel(existingUser, existingLot);
 

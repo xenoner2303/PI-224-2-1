@@ -242,7 +242,6 @@
                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource RoundedGrayPanel}">
                     <StackPanel>
                         <TextBlock Text="Статистика користувачів" Style="{StaticResource HeaderTextStyle}"/>
-                        <!-- Тут додай бажані числові показники -->
                         <TextBlock x:Name="TotalUserCount" />
 
                         <!-- Кругова діаграма з співвідношення учасників -->

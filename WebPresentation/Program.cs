@@ -1,3 +1,4 @@
+using AuctionLotStatusWorkerLibrary;
 using BLL.Services;
 using WebPresentation.AutoMapperProfiles;
 
@@ -19,6 +20,8 @@ builder.Services.AddAutoMapper(typeof(ActionLogProfile).Assembly);
 
 BLLInitializer.AddAutoMapperToServices(builder.Services);
 BLLInitializer.AddCommandDependenciesToServices(builder.Services);
+
+builder.Services.AddHostedService<LotStatusCheckerWorker>(); // додаємо наш бек сервіс для лотів
 
 var app = builder.Build();
 

@@ -41,7 +41,6 @@
                                Foreground="#333333"
                                HorizontalAlignment="Center"/>
 
-       
                     <TextBox Name="LoginTextBox"
                              FontSize="14"
                              Margin="0 0 0 20"
@@ -55,7 +54,6 @@
                         </TextBox.Effect>
                     </TextBox>
 
-     
                     <PasswordBox Name="PasswordBox"
                              FontSize="14"
                              Margin="0 0 0 20"
@@ -91,12 +89,12 @@
                                    Foreground="#555555"
                                    HorizontalAlignment="Center" 
                                    Margin="0 0 0 5"/>
+                        
                         <Button Content="Зареєструватися" 
                                 MinWidth="150"
                                 Height="40"
                                 Click="GoRegistration_Click" 
                                 Background="#6a8cbb" 
-                            Foreground="White"
                                 FontWeight="Bold"
                                 BorderBrush="#5a7cab"
                                 BorderThickness="1">
@@ -104,6 +102,15 @@
                                 <DropShadowEffect BlurRadius="5" Color="#a0c4ff" ShadowDepth="1" Opacity="0.6"/>
                             </Button.Effect>
                         </Button>
+
+                        <!-- Додано: Продовжити як гість -->
+                        <TextBlock Text="Продовжити як гість"
+                                   Foreground="#3366cc"
+                                   Margin="0 10 0 0"
+                                   Cursor="Hand"
+                                   HorizontalAlignment="Center"
+                                   TextDecorations="Underline"
+                                   MouseDown="ContinueAsGuest_Click"/>
                     </StackPanel>
                 </Grid>
             </Grid>

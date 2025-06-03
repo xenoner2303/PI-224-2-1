@@ -66,5 +66,14 @@ namespace UI
             var registrationWindow = new RegistrationWindow(serviceProvider.GetRequiredService<PreUserApiClient>());
             registrationWindow.Show();
         }
+
+        private void ContinueAsGuest_Click(object sender, RoutedEventArgs e)
+        {
+            var notRegisteredUserWindow = new UserManagerWindow(null, serviceProvider,
+                serviceProvider.GetRequiredService<UserApiClient>());
+
+            notRegisteredUserWindow.Show();
+            this.Close();
+        }
     }
 }
