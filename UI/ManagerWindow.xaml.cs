@@ -33,6 +33,7 @@ namespace UI
             _userDto = userDto;
             Loaded += ManagerWindow_Loaded;
             DataContext = this;
+            WinnerInfoPanel.Visibility = Visibility.Collapsed;
         }
 
         private async void ManagerWindow_Loaded(object sender, RoutedEventArgs e)
@@ -166,7 +167,7 @@ namespace UI
                     UpdateCategoryTreeView();
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -207,78 +208,140 @@ namespace UI
                 MessageBox.Show("Не вдалося створити категорію.");
             }
         }
-
-
-        private async void AcceptLot_Click(object sender, RoutedEventArgs e)
+        private async void AcceptButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is AuctionLotDto lot)
-            {
-                await _client.ApproveLotAsync(lot.Id);
-            }
+            await _client.ApproveLotAsync(_selectedLot.Id);
+            PendingDataGrid.SelectedItem = null;
+            _selectedLot = null;
+            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот      
+            GetNeededLots(EnumLotStatusesDto.Pending); // Оновити список лотів
+            AcceptButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
+            RejectButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
         }
-        private async void RejectLot_Click(object sender, RoutedEventArgs e)
+        private void RejectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is AuctionLotDto lot)
-            {
-                _selectedLot = lot; // щоб знати, який лот відхиляється
-                RejectionPanel.Visibility = Visibility.Visible;
-            }
+            DelitionReasonTextBox.Visibility = Visibility.Visible;
+            ConfirmButton.Visibility = Visibility.Visible;
         }
         private async void RejectionButton_Click(object sender, RoutedEventArgs e)
         {
-            var lotForDelition = _client.GetAuctionLotsAsync().Result
-                .FirstOrDefault(lot => lot.Id == _selectedLot.Id);
-            lotForDelition.RejectionReason = DelitionReasonTextBox.Text;
-            await _client.RejectLotAsync(_selectedLot.Id);
+            _selectedLot.RejectionReason = DelitionReasonTextBox.Text;
+            await _client.RejectLotAsync(_selectedLot);
+            PendingDataGrid.SelectedItem = null;
+            _selectedLot = null;
+            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот
+            GetNeededLots(EnumLotStatusesDto.Pending); // Оновити список лотів
+            AcceptButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
+            RejectButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
+            DelitionReasonTextBox.Visibility = Visibility.Collapsed; // Сховати поле для причини
+            ConfirmButton.Visibility = Visibility.Collapsed; // Сховати кнопку підтвердження
         }
-        private async void StopLot_Click(object sender, RoutedEventArgs e)
+        private void StopButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is AuctionLotDto lot)
-            {
-                await _client.StopLotAsync(lot.Id);
-            }
+            _client.StopLotAsync(_selectedLot.Id);
+            PendingDataGrid.SelectedItem = null;
+            _selectedLot = null;
+            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот
+            GetNeededLots(EnumLotStatusesDto.Active); // Оновити список лотів
+            StopButton.Visibility = Visibility.Collapsed; // Сховати кнопку після зупинки
         }
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            await Search();
+            var findedLots = await SearchLots(
+                SearchTextBox.Text,
+                MainTabControl.SelectedItem as TabItem,
+                CategoryTreeView.SelectedItem as CategoryDto
+            );
+            if (MainTabControl.SelectedItem is TabItem selectedTab)
+            {
+                string header = selectedTab.Header.ToString()!;
+
+                switch (header)
+                {
+                    case "Непідтверджені лоти":
+                        PendingDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Pending).ToList();
+                        break;
+                    case "Активні торги":
+                        ActiveLotsDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Active).ToList();
+                        break;
+                    case "Закінчені торги":
+                        FinishedLotsDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Completed).ToList();
+                        break;
+                    case "Відхилені лоти":
+                        RejectedLotsDataGrid.ItemsSource = findedLots.Where(lot => lot.Status == EnumLotStatusesDto.Rejected).ToList();
+                        break;
+                }
+            }
         }
         private void LotsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is DataGrid dataGrid && dataGrid.SelectedItem is AuctionLotDto selectedLot)
+            if (sender is DataGrid dg && dg.SelectedItem is AuctionLotDto lot)
             {
-                _selectedLot = selectedLot;
-                ShowLotInfo(_selectedLot);
+                _selectedLot = lot;
+                ShowLotInfo(lot);
+
+                e.Handled = true;   // ← зупиняємо бульбашіння
             }
         }
         private void ShowLotInfo(AuctionLotDto selectedLot)
         {
-            // Заповнення загальної інформації про лот
-            LotDescriptionTextBlock.Text = selectedLot.Description;
+            if (selectedLot == null)
+            {
+                AcceptButton.Visibility = Visibility.Collapsed;
+                RejectButton.Visibility = Visibility.Collapsed;
+                DelitionReasonTextBox.Visibility = Visibility.Collapsed;
+                ConfirmButton.Visibility = Visibility.Collapsed;
+                StopButton.Visibility = Visibility.Collapsed;
+                return;
+            }
 
-            // Інформація про користувача, який створив лот
+            LotDescriptionTextBlock.Text = selectedLot.Description;
             UserFirstNameTextBlock.Text = selectedLot.Owner.FirstName;
             UserLastNameTextBlock.Text = selectedLot.Owner.LastName;
             UserPhoneNumberTextBlock.Text = selectedLot.Owner.PhoneNumber;
 
             AuctionLotImage.Source = UILoadHelper.LoadImage(selectedLot);
 
-            if (selectedLot.Status == EnumLotStatusesDto.Completed && selectedLot.Bids.Count != 0)
+            if (selectedLot.Status == EnumLotStatusesDto.Completed && selectedLot.Bids.Count > 0)
             {
-                var winner = selectedLot.Bids[selectedLot.Bids.Count - 1].User;
-                // Показати блок переможця
+                var winner = selectedLot.Bids[^1].User;
                 WinnerInfoPanel.Visibility = Visibility.Visible;
-
-                // Заповнити інформацію про переможця
                 WinnerFirstNameTextBlock.Text = winner.FirstName;
                 WinnerLastNameTextBlock.Text = winner.LastName;
                 WinnerPhoneNumberTextBlock.Text = winner.PhoneNumber;
             }
             else
             {
-                // Сховати блок переможця
                 WinnerInfoPanel.Visibility = Visibility.Collapsed;
             }
+
+            // Встановити видимість кнопок відповідно до статусу
+            switch (selectedLot.Status)
+            {
+                case EnumLotStatusesDto.Pending:
+                    AcceptButton.Visibility = Visibility.Visible;
+                    RejectButton.Visibility = Visibility.Visible;
+                    StopButton.Visibility = Visibility.Collapsed;
+                    break;
+
+                case EnumLotStatusesDto.Active:
+                    AcceptButton.Visibility = Visibility.Collapsed;
+                    RejectButton.Visibility = Visibility.Collapsed;
+                    StopButton.Visibility = Visibility.Visible;
+                    break;
+
+                default:
+                    AcceptButton.Visibility = Visibility.Collapsed;
+                    RejectButton.Visibility = Visibility.Collapsed;
+                    StopButton.Visibility = Visibility.Collapsed;
+                    break;
+            }
+
+            // Завжди приховуємо поле для причини, поки не натиснуть "Відхилити"
+            DelitionReasonTextBox.Visibility = Visibility.Collapsed;
+            ConfirmButton.Visibility = Visibility.Collapsed;
         }
+
         private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (MainTabControl.SelectedItem is TabItem selectedTab)
@@ -293,15 +356,20 @@ namespace UI
                     case "Активні торги":
                         GetNeededLots(EnumLotStatusesDto.Active);
                         break;
-                    case "Завершені торги":
+                    case "Закінчені торги":
                         GetNeededLots(EnumLotStatusesDto.Completed);
                         break;
                     case "Відхилені лоти":
                         GetNeededLots(EnumLotStatusesDto.Rejected);
                         break;
                 }
+
+                // Скидаємо попередній вибір
+                _selectedLot = null;
+                ShowLotInfo(null); // Сховає всі кнопки
             }
         }
+
         private async Task GetNeededLots(EnumLotStatusesDto enumLotStatus)
         {
             List<AuctionLotDto>? allLots = await _client.GetAuctionLotsAsync();
@@ -372,72 +440,80 @@ namespace UI
                 }
             }
         }
+        // перейти до авторизації (вікно юзера блокується вікном авторизації)
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             AuthorizationWindow? authWindow = null;
 
             try
             {
-                var preUserApiClient = _serviceProvider.GetRequiredService<PreUserApiClient>();
+                var client = _serviceProvider.GetRequiredService<PreUserApiClient>();
 
-                authWindow = new AuthorizationWindow(
-                    _serviceProvider,
-                    preUserApiClient,
-                    user =>
-                    {
-                        if (user.InterfaceType == EnumInterfaceTypeDto.Manager)
-                        {
-                            this._userDto = user; // оновлюємо користувача
-                            authWindow!.DialogResult = true; // закриває ShowDialog()
-                        }
-                    }
-                );
-
-                authWindow.Owner = this; // ставимо власником це вікно + щоб блокувалося якщо використовується ShowDialog()
+                authWindow = new AuthorizationWindow(_serviceProvider, client);
+                this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при кроку авторизації: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            authWindow!.ShowDialog(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
+            authWindow!.Show(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
         }
-        private async Task Search()
-        {
-            string? keyword = SearchTextBox.Text.Trim().ToLower();
-
-            SearchLotsDto search = new SearchLotsDto
+        private async Task<List<AuctionLotDto>> SearchLots(string searchTitle, TabItem? searchStatus, CategoryDto searchCategory)
+        {            
+            var allLots = await _client.GetAuctionLotsAsync();
+            if (string.IsNullOrEmpty(searchTitle))
             {
-                Keyword = keyword,
-                CategoryId = selectedCategoryId
-            };
-
-            var receiveLots = await _client.SearchLotsAsync(search);
-
-            var status = receiveLots[0].Status;
-
-            switch (status)
-            {
-                case EnumLotStatusesDto.Pending:
-                    PendingDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 0;
-                    break;
-                case EnumLotStatusesDto.Active:
-                    ActiveLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 1;
-                    break;
-                case EnumLotStatusesDto.Completed:
-                    FinishedLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 2;
-                    break;
-                case EnumLotStatusesDto.Rejected:
-                    RejectedLotsDataGrid.ItemsSource = receiveLots;
-                    MainTabControl.SelectedIndex = 3;
-                    break;
-                default:
-                    MessageBox.Show("Невідомий статус лотів.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                return allLots;
             }
+            // Отримуємо назву статусу з TabItem
+            string? header = searchStatus?.Header?.ToString() ?? string.Empty;
+
+            // Перетворюємо назву статусу в EnumLotStatusesDto, якщо можливо
+            EnumLotStatusesDto? parsedStatus = null;
+            if (!string.IsNullOrEmpty(header))
+            {
+                if (Enum.TryParse<EnumLotStatusesDto>(header, ignoreCase: true, out var status))
+                {
+                    parsedStatus = status;
+                }
+            }
+
+            bool HasPartialMatch(string title, string search)
+            {
+                if (string.IsNullOrWhiteSpace(search) || string.IsNullOrWhiteSpace(title))
+                    return false;
+
+                title = title.ToLower();
+                search = search.ToLower();
+
+                if (search.Length < 3)
+                {
+                    // Якщо пошуковий рядок менший за 3 символи, шукаємо просто Contains
+                    return title.Contains(search);
+                }
+
+                // Перевіряємо всі підрядки пошуку довжиною 3 і більше
+                for (int length = 3; length <= search.Length; length++)
+                {
+                    for (int i = 0; i <= search.Length - length; i++)
+                    {
+                        var sub = search.Substring(i, length);
+                        if (title.Contains(sub))
+                            return true;
+                    }
+                }
+                return false;
+            }
+
+            var filtered = allLots.Where(lot =>
+                (string.IsNullOrEmpty(searchTitle) || HasPartialMatch(lot.Title, searchTitle))
+                && (parsedStatus == null || lot.Status == parsedStatus)
+                && (searchCategory == null || (lot.Category != null && lot.Category.Id == searchCategory.Id))
+            ).ToList();
+
+            return filtered;
         }
+
     }
 }

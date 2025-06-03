@@ -40,13 +40,20 @@ public class ManagerController : ControllerBase
     [HttpDelete("category/{categoryId}")]
     public IActionResult DeleteCategory(int categoryId)
     {
-        var result = _manager.DeleteCategory(categoryId);
-
-        if (result)
+        try
         {
-            return Ok("Category deleted successfully");
+            var result = _manager.DeleteCategory(categoryId);
+
+            if (result)
+            {
+                return Ok("Category deleted successfully");
+            }
+            return BadRequest("Failed to delete category");
         }
-        return BadRequest("Failed to delete category");
+        catch(Exception)
+        {
+           return BadRequest("You can`t delete category if any lot with this category has been created.");
+        }
     }
 
     [HttpGet("category/{categoryId}")]

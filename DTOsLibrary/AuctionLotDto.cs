@@ -14,7 +14,7 @@ public class AuctionLotDto
 
     public ImageDto? Image { get; set; }
 
-    public EnumLotStatusesDto Status { get; set; }
+    public EnumLotStatusesDto Status { get; set; } 
 
     public DateTime? StartTime { get; set; }
     public int DurationDays { get; set; }
@@ -24,4 +24,11 @@ public class AuctionLotDto
     public CategoryDto Category { get; set; }
 
     public List<BidDto> Bids { get; set; } = new List<BidDto>();
+
+    public decimal CurrentPrice => Bids.Count > 0 
+        ? Bids.OrderByDescending(b => b.Amount).FirstOrDefault()?.Amount ?? StartPrice 
+        : StartPrice;
+    public string WinnerLogin => Status == EnumLotStatusesDto.Completed
+        ? Bids.OrderByDescending(b => b.Amount).FirstOrDefault()?.User?.Login ?? "Немає"
+        : "Лот ще не завершено";
 }

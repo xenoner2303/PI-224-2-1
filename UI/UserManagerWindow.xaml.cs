@@ -21,16 +21,18 @@ namespace UI
         private readonly UserApiClient client;
         private List<CategoryDto> flatCategoryList;
         private LotDemonstrationControl? selectedLotControl; // для нормального опрацювання лотів
-
-        public UserManagerWindow(IServiceProvider serviceProvider, UserApiClient client)
+        
+        public UserManagerWindow(BaseUserDto user, IServiceProvider serviceProvider, UserApiClient client)
         {
             ArgumentNullException.ThrowIfNull(serviceProvider, nameof(serviceProvider));
             ArgumentNullException.ThrowIfNull(client, nameof(client));
 
             InitializeComponent();
 
+            this.currentUser = user;
             this.serviceProvider = serviceProvider;
             this.client = client;
+
             UpdateTabAccess();
             LoadUserManagerWindowEntities();
         }
@@ -212,7 +214,6 @@ namespace UI
 
             authWindow!.Show(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
         }
-
         // вийти з юзера
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
@@ -255,6 +256,7 @@ namespace UI
         }
 
         // допоміжний метод із завантаження базових сутностей вікна
+
         private async void LoadUserManagerWindowEntities()
         {
             var categories = await client.GetCategoriesAsync();

@@ -37,9 +37,8 @@ internal class CreateBidCommand : AbstrCommandWithDA<bool>
 
         newBid.User = existingUser;
         newBid.UserId = existingUser.Id;
-
-        existingLot.Bids.Add(newBid);
-        dAPoint.AuctionLotRepository.Update(existingLot);
+  
+        dAPoint.BidRepository.Add(newBid);        
         dAPoint.Save();
 
         LogAction($"{Name} на суму {bidModel.Amount} користувачаем {bidModel.User}");
@@ -71,9 +70,12 @@ internal class CreateBidCommand : AbstrCommandWithDA<bool>
             throw new ArgumentOutOfRangeException(nameof(bidModel.Amount), "Сума ставки не може бути меншою за мінімальну ціну");
         }
 
-        if (bidModel.Amount <= existingLot.Bids.Max(b => b.Amount))
+        if (existingLot.Bids.Count > 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(bidModel.Amount), "Сума ставки не може бути меншою за попередню ставку");
+            if (bidModel.Amount <= existingLot.Bids.Max(b => b.Amount))
+            {
+                throw new ArgumentOutOfRangeException(nameof(bidModel.Amount), "Сума ставки не може бути меншою за попередню ставку");
+            }
         }
     }
 }

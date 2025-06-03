@@ -27,7 +27,7 @@ internal class RejectLotCommand : AbstrCommandWithDA<bool>
             dAPoint.AuctionLotRepository.Update(auctionLot);
             dAPoint.Save();
 
-            LogAction($"{Name} користувача {auctionLot.Owner.FirstName} {auctionLot.Owner.LastName} o {DateTime.Now}");
+            LogAction($"{Name} o {DateTime.Now}");
             return true;
         }
         else

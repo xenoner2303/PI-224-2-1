@@ -43,7 +43,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
-                <RowDefinition Height="Auto" MinHeight="220.06"/>
+                <RowDefinition Height="Auto" MinHeight="251.12"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="78.8"/>
@@ -72,7 +72,6 @@
                     <TextBox Width="237" x:Name="SearchTextBox" Margin="0,0,10,0"/>
                     <Button Content="🔍" Click="SearchButton_Click" Cursor="Hand"/>
                 </StackPanel>
-
                 <!-- Права частина: ім'я користувача та кнопка Розлогінитись -->
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Height="30" Margin="76,1,4,1">
                     <!-- Ім'я користувача -->
@@ -97,18 +96,15 @@
             <!-- Категорії зліва -->
             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,10,10,10" Grid.ColumnSpan="2">
                 <TextBlock Text="Категорії" FontSize="16" Margin="0,0,0,10"/>
-
-                <!-- Дерево -->
                 <TreeView x:Name="CategoryTreeView"
-                          ItemsSource="{Binding RootCategories}"
                           PreviewMouseDown="CategoryTreeView_PreviewMouseDown"
                           SelectedItemChanged="CategoryTreeView_SelectedItemChanged"
-                          Height="400">
+                          Height="363">
 
                     <TreeView.Resources>
                         <!-- Стиль TreeViewItem з подією, що базується на системному стилі -->
-                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
-                            <EventSetter Event="PreviewMouseRightButtonDown"
+                        <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <EventSetter Event="UIElement.PreviewMouseRightButtonDown"
                          Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
                         </Style>
                     </TreeView.Resources>
@@ -119,6 +115,8 @@
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
+
+                <!-- Дерево -->
 
                 <!-- Панель додавання -->
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
@@ -137,38 +135,18 @@
                             <DataGridTextColumn Header="Назва" Binding="{Binding Title}"/>
                             <DataGridTextColumn Header="Категорія" Binding="{Binding Category.Name}"/>
                             <DataGridTextColumn Header="Статус" Binding="{Binding Status}"/>
-                            <!-- Колонка з кнопками "Підтвердити та зупинити торги" -->
-                            <DataGridTemplateColumn Header="Дії" Width="260">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button x:Name="ConfirmationButton" Content="Підтвердити" Margin="2" Click="AcceptLot_Click" Cursor="Hand"/>
-                                            <Button x:Name="RejectionButton" Content="Відхилити" Margin="2" Click="RejectLot_Click" Cursor="Hand"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
 
                 <TabItem Header="Активні торги">
-                    <DataGrid x:Name="ActiveLotsDataGrid" IsReadOnly = "False" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10" SelectionChanged="LotsDataGrid_SelectionChanged">
+                    <DataGrid x:Name="ActiveLotsDataGrid" IsReadOnly = "True" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10" SelectionChanged="LotsDataGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
                             <DataGridTextColumn Header="Назва" Binding="{Binding Title}" />
                             <DataGridTextColumn Header="Категорія" Binding="{Binding Category.Name}" />
                             <DataGridTextColumn Header="Ціна поточна" Binding="{Binding CurrentPrice}"/>
                             <DataGridTextColumn Header="Час завершення" Binding="{Binding EndTime}" />
-
-                            <!-- Колонка з кнопкою "Зупинити торги" -->
-                            <DataGridTemplateColumn Header="Дії">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Content="Зупинити" Margin="2" Click="StopLot_Click" Cursor="Hand"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
@@ -180,7 +158,7 @@
                             <DataGridTextColumn Header="Назва" Binding="{Binding Title}"/>
                             <DataGridTextColumn Header="Категорія" Binding="{Binding Category.Name}"/>
                             <DataGridTextColumn Header="Статус" Binding="{Binding Status}"/>
-                            <DataGridTextColumn Header="Переможець" Binding="{Binding WinnerName}"/>
+                            <DataGridTextColumn Header="Переможець" Binding="{Binding WinnerLogin}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
@@ -210,27 +188,58 @@
 
                         <!-- Заголовок -->
                         <TextBlock Grid.Column="0"
-                       Text="Деталі лота"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Margin="0 0 0 10"
-                       VerticalAlignment="Center"/>
+               Text="Деталі лота"
+               FontSize="18"
+               FontWeight="Bold"
+               Margin="0 0 0 10"
+               VerticalAlignment="Center"/>
 
                         <!-- Панель підтвердження -->
                         <StackPanel x:Name="RejectionPanel"
-                        Grid.Column="1"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Visibility="Collapsed"
-                        VerticalAlignment="Center">
-                            <TextBox x:Name="DelitionReasonTextBox"
-                         Width="200"
-                         Height="30"
-                         Margin="0,0,10,0"/>
-                            <Button x:Name="ConfirmButton"
-                        Content="Підтвердити"
-                        Width="100"
-                        Height="30" Click="RejectionButton_Click"/>
+                Grid.Column="1"
+                Orientation="Vertical"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                                    Visibility="Visible">
+
+                            <!-- Горизонтальний ряд з трьома кнопками -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5" Width="320" HorizontalAlignment="Right">
+                                <Button x:Name="AcceptButton"
+                    Content="Прийняти"
+                    Width="100"
+                    Height="30"
+                    Margin="0,0,10,0"
+                    Click="AcceptButton_Click"
+                                        Visibility="Hidden"/>
+                                <Button x:Name="RejectButton"
+                    Content="Відхилити"
+                    Width="100"
+                    Height="30"
+                    Margin="0,0,10,0"
+                    Click="RejectButton_Click"
+                                        Visibility="Hidden"/>
+                                <Button x:Name="StopButton"
+                    Content="Зупинити"
+                    Width="100"
+                    Height="30"
+                    Click="StopButton_Click"
+                    Visibility="Hidden"/>
+                            </StackPanel>
+
+                            <!-- TextBox і ConfirmButton в один ряд -->
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="DelitionReasonTextBox"
+                     Width="220"
+                     Height="30"
+                     Margin="0,0,10,0"
+                                         Visibility="Hidden"/>
+                                <Button x:Name="ConfirmButton"
+                    Content="Підтвердити"
+                    Width="120"
+                    Height="30"
+                    Click="RejectionButton_Click"
+                                        Visibility="Hidden"/>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
 

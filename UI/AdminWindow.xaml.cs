@@ -8,6 +8,7 @@ using LiveChartsCore;
 using Microsoft.Extensions.DependencyInjection;
 using UI.Subcontrols;
 using UI.ApiClients;
+using System;
 
 namespace UI
 {
@@ -18,15 +19,17 @@ namespace UI
         private List<SecretCodeRealizatorDto> _secretCodes = new List<SecretCodeRealizatorDto>();
         private List<ActionLogDto> _logs = new List<ActionLogDto>();
         private List<AuctionLotDto> _auctionLots = new List<AuctionLotDto>();
+        private IServiceProvider _serviceProvider;
 
         private enum AdminSection { Users, SecretCodes, Logs, Report }
         private AdminSection _currentSection = AdminSection.Users;
 
-        public AdminWindow(AdministratorApiClient adminApiClient)
+        public AdminWindow(AdministratorApiClient adminApiClient, IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _adminApiClient = adminApiClient;
             Loaded += AdminWindow_Loaded;
+            _serviceProvider = serviceProvider;
         }
 
         private async void AdminWindow_Loaded(object sender, RoutedEventArgs e)
@@ -426,34 +429,21 @@ namespace UI
 
         private void btnLogout_Click(object sender, RoutedEventArgs e)
         {
-            var serviceProvider = App.ServiceProvider;
             AuthorizationWindow? authWindow = null;
 
             try
             {
-                var preUserApiClient = serviceProvider.GetRequiredService<PreUserApiClient>();
+                var client = _serviceProvider.GetRequiredService<PreUserApiClient>();
 
-                authWindow = new AuthorizationWindow(
-                    serviceProvider,
-                    preUserApiClient,
-                    user =>
-                    {
-                        if (user.InterfaceType == EnumInterfaceTypeDto.Manager)
-                        {
-                            authWindow!.DialogResult = true; // закриває ShowDialog()
-                        }
-                    }
-                );
-
-                authWindow.Owner = this; // ставимо власником це вікно + щоб блокувалося якщо використовується ShowDialog()
-                authWindow.ShowDialog();
+                authWindow = new AuthorizationWindow(_serviceProvider, client);
+                this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Помилка при кроку авторизації: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            authWindow!.ShowDialog(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
+            authWindow!.Show(); // визиваємо окремо, щоб не було зайвого обгортання та навантаження на програму
         }
 
         private void dgMainData_SelectionChanged(object sender, SelectionChangedEventArgs e)
