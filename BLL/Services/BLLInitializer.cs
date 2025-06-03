@@ -25,7 +25,7 @@ public static class BLLInitializer
         DALInitializer.AddDataAccessServices(services);
         
         services.AddScoped<PreUserCommandsManager>();
-        services.AddScoped<ManagerCommandsManager>();
+        services.AddScoped<ManagerCommandManager>();
         services.AddScoped<AdministratorCommandsManager>();
         services.AddScoped<UserCommandManager>();
     }

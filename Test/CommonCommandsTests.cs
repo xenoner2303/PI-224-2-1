@@ -7,13 +7,13 @@ using NSubstitute;
 
 namespace Test;
 
-public class BaseCommandsTests : CommandTestBase
+public class CommonCommandsTests : CommandTestBase
 {
     private readonly IGenericRepository<AuctionLot> lotRepositoryMock;
     private readonly IGenericRepository<Category> categoryRepositoryMock;
     private readonly UserCommandManager manager;
 
-    public BaseCommandsTests()
+    public CommonCommandsTests()
     {
         // заморожуємо репозиторії
         this.lotRepositoryMock = fixture.Freeze<IGenericRepository<AuctionLot>>();

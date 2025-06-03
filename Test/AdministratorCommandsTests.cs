@@ -163,4 +163,6 @@ public class AdministratorCommandsTests : CommandTestBase
         // Assert
         Assert.Empty(result);
     }
+
+        // ====== Тести для RemoveSecretCodeRealizatorByIdCommand ======
 }
