@@ -167,7 +167,7 @@ namespace UI
                     UpdateCategoryTreeView();
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
