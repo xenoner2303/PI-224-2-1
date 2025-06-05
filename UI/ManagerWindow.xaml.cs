@@ -66,7 +66,7 @@ namespace UI
             }
         }
 
-        //методи для того, щоб знмати видылення з елемента дерева
+        //методи для того, щоб знімати виділення з елемента дерева
         private void CategoryTreeView_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             DependencyObject clickedElement = e.OriginalSource as DependencyObject;
@@ -213,10 +213,10 @@ namespace UI
             await _client.ApproveLotAsync(_selectedLot.Id);
             PendingDataGrid.SelectedItem = null;
             _selectedLot = null;
-            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот      
-            GetNeededLots(EnumLotStatusesDto.Pending); // Оновити список лотів
-            AcceptButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
-            RejectButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
+            ShowLotInfo(null);    
+            GetNeededLots(EnumLotStatusesDto.Pending);
+            AcceptButton.Visibility = Visibility.Collapsed;
+            RejectButton.Visibility = Visibility.Collapsed;
         }
         private void RejectButton_Click(object sender, RoutedEventArgs e)
         {
@@ -229,21 +229,21 @@ namespace UI
             await _client.RejectLotAsync(_selectedLot);
             PendingDataGrid.SelectedItem = null;
             _selectedLot = null;
-            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот
-            GetNeededLots(EnumLotStatusesDto.Pending); // Оновити список лотів
-            AcceptButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
-            RejectButton.Visibility = Visibility.Collapsed; // Сховати кнопку після підтвердження
-            DelitionReasonTextBox.Visibility = Visibility.Collapsed; // Сховати поле для причини
-            ConfirmButton.Visibility = Visibility.Collapsed; // Сховати кнопку підтвердження
+            ShowLotInfo(null);
+            GetNeededLots(EnumLotStatusesDto.Pending);
+            AcceptButton.Visibility = Visibility.Collapsed;
+            RejectButton.Visibility = Visibility.Collapsed;
+            DelitionReasonTextBox.Visibility = Visibility.Collapsed;
+            ConfirmButton.Visibility = Visibility.Collapsed;
         }
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
             _client.StopLotAsync(_selectedLot.Id);
             PendingDataGrid.SelectedItem = null;
             _selectedLot = null;
-            ShowLotInfo(null); // Сховає всі кнопки та інформацію про лот
-            GetNeededLots(EnumLotStatusesDto.Active); // Оновити список лотів
-            StopButton.Visibility = Visibility.Collapsed; // Сховати кнопку після зупинки
+            ShowLotInfo(null);
+            GetNeededLots(EnumLotStatusesDto.Active);
+            StopButton.Visibility = Visibility.Collapsed; 
         }
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {

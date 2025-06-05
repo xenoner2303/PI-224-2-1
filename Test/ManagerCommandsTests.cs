@@ -38,8 +38,6 @@ namespace Test
                 .Without(c => c.ParentId)
                 .Create();
 
-            _categoryRepositoryMock.When(x => x.Add(Arg.Any<Category>()));
-
             // Act
             var result = _manager.CreateCategory(categoryModel);
 
